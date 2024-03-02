@@ -1,0 +1,211 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{1em}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{bbm}
+\usepackage{hyperref}
+\usepackage{qtree}
+
+\newcommand{\sforall}{\;\forall\;}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\argmin}[1]{\underset{#1}{\text{arg min}}}
+\newcommand{\argmax}[1]{\underset{#1}{\text{arg max}}}
+
+\begin{document}
+
+\section{Model}
+
+Suppose now that instead of changing independently, we require the scale and location changes in $\mathbf{y}$ occur simultaneously. In this setting, the updated model is given by
+\begin{align*}
+    \mathbf{y} &= \sum_{\ell=1}^L \mathbf{X} \beta_\ell + \Lambda^{-\frac{1}{2}} \epsilon \\
+    \epsilon &\sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I}_T) \\
+    \beta_\ell &= \gamma_\ell b_\ell \\
+    \Lambda &= \prod_{\ell=1}^L \Lambda_\ell \\
+    \Lambda_{\ell} &= \text{diag}(\{\lambda^2_{\ell,t}\}_{t=1}^T) \\
+    \lambda_{\ell,t} \;|\; t_\ell, s_\ell &= 
+    \begin{cases}
+        1, & \text{if } 1 \leq t < t_\ell, \\
+        s_\ell,  & \text{if } t_\ell \leq t \leq T. \\
+    \end{cases} \\
+    t_\ell &= \argmax{t} \;\gamma_{\ell,t} \\
+    \gamma_\ell &\overset{\text{ind.}}{\sim} \text{Categorical}(\pi) \\
+    b_\ell \;|\; s_\ell^2 &\overset{\text{ind.}}{\sim} \mathcal{N}\left(0,\frac{\sigma_0^{2}}{s_\ell^2}\right)  \\
+    s_\ell^2 &\overset{\text{ind.}}{\sim} \text{Gamma}(u_0, v_0).
+\end{align*}
+
+\section{VB Solution}
+
+Let $\theta_\ell = \{b_\ell,s_\ell^2,\gamma_\ell\}$, then we make the following mean-field assumption,
+\begin{equation}\label{eq:mean-field}
+    q\left(\{\theta_\ell\}_{\ell=1}^L\right) = \prod_{\ell=1}^Lq(\theta_\ell).
+\end{equation}
+For fixed $i \in \{1, \ldots, L\}$, take the distributions $\left\{q\left(\theta_\ell\right)\right\}_{\ell\neq i}$ as known and let $\E_{-i}[\:\cdot\:]$ denote the expectation taken with respect to these known distributions. We have
+\begin{align*}
+    \E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] &\underset{\theta_i}{\propto} \E_{-i}\left[\log p\left(\mathbf{y}\;|\; \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] + \log p(\{\theta_\ell\}_{\ell=1}^L) \\
+    &= \E_{-i}\left[\log p\left(\mathbf{y}\;|\; \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] + \sum_{\ell=1}^L \log p(\theta_\ell) \tag{by \ref{eq:mean-field}} \\
+    &\underset{\theta_i}{\propto} \E_{-i}\left[\log p\left(\mathbf{y}\;|\; \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] + \log p(\theta_i) 
+\end{align*}
+Fix $\gamma_i = \mathbf{e}_j$, then substituting in the specific functional forms from the model we get
+\begin{align*}
+   \E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] &\underset{\theta_i}{\propto}  \E_{-i}\left[\frac{1}{2}\sum_{t=1}^T\sum_{\ell=1}^L\log\lambda_{\ell,t}^2 - \frac{1}{2\sigma^2}\sum_{t=1}^T \prod_{\ell=1}^L\lambda_{\ell,t}^2\left(y_t - \sum_{k=1}^L \mathbf{x}'_t\beta_{k}\right)^2\right] + \log p(\theta_i) \\
+    &\underset{\theta_i}{\propto} \frac{1}{2} \sum_{t=1}^T \log \lambda^2_{i,t} - \frac{1}{2\sigma^2} \sum_{t=1}^T \E_{-i}\left[\prod_{\ell = 1}^L \lambda_{\ell,t}^2\left(y_t - \mathbbm{1}(t \geq j) b_i - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right] \\
+    &\quad + \log p(\theta_i) \tag{$\gamma_i = \mathbf{e}_j \implies \mathbf{x}'_t\beta_i = b_i \mathbf{x}'_t\mathbf{e}_j = b_i \mathbbm{1}(t \geq j)$} \\
+    &= \frac{T - j + 1}{2} \log s_i^2 - \frac{1}{2\sigma^2} \sum_{t=1}^{j-1} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right] \\
+    &\quad - \frac{s_i^2}{2\sigma^2} \sum_{t=j}^{T} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - b_i - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right] \\
+    &\quad + \log p(\theta_i) 
+\end{align*}
+where in the last equality, we split the sum across $t$ into the first $j-1$ and last $T - j + 1$ terms, and  used the fact that $\gamma_i = \mathbf{e}_j$ implies $\lambda_{i,t}^2 = s_j^2$ for $t \geq j$ and $\lambda_{i,t}^2 = 1$ for $t < j$. Expanding the squared terms in the last line, we have
+\small
+\begin{align*}
+    \E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] &\underset{\theta_i}{\propto}   
+    \frac{T - j + 1}{2} \log s_i^2 - \frac{1}{2\sigma^2} \sum_{t=1}^{j-1} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right] \\
+    &\quad - \frac{s_i^2}{2\sigma^2} \sum_{t=j}^{T} \E_{-i}\left\{\prod_{\ell \neq i} \lambda_{\ell,t}^2\left[y_t^2 + b_i^2 + \left(\sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2 -2 y_t b_i + 2 b_i \sum_{k\neq i} \mathbf{x}'_t\beta_k - 2 y_t \sum_{k\neq i} \mathbf{x}'_t\beta_k\right]\right\}\\
+    &\quad + \frac{1}{2} \log s_i^2 - \frac{s_i^2 b_i^2}{2\sigma_0^2} + (u_0 - 1) \log s_i^2 - v_0 s_i^2 + \log \pi_j.
+\end{align*}
+\normalsize
+Collecting the $b_i$ terms and moving the terms that do not depend on either $bi$ or $s_i^2$ to the first line, we get
+\small
+\begin{align*}
+    \E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] &\underset{\theta_i}{\propto}  - \frac{1}{2\sigma^2} \sum_{t=1}^{j-1} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right] + \log \pi_j \\
+    &\quad - \frac{s_i^2}{2} \left[\left(\frac{1}{\sigma^2} \sum_{t=j}^T \prod_{\ell\neq i}\E_{-i}\left[\lambda_{\ell,t}^2\right] + \frac{1}{\sigma_0^2}\right) b_i^2 - 2b_i \frac{1}{\sigma^2} \sum_{t=j}^T\E_{-i}\left[\prod_{\ell\neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)\right]\right] \\
+    &\quad - s_i^2\left(v_0 + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \E_{-i}\left\{\prod_{\ell \neq i} \lambda_{\ell,t}^2\left[y_t^2 + \left(\sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2 - 2 y_t \sum_{k\neq i} \mathbf{x}'_t\beta_k\right]\right\}\right)\\
+    &\quad + \left(\frac{T - j + 1}{2} + u_0 - 1\right) \log s_i^2 + \frac{1}{2} \log s_i^2.
+\end{align*}
+\normalsize
+Define 
+\begin{align*}
+    \overline{\sigma}^2_{ij} &= \left(\frac{1}{\sigma^2} \sum_{t=j}^T \prod_{\ell\neq i}\E_{-i}\left[\lambda_{\ell,t}^2\right] + \frac{1}{\sigma_0^2}\right)^{-1} \\
+    \overline{\mu}_{ij} &=  \frac{\overline{\sigma}_{ij}^2}{\sigma^2}\sum_{t=j}^T\E_{-i}\left[\prod_{\ell\neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)\right]
+\end{align*}
+then we can completing the square with respect to $b_i$ yields
+\begin{align*}
+    \E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] &\underset{\theta_i}{\propto}  
+    - \frac{1}{2\sigma^2} \sum_{t=1}^{j-1} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right] + \log \pi_j \\
+    &\quad - \frac{s_i^2}{2\overline{\sigma}^2_{ij}} \left(b_i - \overline{\mu}_{ij}\right)^2 + \frac{s_i^2 \overline{\mu}_{ij}^2}{2\overline{\sigma}_{ij}^2} + \frac{1}{2} \log s_i^2 \\
+    &\quad - s_i^2\left(v_0 + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t \beta_k\right)^2\right]\right)\\
+    &\quad + \left(\frac{T - j + 1}{2} + u_0 - 1\right) \log s_i^2. 
+\end{align*}
+Adding and subtracting $\frac{1}{2}\log \overline{\sigma}^2_{ij}$ as well as realizing that $$\frac{1}{2}\log \frac{s_i^2}{2\pi\overline{\sigma}^2_{ij}}  - \frac{s_i^2}{2\overline{\sigma}^2_{ij}} \left(b_i - \overline{\mu}_{ij}\right)^2$$ is the log density of a normal random variable with mean $\overline{\mu}_{ij}$ and variance $\frac{\overline{\sigma}^2_{ij}}{s_i^2}$, we get
+\begin{align*}
+    \E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] &\underset{\theta_i}{\propto}
+    - \frac{1}{2\sigma^2} \sum_{t=1}^{j-1} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right] + \log \pi_j + \frac{1}{2} \log \overline{\sigma}_{ij}^2 \\
+    &\quad +  \log \phi\left( \frac{s_i(b_i - \overline{\mu}_{ij})}{\overline{\sigma}_{ij}}\right) \\
+    &\quad - s_i^2\left(v_0 - \frac{\overline{\mu}_{ij}^2}{2\overline{\sigma}_{ij}^2} + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t \beta_k\right)^2\right]\right)\\
+    &\quad + \left(\frac{T - j + 1}{2} + u_0 - 1\right) \log s_i^2  
+\end{align*}
+where $\phi$ is the density of a standard normal distribution. If we now define 
+\begin{align*}
+    \overline{u}_{ij} &= \frac{T - j + 1}{2} + u_0 \\
+    \overline{v}_{ij} &= v_0 - \frac{\overline{\mu}_{ij}^2}{2\overline{\sigma}_{ij}^2} + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t \beta_k\right)^2\right]
+\end{align*}
+and let $f(x;a,b)$ be the density of a gamma distribution with shape $a$ and rate $b$, then we have 
+\small
+\begin{align*}
+    \E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right] &\underset{\theta_i}{\propto}
+    - \frac{1}{2\sigma^2} \sum_{t=1}^{j-1} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right] + \log \pi_j + \log \overline{\sigma}_{ij} +\log \Gamma(\overline{u}_{ij}) - \overline{u}_{ij} \log \overline{v}_{ij} \\
+    &\quad +  \log \phi\left( \frac{s_i(b_i - \overline{\mu}_{ij})}{\overline{\sigma}_{ij}}\right) + \log f(s_i^2 \;;\; \overline{u}_{ij}, \overline{v}_{ij}).
+\end{align*}
+\normalsize 
+
+\subsection{Approximate Posterior Distributions}
+
+We can now readily determine functional forms for the approximate posterior distributions. First, define 
+\begin{align*}
+    C_{ij} &= \frac{\pi_j \overline{\sigma}_{ij} \Gamma(\overline{u}_{ij})}{\overline{v}_{ij}^{\overline{u}_{ij}}} \exp\left\{ - \frac{1}{2\sigma^2} \sum_{t=1}^{j-1} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)^2\right]\right\}
+\end{align*}
+then we have
+\begin{align*}
+    q(\gamma_i = \mathbf{e}_j) &= \int_0^\infty \int_{-\infty}^\infty q(b_i, s_i^2, \gamma_i = \mathbf{e}_j) \;d b_i\;ds_i^2 \\
+    &\underset{\theta_i}{\propto} \int_0^\infty \int_{-\infty}^\infty \exp\left(\E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right]\right)\;d b_i\;ds_i^2 \\
+    &\underset{\theta_i}{\propto} C_{ij}\int_0^\infty f(s_i^2 \;;\; \overline{u}_{ij}, \overline{v}_{ij})\int_{-\infty}^\infty 
+    \phi\left( \frac{s_i(b_i - \overline{\mu}_{ij})}{\overline{\sigma}_{ij}}\right) \; db_i\;d s_i^2 \\
+    &= C_{ij}
+\end{align*}
+and since $\sum_{j=1}^T q(\gamma_i = \mathbf{e}_j) = 1$, we have
+\begin{align*}
+    q(\gamma_i = \mathbf{e}_j) &= \frac{C_{ij}}{\sum_{t=1}^T C_{it}} \\
+    &:= \overline{\pi}_{ij}
+\end{align*}
+Next up, we have
+\begin{align*}
+    q(s_i^2 \;|\; \gamma_i = \mathbf{e}_j) &\underset{s^2_i}{\propto} q(s_i^2, \gamma_i = \mathbf{e}_j) \\
+    &= \int_{-\infty}^\infty q(b_i, s_i^2, \gamma_i = \mathbf{e}_j) \;d b_i \\
+    &\underset{\theta_i}{\propto} \int_{-\infty}^\infty \exp\left(\E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right]\right)\;d b_i \\
+    &\underset{s_i^2}{\propto}  f(s_i^2 \;;\; \overline{u}_{ij}, \overline{v}_{ij}) \int_{-\infty}^\infty  \phi\left( \frac{s_i(b_i - \overline{\mu}_{ij})}{\overline{\sigma}_{ij}}\right) \; db_i \\
+    &= f(s_i^2 \;;\; \overline{u}_{ij}, \overline{v}_{ij})
+\end{align*}
+so $q(s_i^2 \;|\; \gamma_i = \mathbf{e}_j)$ is a gamma distribution with shape $\overline{u}_{ij}$ and rate  $\overline{v}_{ij}$. Lastly we have 
+\begin{align*}
+    q(b_i \;|\; s_i^2, \gamma_i = \mathbf{e}_j) &\underset{b_i}{\propto} q(b_i, s_i^2, \gamma_i = \mathbf{e}_j) \\
+    &\underset{\theta_i}{\propto} \exp\left(\E_{-i}\left[\log p\left(\mathbf{y}, \mathbf{X}, \{\theta_\ell\}_{\ell=1}^L\right)\right]\right) \\
+    &\underset{b_i}{\propto}  \phi\left( \frac{s_i(b_i - \overline{\mu}_{ij})}{\overline{\sigma}_{ij}}\right). 
+\end{align*}
+so $ q(b_i \;|\; s_i^2, \gamma_i = \mathbf{e}_j)$ is a Gaussian distribution with mean $\overline{\mu}_{ij}$ and variance $\frac{\overline{\sigma}^2_{ij}}{s_i^2}$.
+
+\subsection{Posterior Parameters}
+
+We have closed form solutions for each of the posterior parameters. For $\overline{\mu}_{ij}$ we have
+\begin{align*}
+    \overline{\mu}_{ij} &=  \frac{\overline{\sigma}_{ij}^2}{\sigma^2}\sum_{t=j}^T\E_{-i}\left[\prod_{\ell\neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t\beta_k\right)\right] \\
+    &= \frac{\overline{\sigma}_{ij}^2}{\sigma^2}\left(\sum_{t=j}^T y_t \prod_{\ell\neq i} \E_{-i}\left[\lambda_{\ell,t}^2\right] - \sum_{t=j}^T\sum_{k\neq i} \mathbf{x}'_t\E_{-i}\left[\beta_k\lambda^2_{k,t}\right] \prod_{\ell\neq k,i}\E\left[\lambda_{\ell,t}^2\right]\right)  \tag{by (\ref{eq:mean-field})} \\
+    \E_{-i}\left[\beta_\ell\lambda^2_{\ell,t}\right] &= \E_{-i}\left\{\E_{-i}\left[\E_{-i}\left[\beta_\ell\;|\; s_\ell^2, \gamma_\ell\right]\lambda^2_{\ell,t}\;|\; \gamma_\ell\right]\right\} \\
+    &= \sum_{j=1}^T  \E_{-i}\left[\E_{-i}\left[\beta_\ell\;|\; s_\ell^2, \gamma_\ell = \mathbf{e}_j\right]\lambda^2_{\ell,t}\;|\; \gamma_\ell= \mathbf{e}_j\right] \overline{\pi}_{\ell j} \\
+    &=  \sum_{j=1}^T  \mathbf{e}_j \overline{\mu}_{\ell j}\E_{-i}\left[\lambda^2_{\ell,t}\;|\; \gamma_\ell= \mathbf{e}_j\right] \overline{\pi}_{\ell j} \tag{$\E_{-i}\left[\beta_\ell\;|\; s_\ell^2, \gamma_\ell = \mathbf{e}_j\right] = \overline{\mu}_{\ell j}$} \\
+    &=  \sum_{j=1}^{t}  \mathbf{e}_j \overline{\mu}_{\ell j}\E_{-i}\left[s_\ell^2\;|\; \gamma_\ell= \mathbf{e}_j\right] \overline{\pi}_{\ell j} + \sum_{j=t+1}^{T}  \mathbf{e}_j \overline{\mu}_{\ell j}\overline{\pi}_{\ell j} \\
+    &= \sum_{j=1}^{t}  \mathbf{e}_j \overline{\mu}_{\ell j}\frac{\overline{u}_{\ell j}}{\overline{v}_{\ell j}} \overline{\pi}_{\ell j} + \sum_{j=t+1}^{T}  \mathbf{e}_j \overline{\mu}_{\ell j}\overline{\pi}_{\ell j}
+\end{align*}
+where the second to last equality follows from the fact that $\lambda_{\ell,t}^2 = s_\ell^2$ when $j \leq t$ and $\lambda_{\ell,t}^2 = 1$ when $j > t$. Note that $\mathbf{x}'_t\mathbf{e}_j  = \mathbbm{1}(t \geq j)$, so the second term in the last line vanishes and we are left with
+\begin{align*}
+    \overline{\mu}_{ij} &= \frac{\overline{\sigma}_{ij}^2}{\sigma^2}\left(\sum_{t=j}^T y_t \prod_{\ell\neq i} \E_{-i}\left[\lambda_{\ell,t}^2\right] - \sum_{k\neq i}\sum_{t=j}^T\sum_{t'=1}^t\overline{\mu}_{k t'}\frac{\overline{u}_{kt'}}{\overline{v}_{kt'}} \overline{\pi}_{kt'} \prod_{\ell\neq k,i}\E\left[\lambda_{\ell,t}^2\right]\right). 
+\end{align*}
+For $\overline{v}_{ij}$, we have 
+\small
+\begin{align*}
+    \overline{v}_{ij} &= v_0 - \frac{\overline{\mu}_{ij}^2}{2\overline{\sigma}_{ij}^2} + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y_t - \sum_{k\neq i} \mathbf{x}'_t \beta_k\right)^2\right] \\
+    &= v_0 - \frac{\overline{\mu}_{ij}^2}{2\overline{\sigma}_{ij}^2} + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \E_{-i}\left[\prod_{\ell \neq i} \lambda_{\ell,t}^2\left(y^2_t + \sum_{k' \neq i}\sum_{k\neq i} \beta'_{k'}\mathbf{x}_t\mathbf{x}'_t \beta_k - 2 y_t \sum_{k\neq i} \mathbf{x}'_t \beta_k\right)\right] \\
+    &= v_0 - \frac{\overline{\mu}_{ij}^2}{2\overline{\sigma}_{ij}^2} + \frac{1}{2\sigma^2} \sum_{t=j}^{T} y^2_t\prod_{\ell \neq i} \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \sum_{\substack{1 \leq k',k \leq L \\ k \neq k' \neq i}} \E_{-i}\left[\lambda_{k',t}^2\beta'_{k'}\right]\mathbf{x}_t\mathbf{x}'_t \E_{-i}\left[\lambda_{k,t}^2\beta_k\right] \prod_{\ell \neq k,k',i} \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \sum_{k\neq i} \E_{-i}\left[\lambda_{k,t}^2\beta'_{k}\mathbf{x}_t\mathbf{x}'_t \beta_k\right] \prod_{\ell \neq k,i}  \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad - \frac{1}{2\sigma^2} \sum_{t=j}^{T} \sum_{k\neq i} 2 y_t \mathbf{x}'_t \E_{-i}\left[\lambda_{k,t}^2\beta_k\right] \prod_{\ell \neq k,i}  \E_{-i}\left[\lambda_{\ell,t}^2\right].
+\end{align*}
+\normalsize
+Substituting in the form for $\mathbf{x}'_t\E_{-i}\left[\lambda_{\ell,t}^2\beta_\ell\right]$ that we found above we have.
+\small
+\begin{align*}
+    \overline{v}_{ij} &= v_0 - \frac{\overline{\mu}_{ij}^2}{2\overline{\sigma}_{ij}^2} + \frac{1}{2\sigma^2} \sum_{t=j}^{T} y^2_t\prod_{\ell \neq i} \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \sum_{\substack{1 \leq k',k \leq L \\ k \neq k' \neq i}} \left(\sum_{t'=1}^t\overline{\mu}_{k t'}\frac{\overline{u}_{kt'}}{\overline{v}_{kt'}} \overline{\pi}_{kt'} \right)\left(\sum_{t'=1}^t\overline{\mu}_{k' t'}\frac{\overline{u}_{k't'}}{\overline{v}_{k't'}} \overline{\pi}_{k't'} \right)  \prod_{\ell \neq k,k',i} \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \sum_{k\neq i} \E_{-i}\left[\lambda_{k,t}^2\beta'_{k}\mathbf{x}_t\mathbf{x}'_t \beta_k\right] \prod_{\ell \neq k,i}  \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad - \frac{1}{2\sigma^2} \sum_{t=j}^{T}\sum_{k\neq i}\sum_{t'=1}^t  2 y_t \overline{\mu}_{k t'}\frac{\overline{u}_{kt'}}{\overline{v}_{kt'}} \overline{\pi}_{kt'} \prod_{\ell \neq k,i}  \E_{-i}\left[\lambda_{\ell,t}^2\right] 
+\end{align*}
+\normalsize
+Finally we have
+\small
+\begin{align*}
+    \E_{-i}\left[\lambda_{\ell,t}^2\beta'_{\ell}\mathbf{x}_t\mathbf{x}'_t \beta_\ell\right] &= \E_{-i}\left\{\E_{-i}\left[\E_{-i}\left(\beta'_{\ell}\mathbf{x}_t\mathbf{x}'_t \beta_\ell\;|\; s_\ell^2, \gamma_\ell\right)\lambda_{\ell,t}^2\;|\;\gamma_\ell\right]\right\} \\
+    &= \sum_{j=1}^T \E_{-i}\left[\E_{-i}\left(\beta'_{\ell}\mathbf{x}_t\mathbf{x}'_t \beta_\ell\;|\; s_\ell^2, \gamma_\ell= \mathbf{e}_j\right)\lambda_{\ell,t}^2\;|\;\gamma_\ell = \mathbf{e}_j\right]\overline{\pi}_{\ell j} \\
+    &= \sum_{j=1}^T \E_{-i}\left[\E_{-i}\left(b_\ell^2 \mathbf{e}'_j\mathbf{x}_t\mathbf{x}'_t \mathbf{e}_j\;|\; s_\ell^2, \gamma_\ell= \mathbf{e}_j\right)\lambda_{\ell,t}^2\;|\;\gamma_\ell = \mathbf{e}_j\right]\overline{\pi}_{\ell j} \\
+    &= \sum_{j=1}^t \E_{-i}\left[\E_{-i}\left(b_\ell^2\;|\; s_\ell^2, \gamma_\ell= \mathbf{e}_j\right)\lambda_{\ell,t}^2\;|\;\gamma_\ell = \mathbf{e}_j\right]\overline{\pi}_{\ell j} \tag{$\mathbf{e}'_j\mathbf{x}_t\mathbf{x}'_t \mathbf{e}_j = \mathbbm{1}(t \geq j)$} \\
+    &= \sum_{j=1}^t \E_{-i}\left[\left(\overline{\mu}_{\ell j}^2 + \frac{\overline{\sigma}^2_{\ell j}}{s^2_\ell}\right)\lambda_{\ell,t}^2\;\bigg|\;\gamma_\ell = \mathbf{e}_j\right]\overline{\pi}_{\ell j}  \tag{$\E_{-i}\left[b_\ell^2\;|\; s_\ell^2, \gamma_\ell= \mathbf{e}_j\right] = \overline{\mu}_{\ell j}^2 + \overline{\sigma}^2_{\ell j} / s^2_\ell$} \\
+    &= \sum_{j=1}^t \E_{-i}\left[\overline{\mu}_{\ell j}^2 s^2_\ell + \overline{\sigma}^2_{\ell j}\;|\;\gamma_\ell = \mathbf{e}_j\right]\overline{\pi}_{\ell j}  \tag{$\gamma_\ell = \mathbf{e}_j$ and $j \leq t \implies \lambda_{\ell,t}^2 = s_\ell^2$} \\
+    &= \sum_{j=1}^t \left(\overline{\mu}_{\ell j}^2 \frac{\overline{u}_{\ell j}}{\overline{v}_{\ell j}} + \overline{\sigma}^2_{\ell j}\right)\overline{\pi}_{\ell j}.
+\end{align*}
+\normalsize
+and thus 
+\small
+\begin{align*}
+    \overline{v}_{ij} &= v_0 - \frac{\overline{\mu}_{ij}^2}{2\overline{\sigma}_{ij}^2} + \frac{1}{2\sigma^2} \sum_{t=j}^{T} y^2_t\prod_{\ell \neq i} \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \sum_{\substack{1 \leq k',k \leq L \\ k \neq k' \neq i}} \left(\sum_{t'=1}^t\overline{\mu}_{k t'}\frac{\overline{u}_{kt'}}{\overline{v}_{kt'}} \overline{\pi}_{kt'} \right)\left(\sum_{t'=1}^t\overline{\mu}_{k' t'}\frac{\overline{u}_{k't'}}{\overline{v}_{k't'}} \overline{\pi}_{k't'} \right)  \prod_{\ell \neq k,k',i} \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad + \frac{1}{2\sigma^2} \sum_{t=j}^{T} \sum_{k\neq i} \sum_{j=1}^t \left(\overline{\mu}_{k j}^2 \frac{\overline{u}_{k j}}{\overline{v}_{k j}} + \overline{\sigma}^2_{k j}\right)\overline{\pi}_{kj} \prod_{\ell \neq k,i}  \E_{-i}\left[\lambda_{\ell,t}^2\right] \\
+    &\quad - \frac{1}{2\sigma^2} \sum_{t=j}^{T}\sum_{k\neq i}\sum_{t'=1}^t  2 y_t \overline{\mu}_{k t'}\frac{\overline{u}_{kt'}}{\overline{v}_{kt'}} \overline{\pi}_{kt'} \prod_{\ell \neq k,i}  \E_{-i}\left[\lambda_{\ell,t}^2\right].
+\end{align*}
+\normalsize
+
+
+\end{document}

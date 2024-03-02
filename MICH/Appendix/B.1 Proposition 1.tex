@@ -1,0 +1,338 @@
+\subsection{Proof of Proposition \ref{prop:1}}
+\label{app:prop1-proof}
+
+\begin{proof}
+
+Recall the set up of the generic mean-field variational Bayes problem in Section \ref{sec:variational-bayes}:
+\begin{align*}
+    \mathbf{y} \:|\: \theta &\;\sim f(\mathbf{y}\:|\: \theta;\eta) \\ 
+    \theta &\;= \{\theta_1, \ldots, \theta_i\} \\
+    \theta_i &\overset{\text{ind.}}{\sim} g_i(\theta_i),\; \sforall i \in \{1, \ldots, M\}.
+\end{align*}
+Our goal is to find the $q^*$ that solves:
+\begin{align*}
+    \max_{q\in\mathcal{Q}}  \; \text{ELBO}( q \:; \eta)
+\end{align*}
+where,
+\begin{align*} 
+    \mathcal{Q} &= \left\{q \::\: q(\theta) = \prod_{m=1}^M q_i(\theta_i)\right\}.
+\end{align*}
+If $q \in \mathcal{Q}$ and we define $q_{-i}(\theta_{-i})$ as in (\ref{eq:q-minus-i}), then we can write:
+\begin{align*}
+    \text{ELBO}(q;\eta) &= \int q(\theta) \log \frac{f(\mathbf{y}\:|\: \theta;\eta) g(\theta)}{q(\theta)} \; d\theta \\
+    &= \int \prod_{i'=1}^M q_{i'}(\theta_{i'}) \log \frac{ f(\mathbf{y}\:|\: \theta;\eta) \prod_{i'=1}^M g_{i'}(\theta_{i'})}{\prod_{i'=1}^M q_{i'}(\theta_{i'})} \; d\theta \\
+    &= \int q_{i}(\theta_i) \log \frac{\exp\left\{\E_{q_{-i}}[\log f(\mathbf{y}\:|\: \theta;\eta)]\right\}g_{i}(\theta_i)}{q_{i}(\theta_i)} \; d\theta_i - \sum_{\substack{1 \leq i' \leq M \\ i' \neq i}} \text{KL}(q_{i'}(\theta_{i'})\:\lVert\: g_{i'}(\theta_{i'}))
+\end{align*}
+Note that only the first term above depends on $q_i(\theta_i)$, so if we treat $q_{-i}(\theta_{-i})$ as fixed, then solving: 
+\begin{align}
+    \max_{q_i}  \; \text{ELBO}( q \:;\: \eta) \label{eq:max-elbo-m}
+\end{align}
+is equivalent to solving:
+\begin{align*}
+    \max_{q_i}  \; \int q_{i}(\theta_i) \log \frac{\exp\left\{\E_{q_{-i}}[\log f(\mathbf{y}\:|\: \theta;\eta)]\right\}g_{i}(\theta_i)}{q_{i}(\theta_i)} \; d\theta_i
+\end{align*}
+If we define the normalizing constant term:
+\begin{align*}
+    C_i := \int \exp\left\{\E_{q_{-i}}[\log f(\mathbf{y}\:|\: \theta;\eta)]\right\} \; d\theta_i
+\end{align*}
+then we can define a new distribution on $\theta_i$ by:
+\begin{align*}
+    \tilde{q}_i(\theta_i) := C^{-1}_i\exp\left\{\E_{q_{-i}}[\log f(\mathbf{y}\:|\: \theta;\eta)]\right\}g_{i}(\theta_i)
+\end{align*}
+Again, $C_i$ does not depend on our choice of $q_i$, so we have 
+\begin{align*}
+    \argmax{q_i} \; \text{ELBO}( q \:;\: \eta) &= \argmax{q_i} \; \int q_i(\theta_i) \log \frac{\exp\left\{\E_{q_{-i}}[\log f(\mathbf{y}\:|\: \theta;\eta)]\right\}g_i(\theta_i)}{q_i(\theta_i)} \; d\theta_i\\
+    &= \argmax{q_i} \; \int q_i(\theta_i) \log \frac{C^{-1}_i\exp\left\{\E_{q_{-i}}[\log f(\mathbf{y}\:|\: \theta;\eta)]\right\}g_i(\theta_i)}{q_i(\theta_i)} \; d\theta_i \\
+    &=  \argmax{q_i} \; \text{KL}(q_i(\theta_i) \:\lVert\: \tilde{q}_i(\theta_i)).
+\end{align*}
+If we have a closed form expression for $\tilde{q}_i(\theta_i)$, then we see from the last line above that the solution to (\ref{eq:max-elbo-m}) is to set $q_i(\theta_i) \equiv \tilde{q}_i(\theta_i)$, i.e. we will have:
+\begin{align}
+    q_i(\theta_i) \propto \exp\left\{\E_{q_{-i}}[\log f(\mathbf{y}\:|\: \theta;\eta)]\right\}g_i(\theta_i). \label{eq:q-soln}
+\end{align}
+We now introduce notation to help simplify the derivation of the $q_j$, $q_\ell$, and $q_k$ for MICH.
+\begin{align*}
+    \overline{\pi}_{i t} &:= \E_{q_i}\left[\mathbbm{1}{\left\{\gamma_i = t\right\}}\right], \sforall i \in \{j,\ell, k\} \\
+    \overline{b}_{i t} &:= \E_{q_i}[b_i \:|\: \gamma_i = t], \sforall i \in \{j,\ell\}  \\
+    \overline{\mu}_{it} &:= \E_{q_i}[\mu_{i t}] = \sum_{t'=1}^{T} \mathbbm{1}{\{t \geq t'\}}\E_{q_i}[b_i \:|\:\gamma_i = t']q_i(\gamma_i =t') = \sum_{t'=1}^t \overline{b}_{i t'} \overline{\pi}_{i t'}, \sforall i \in \{j,\ell\} \\
+    \overline{\sigma}^2_{it} &:= \E_{q_i}\left[\left(b_i - \overline{b}_{i t}\right)^2\:|\: \gamma_i = t\right], \sforall i \in \{j,\ell\}  \\
+    \overline{\mu^2_{it}} &:= \E_{q_i}[\mu^2_{it}] = \sum_{t'=1}^{T} \mathbbm{1}{\{t \geq t'\}}\E_{q_i}[b^2_i \:|\:\gamma_i = t']q_i(\gamma_i =t') = \sum_{t'=1}^t (\overline{b}^2_{i t'} + \overline{\sigma}^2_{i t'}) \overline{\pi}_{it'}, \sforall i \in \{j,\ell\}  \\
+    \overline{\mu}_{1:J,t} &:= \sum_{j=1}^J \overline{\mu}_{jt}, \quad \overline{\mu}_{1:L,t} := \sum_{\ell=1}^L \overline{\mu}_{\ell t} \\
+    \overline{\mu}_{-jt} &:= \sum_{\substack{1\leq\ell'\leq L \\ \ell' \neq \ell}} \overline{\mu}_{\ell' t}, \quad \overline{\mu}_{-\ell t} := \sum_{\substack{1\leq\ell'\leq L \\ \ell' \neq \ell}} \overline{\mu}_{\ell' t} \\
+    \overline{\mu}_t &:= \E_q[\mu_t] = \mu_0 + \overline{\mu}_{1:J,t} + \overline{\mu}_{1:L,t} \\
+    \overline{s}_{i t} &:= \E_{q_i}[s_i \:|\: \gamma_i = t], \sforall i \in \{j, k\} \\
+    \overline{\lambda}_{it} &:= \E_{q_i}[\lambda_{it}] = \sum_{t'=1}^t \overline{s}_{i t'} \overline{\pi}_{i t'} + \sum_{t'=t+1}^T \overline{\pi}_{i t'}, \sforall i \in \{j, k\} \\
+    \overline{\lambda}_{1:J, t} &:= \prod_{j=1}^J \overline{\lambda}_{j t}, \quad \overline{\lambda}_{1:K, t} := \prod_{k=1}^K \overline{\lambda}_{k t} \\
+    \overline{\lambda}_t &:= \lambda_0 \overline{\lambda}_{1:J, t} \overline{\lambda}_{1:K, t} \\
+    \overline{\lambda}_{-j t} &:= \frac{\overline{\lambda}_t }{\overline{\lambda}_{jt}}, \quad \overline{\lambda}_{-k t} := \frac{\overline{\lambda}_t }{\overline{\lambda}_{kt}}
+\end{align*}
+Let $p\left(\mathbf{y} \:|\: \theta;\mu_0,\lambda_0\right)$ denote the likelihood in (\ref{eq:dgp}) that is implied by the MICH model, and let $p_j$, $p_\ell$, and $p_k$ be the respective priors for the parameter blocks $\theta_j$, $\theta_\ell$, and $\theta_k$. We now show that the marginal distributions $q_j(\theta_j)$, $q_\ell(\theta_\ell)$, and $q_k(\theta_k)$ that are implied by the expression in (\ref{eq:q-soln}) are precisely the same distributions we claim solve (\ref{eq:elbo-j}), (\ref{eq:elbo-l}), and (\ref{eq:elbo-k}) respectively in Proposition \ref{prop:1}.
+
+\begin{enumerate}[label=\roman*.]
+
+\item For fixed $j' \in\{1,\ldots,J\}$, we treat the distributions $\{q_j(\theta_j)\}_{j\neq j'}$, $\{q_\ell(\theta_\ell)\}_{\ell=1}^L$, and $\{q_k(\theta_k)\}_{k=1}^K$ as fixed and known. Then by (\ref{eq:q-soln}), the solution to (\ref{eq:elbo-j}) is to pick $q_{j'}$ so that:
+\begin{align*}
+    \log q_{j'}(\theta_{j'}) &\underset{\theta_{j'}}{\propto} \E_{q_{-j'}} \left[\log p\left(\mathbf{y} \:|\: \theta;\mu_0,\lambda_0\right)\right]  + \log p_{j'}(\theta_{j'}) \\
+    &\underset{\theta_{j'}}{\propto}  \E_{q_{-j'}}\left[\frac{1}{2}\sum_{t=1}^{T+B_r} \log\lambda_t - \frac{1}{2}\sum_{t=1}^{T+B_r} \lambda_{t}\left(y_t - \mu_t\right)^2\right] + \log p_{j'}(\theta_{j'}).
+\end{align*}
+Where the notation $\underset{\theta_{j'}}{\propto}$ indicates equivalence up to an additive constant term that does not depend on $\theta_{j'}$. Note that in the second line above, the index of the sum begins at $t = 1$ instead of at $t = 1 - B_l$ since by construction, neither $\lambda_t$ nor $\mu_t$ depends on $b_{j'}$, $s_{j'}$, or $\gamma_{j'}$ when $t < 1$. Define partial residuals as in (\ref{eq:smscp-mean-resid}) and (\ref{eq:smscp-var-resid}):
+\begin{align*}
+    r_{-j't} &:= y_t - \mu_0 - \sum_{j\neq j'} \mu_{jt} - \sum_{\ell=1}^L \mu_{\ell t} \\
+    \lambda_{-j't} &:= \lambda_{jt}^{-1}\lambda_t = \lambda_0\prod_{j \neq j'}\lambda_{jt} \prod_{k=1}^K \lambda_{kt}. 
+\end{align*}
+Then if we fix $\gamma_{j'} = t'$, we have:
+\begin{align*}
+     \log q_{j'}(b_{j'}, s_{j'}, \gamma_{j'} = t')&\underset{\theta_{j'}}{\propto} \frac{T + B_r - t' + 1}{2} \log s_{j'}  -\frac{s_{j'}}{2} \sum_{t=t'}^{T+B_r} \E_{q_{-j'}}\left[\lambda_{-j't}(r_{-j't} - b_{j'})^2\right] \\
+    &\quad -\frac{1}{2} \sum_{t=1}^{t'-1} \E_{q_{-j'}}\left[\lambda_{-j't}r_{-j't}^2\right] \\
+    &\quad + \frac{1}{2}\log s_{j'} - \frac{s_{j'}\tau_{j'}b_{j'}^2}{2} + (u_{j'}-1)\log s_{j'} - v_{j'}s_{j'} + \log \pi_{j't'}.  
+\end{align*}
+We can now calculate the posterior parameters for $b_{j'}$ and $s_{j'}$ given $\gamma_{j'} = t'$:
+\begin{align*}
+    \overline{\tau}_{j't'} &=  \tau_{j'} +  \sum_{t=t'}^{T+B_r} \E_{q_{-j'}}\left[\lambda_{-j't}\right] \\
+    \overline{b}_{j't'}  &= \overline{\tau}_{j't'}^{-1}  \sum_{t=t'}^{T+B_r} \E_{q_{-j'}}\left[\lambda_{-j't}r_{-j't}\right] \\
+    \overline{u}_{j't'} &= u_{j'} + \frac{T+B_r-t'+1}{2} \\
+    \overline{v}_{j't'} &= v_{j'} - \frac{\overline{\tau}_{j't'}\overline{\mu}^2_{j't'}}{2} + \frac{1}{2}\sum_{t=t'}^{T+B_r}\E_{q_{-j'}}\left[\lambda_{-j't}r^2_{-j't}\right].
+\end{align*}
+We now have:
+\begin{align*}
+    \log q_{j'}(b_{j'}, s_{j'}, \gamma_{j'} = t')
+    &\underset{\theta_{j'}}{\propto} -\log\Gamma(\overline{u}_{j't'}) + \overline{u}_{j't'} \log \overline{v}_{j't'}  + \left(\overline{u}_{j't'} -1\right)\log s_{j'}  - \overline{v}_{j't'} s_{j'} \\
+    &\quad + \frac{1}{2}\log \overline{\tau}_{j't'}s_{j'} - \frac{\overline{\tau}_{j't'} s_{j'}}{2} (b_{j'} - \overline{b}_{j't'} )^2 \\
+    &\quad + \log \pi_{j't'} + \log\Gamma(\overline{u}_{j't'}) - \overline{u}_{j't'} \log \overline{v}_{j't'} - \frac{1}{2}\log \overline{\tau}_{j't'} -\frac{1}{2} \sum_{t=1}^{t'-1} \E_{q_{-j'}}\left[\lambda_{-j't}r_{-j't}^2\right] 
+\end{align*}
+The first two lines above are just the log density of a Normal-Gamma distribution with parameters $\overline{b}_{j't'} $, $\overline{\tau}_{j't'}$, $\overline{u}_{j't'}$, and $\overline{v}_{j't'}$, and thus: 
+\begin{align*}
+    q_{j'}(b_{j'}, s_{j'} \:|\: \gamma_{j'} = t') \sim \text{NormalGamma}(\overline{b}_{j't'} , \overline{\tau}_{j't'}, \overline{u}_{j't'}, \overline{v}_{j't'})
+\end{align*}
+Integrating the joint density $q_{j'}(\theta_{j'})$ with respect to $b_{j'}$ and $s_{j'}$ and calculating the normalizing constant, we are left with:
+\begin{align*}
+    q_{j'}(\gamma_{j'} = t) &= \frac{\pi_{j't}\Gamma(\overline{u}_{j't})\overline{v}_{j't}^{-\overline{u}_{j't}}\overline{\tau}_{j't}^{-\frac{1}{2}}\exp\left( -\frac{1}{2} \sum_{t'=1}^{t-1} \E_{q_{-j'}}\left[\lambda_{-j't'}r_{-j't'}^2\right] \right)}{\sum_{t'=1}^T \pi_{j't'}\Gamma(\overline{u}_{j't'})\overline{v}_{j't'}^{-\overline{u}_{j't'}}\overline{\tau}_{j't'}^{-\frac{1}{2}}\exp\left( -\frac{1}{2} \sum_{t''=1}^{t'-1} \E_{q_{-j'}}\left[\lambda_{-j't''}r_{-j't''}^2\right] \right)} \\
+    &:= \overline{\pi}_{j't}. 
+\end{align*}
+and thus, under the distribution $q_{j'}$ we have:
+\begin{align*}
+    \theta_{j'} \sim \text{SMSCP}(\{\overline{b}_{j't'} , \overline{\tau}_{j't'}, \overline{u}_{j't'}, \overline{v}_{j't'}, \overline{\pi}_{j't}\}_{t=1}^T).
+\end{align*}
+It remains to show that expected terms used to define the posterior parameters have closed forms. First we have:
+\footnotesize
+\begin{align*}
+    \E_{q_{-j'}}\left[\lambda_{-j't}\right] &= \E_{q_{-j'}}\left[\lambda_0\prod_{j \neq j'}\lambda_{jt} \prod_{k=1}^K \lambda_{kt}\right] \\
+    &= \lambda_0\prod_{j \neq j'}\E_{q_{j}}\left[\lambda_{jt}\right] \prod_{k=1}^K \E_{q_{k}}\left[\lambda_{kt}\right] \tag{by (\ref{eq:mean-field})} \\
+    &= \overline{\lambda}_{-jt} \\
+    \E_{q_{-j'}}\left[\lambda_{-j't}r_{-j't}\right] &= \E_{q_{-j'}}\left[\lambda_0\prod_{j \neq j'}\lambda_{jt} \prod_{k=1}^K \lambda_{kt}\left(y_t - \mu_0 - \sum_{j''\neq j'} \mu_{j''t} - \sum_{\ell=1}^L \mu_{\ell t}\right)\right] \\
+    &= \lambda_0\prod_{j \neq j'}\E_{q_{j}}\left[\lambda_{jt}\right] \prod_{k=1}^K \E_{q_{k}}\left[\lambda_{kt}\right]\left(y_t -\mu_0 -\sum_{\ell=1}^L\E_{q_{\ell}}\left[\mu_{\ell t}\right]\right) \\
+    &\quad-\lambda_0\prod_{k=1}^K \E_{q_{k}}\left[\lambda_{kt}\right]\E_{q_{-j'}}\left[\sum_{j'' \neq j'}\prod_{j \neq j'} \mu_{j''t}\lambda_{jt}\right]  \tag{by (\ref{eq:mean-field})} \\
+    &=  \overline{\lambda}_{-j't} \left(y_t -\mu_0 -\overline{\mu}_{1:L, t}\right) \\
+    &\quad-\lambda_0\overline{\lambda}_{1:K,t} \sum_{j'' \neq j'}\E_{q_{-j'}}\left[ \mu_{j''t}\lambda_{j''t}\prod_{j \not\in\{j',j''\}} \lambda_{jt}\right]  \\
+    &= \overline{\lambda}_{-j't} \left(y_t -\mu_0 -\overline{\mu}_{1:L, t}\right) \\
+    &\quad-\lambda_0\overline{\lambda}_{1:K,t} \sum_{j'' \neq j'}\E_{q_{j''}}\left[ \mu_{j''t}\lambda_{j''t} \right] \prod_{j \not\in\{j',j''\}} \E_{q_{j}}\left[\lambda_{jt}\right] \\
+    &= \overline{\lambda}_{-j't} \left(y_t -\mu_0 -\overline{\mu}_{1:L, t}\right) \\
+    &\quad-\lambda_0\overline{\lambda}_{1:K,t} \sum_{j \neq j'}\E_{q_{j}}\left[ \mu_{jt}\lambda_{jt} \right] \overline{\lambda}_{jt}^{-1}\overline{\lambda}_{-j't}\tag{multiply and divide by $\overline{\lambda}_{jt}$}\\
+    &=\overline{\lambda}_{-j't} \left(y_t -\mu_0 -  \sum_{j \neq j'}\overline{\lambda}_{jt}^{-1}\E_{q_{j}}\left[ \mu_{jt}\lambda_{jt} \right] -\overline{\mu}_{1:L, t}\right) \\
+    \E_{q_{j}}\left[ \mu_{jt}\lambda_{jt} \right] &= \E_{q_{j}}\left\{\E_{q_{j}}\left[\E_{q_{j}}\left[\mu_{j t}\:|\: s_j, \gamma_j\right]\lambda_{j t}\:|\: \gamma_j\right]\right\} \label{eq:lambda-beta} \\
+    &= \sum_{t'=1}^T  \E_{q_{j}}\left[\E_{q_{j}}\left[\mu_{j t}\:|\: s_j, \gamma_j = t'\right]\lambda_{j t}\:|\: \gamma_j = t'\right]\overline{\pi}_{j t'} \\
+    &= \sum_{t'=1}^t \overline{b}_{j t'}\E_{q_j}\left[s_j^{\mathbbm{1}\{t \geq t'\}}\:|\: \gamma_j= t' \right] \overline{\pi}_{jt'} \tag{$\E_{q_j}\left[\mu_{j t}\:|\: s_j, \gamma_j = t'\right] = \mathbbm{1}{\{t \geq t'\}} \overline{b}_{j t'}$} \\
+    &= \sum_{t'=1}^t \overline{b}_{j t'}\overline{s}_{jt'} \overline{\pi}_{jt'} \\
+    &=  \sum_{t'=1}^t \overline{b}_{j t'}\frac{\overline{u}_{jt'}}{\overline{v}_{jt'}} \overline{\pi}_{jt'} 
+\end{align*}
+\normalsize
+We can define a modified partial residual as in (\ref{eq:mod-resid}):
+\begin{align*}
+    \tilde{r}_{-j' t} = y_t - \mu_0 -  \sum_{j \neq j'}\overline{\lambda}_{jt}^{-1}\sum_{t'=1}^t \frac{\overline{b}_{j t'}\overline{u}_{jt'}\overline{\pi}_{jt'}}{\overline{v}_{jt'}} - \overline{\mu}_{1:L, t}.
+\end{align*}
+Then we have:
+\begin{align*}
+     \E_{q_{-j'}}\left[\lambda_{-j't}r_{-j't}\right] &=\overline{\lambda}_{-j't}\tilde{r}_{-j' t} 
+\end{align*}
+We also have:
+\footnotesize
+\begin{align*}
+    \E_{q_{-j'}}\left[\lambda_{-j't}r^2_{-j't}\right] &=  \E_{q_{-j'}}\left[\lambda_0\prod_{j \neq j'}\lambda_{jt} \prod_{k=1}^K \lambda_{kt}\left(y_t - \mu_0 - \sum_{j''\neq j'} \mu_{j''t} - \sum_{\ell=1}^L \mu_{\ell t}\right)^2\right] \\
+    &= \lambda_0\prod_{j \neq j'}\E_{q_{j}}\left[\lambda_{jt}\right] \prod_{k=1}^K \E_{q_{k}}\left[\lambda_{kt}\right]\E_{q_{-j'}}\left[\left(y_t - \mu_0 - \sum_{\ell=1}^L \mu_{\ell t}\right)^2\right] \\
+    &\quad -2 \lambda_0 \prod_{k=1}^K \E_{q_{k}}\left[\lambda_{kt}\right]\E_{q_{-j'}}\left[y_t - \mu_0  - \sum_{\ell=1}^L \mu_{\ell t}\right] \sum_{j''\neq j'} \E_{q_{j''}}\left[\lambda_{j''t} \mu_{j''t}\right]\prod_{j \not\in \{j',j''\}}\E_{q_{j}}[\lambda_{jt}]  \\
+    &\quad + \lambda_0 \prod_{k=1}^K \E_{q_{k}}\left[ \lambda_{kt}\right]\E_{q_{-j'}}\left[\sum_{j^*\neq j'}\sum_{j''\neq j'}  \prod_{j \neq j'} \lambda_{jt} \mu_{j''t} \mu_{j^*t}\right] \\
+    &= \overline{\lambda}_{-j't}\left[\left(y_t - \mu_0 - \sum_{\ell=1}^L \overline{\mu}_{\ell t}\right)^2 + \sum_{\ell=1}^L \left(\overline{\mu^2_{\ell t}} - \overline{\mu}^2_{\ell t} \right) \right] \\
+    &\quad -2  \overline{\lambda}_{-j't}\left(y_t - \mu_0  - \overline{\mu}_{1:L, t}\right) \sum_{j\neq j'} \overline{\lambda}_{jt}^{-1} \E_{q_{j}}\left[\lambda_{jt} \mu_{jt}\right] \\
+    &\quad + \overline{\lambda}_{-j't} \sum_{j\neq j'}\sum_{j''\neq j'} \overline{\lambda}_{j''t}^{-1}\E_{q_{j''}}\left[\lambda_{j''t} \mu_{j''t}\right]\overline{\lambda}_{jt}^{-1}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}\right] \\
+    &\quad + \overline{\lambda}_{-j't} \sum_{j\neq j'}\left(\overline{\lambda}_{jt}^{-1}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}^2\right] -\overline{\lambda}_{jt}^{-2}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}\right]^2\right) \\
+    &=  \overline{\lambda}_{-j't}\left(y_t - \mu_0 - \sum_{j\neq j'} \overline{\lambda}_{j't}^{-1} \E_{q_{j}}\left[\lambda_{jt} \mu_{jt}\right] - \sum_{\ell=1}^L \overline{\mu}_{\ell t}\right)^2 \\
+    &\quad + \overline{\lambda}_{-j't}\left[\sum_{\ell=1}^L \left(\overline{\mu^2_{\ell t}} - \overline{\mu}^2_{\ell t} \right) + \sum_{j\neq j'}\left(\overline{\lambda}_{jt}^{-1}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}^2\right] -\overline{\lambda}_{jt}^{-2}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}\right]^2\right)\right] \\
+    &= \overline{\lambda}_{-j't}\left[\tilde{r}^2_{-j' t} +\sum_{\ell=1}^L \Var_{q_\ell} \left(\mu_{\ell t} \right) + \sum_{j\neq j'}\left(\overline{\lambda}_{jt}^{-1}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}^2\right] -\overline{\lambda}_{jt}^{-2}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}\right]^2\right)\right]
+\end{align*}
+\normalsize
+Recalling the definition of $\delta_t$ in (\ref{eq:delta}) and its partial equivalent: 
+\begin{align*}
+    \delta_{-j't} := \sum_{\ell=1}^L \Var_{q_\ell}\left(\mu_{\ell t} \right) + \sum_{j\neq j'}\left(\overline{\lambda}_{jt}^{-1}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}^2\right] -\overline{\lambda}_{jt}^{-2}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}\right]^2\right)
+\end{align*}
+So we get:
+\begin{align*}
+    \E_{q_{-j'}}\left[\lambda_{-j't}r^2_{-j't}\right] &= \overline{\lambda}_{-j't}\left[\tilde{r}^2_{-j' t} + \delta_{-j't}\right].
+\end{align*}
+Finally, we have:
+\small
+\begin{align*}
+    \E_{q_{j}}\left[\lambda_{jt}\mu^2_{jt}\right] &= \E_{q_{j}}\left\{\E_{q_{j}}\left[\E_{q_{j}}\left[\mu^2_{jt}\:|\: s_{j}, \gamma_{j}\right]\lambda_{jt}\:|\: \gamma_{j}\right]\right\} \\
+    &= \sum_{t'=1}^T  \E_{q_{j}}\left[\E_{q_{j}}\left[\mu^2_{jt}\:|\: s_{j}, \gamma_{j} = t'\right]\lambda_{jt}\:|\: \gamma_{j}= t'\right] \overline{\pi}_{jt'} \\
+    &= \sum_{t'=1}^t \E_{q_{j}}\left[(\overline{b}_{j t'}^2 + (\overline{\tau}_{j t'}s_{j})^{-1})s_j^{\mathbbm{1}\{t \geq t'\}}\:|\: \gamma_j= t'\right] \overline{\pi}_{j t'} \tag{$\E_{q_{j}}[\mu^2_{jt}\:|\: s_j, \gamma_j = t'] = \mathbbm{1}{\{t \geq t'\}} (\overline{b}_{jt'}^2 + (\overline{\tau}_{jt'}s_{j})^{-1})$} \\
+    &= \sum_{t'=1}^t \left(\overline{b}^2_{jt'}\overline{s}_{jt'} +\overline{\tau}_{jt'}^{-1}\right) \overline{\pi}_{jt'} \\
+    &= \sum_{t'=1}^t \left(\frac{\overline{b}^2_{jt'}\overline{u}_{jt'}}{\overline{v}_{jt'}} +\frac{1}{\overline{\tau}_{jt'}}\right) \overline{\pi}_{jt'}.
+\end{align*}
+\normalsize
+Then, returning to the posterior parameters for $b_{j}$ and $s_{j}$ when $\gamma_{j}=t$, we now have:
+\begin{align*}
+    \overline{\tau}_{jt} &=  \tau_{j} +  \sum_{t'=t}^{T+B_r} \overline{\lambda}_{-jt'} \\
+    \overline{b}_{jt}  &= \overline{\tau}_{jt}^{-1}  \sum_{t'=t}^{T+B_r} \overline{\lambda}_{-jt'}\tilde{r}_{-j t'}\\
+    \overline{u}_{jt} &= u_{j} + \frac{T+B_r-t+1}{2} \\
+    \overline{v}_{jt} &= v_{j} - \frac{\overline{\tau}_{jt}\overline{\mu}^2_{jt}}{2} + \frac{1}{2}\sum_{t'=t}^{T+B_r}\overline{\lambda}_{-jt'}\tilde{r}^2_{jt'} + \frac{1}{2}\sum_{t'=t}^{T+B_r}\overline{\lambda}_{-jt'}\delta_{-jt'} \\
+    \overline{\pi}_{jt}  &= \frac{\exp\left(-\frac{1}{2}\sum_{t'=1}^{t-1}\overline{\lambda}_{-jt'}\delta_{-jt'}\right)\pi_{jt}\Gamma(\overline{u}_{jt})\overline{v}_{jt}^{-\overline{u}_{jt}}\overline{\tau}_{jt}^{-\frac{1}{2}}\exp\left( -\frac{1}{2} \sum_{t'=1}^{t-1} \overline{\lambda}_{-jt'}\tilde{r}_{-jt'}^2 \right)}{\sum_{t'=1}^T \exp\left(-\frac{1}{2}\sum_{t''=1}^{t'-1}\overline{\lambda}_{-jt''}\delta_{-j't''}\right) \pi_{jt'}\Gamma(\overline{u}_{jt'})\overline{v}_{jt'}^{-\overline{u}_{jt'}}\overline{\tau}_{jt'}^{-\frac{1}{2}}\exp\left( -\frac{1}{2} \sum_{t''=1}^{t'-1} \overline{\lambda}_{-jt''}\tilde{r}_{-jt''}^2\right)}
+\end{align*}
+We can define a modified prior parameter for the rate of $s_{j}$ and a modified prior for the location of the change-point:
+\begin{align*}
+    \tilde{v}_{jt} &:= v_j + \frac{1}{2}\sum_{t'=t}^{T+B_r}\overline{\lambda}_{-jt'}\delta_{-jt'}  \\
+    \tilde{\pi}_{jt} &:= \frac{\pi_{jt} \exp\left(-\frac{1}{2}\sum_{t'=1}^{t-1}\overline{\lambda}_{-jt'}\delta_{-jt'}\right)}{\sum_{t'=1}^T \pi_{jt'} \exp\left(-\frac{1}{2}\sum_{t''=1}^{t'-1}\overline{\lambda}_{-jt''}\delta_{-jt''}\right)}.
+\end{align*}
+Then we notice that the posterior parameters for the block $\theta_j$ are just the parameters that result from plugging the modified partial mean and scale residuals, as well as the modified prior parameters into the $\texttt{SMSCP}$ function:
+\small
+\begin{align*}
+    \left\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\right\}_{t=1}^T = \texttt{SMSCP}\left(\{\tilde{r}_{jt}\}_{t=1-B_l}^{T+B_r} \:;\:\{\overline{\lambda}_{-jt}\}_{t=1-B_l}^{T+B_r}, \tau_j, u_j, \{\tilde{v}_{jt}\}_{t=1}^T, \{\tilde{\pi}_{jt}\}_{t=1}^T, B_l,B_r\right).
+\end{align*}
+\normalsize
+i.e. the approximate posterior for $\theta_j$ under the mean-field assumption (\ref{eq:mean-field}) is just the exact posterior for the SMSCP model using the modified partial residual as the response and with $v_j$ offset by and $\pi_{jt}$ scaled by functions the partial scale residual $\overline{\lambda}_{-jt}$ and the variance correction term $\delta_{-jt}$. This completes the proof of part i of Proposition \ref{prop:1}.
+
+\item For fixed $\ell' \in\{1,\ldots,L\}$, we treat the distributions $\{q_j(\theta_j)\}_{j=1}^J$, $\{q_\ell(\theta_\ell)\}_{\ell\neq\ell'}$, and $\{q_k(\theta_k)\}_{k=1}^K$ as fixed and known. Then by (\ref{eq:q-soln}), the solution to (\ref{eq:elbo-l}) is to pick $q_{\ell'}$ so that:
+\begin{align*}
+    \log q_{\ell'}(\theta_\ell') &\underset{\theta_\ell'}{\propto} \E_{q_{-\ell'}} \left[\log p\left(\mathbf{y} \:|\: \theta;\mu_0,\lambda_0\right)\right] + \log p_{\ell'}(\theta_{\ell'}) \\
+    &\underset{\theta_{\ell'}}{\propto} - \frac{1}{2}\sum_{t=1}^{T+B_r}  \E_{q_{-\ell'}}\left[\lambda_{t}\left(y_t - \mu_t\right)^2\right] + \log p_{\ell'}(\theta_{\ell'}).
+\end{align*}
+Define the partial residual as in (\ref{eq:smcp-resid}):
+\begin{align*}
+    r_{-\ell' t} &:= y_t - \mu_0 - \sum_{j=1}^J \mu_{jt} - \sum_{\ell \neq \ell'} \mu_{\ell t}.
+\end{align*}
+If we fix $\gamma_{\ell'} = t'$, then we have:
+\begin{align*}
+    \log q_{\ell'}(b_{\ell'},\gamma_{\ell'}=t') 
+    &\underset{\theta_{\ell'}}{\propto}- \frac{1}{2}\sum_{t=t'}^{T+B_r}  \E_{q_{-\ell'}}\left[\lambda_{t}\left(b_{\ell'}^2 - 2r_{-\ell't}b_{\ell'} \right)\right] - \frac{b_{\ell'}^2\tau_{\ell'}}{2} + \log \pi_{\ell' t} \\
+    &\;= - \frac{1}{2}\sum_{t=t'}^{T+B_r}  \left(\E_{q_{-\ell'}}\left[\lambda_{t}\right]b_{\ell'}^2 - 2\E_{q_{-\ell'}}\left[\lambda_{t}r_{-\ell't}\right]b_{\ell'}\right) - \frac{b_{\ell'}^2\tau_{\ell'}}{2} + \log \pi_{\ell' t}\\
+    &\;= -\frac{1}{2}\left[b_{\ell'}^2\left(\tau_{\ell'} +\sum_{t=t'}^{T+B_r} \overline{\lambda}_t\right) - 2 b_{\ell'}\sum_{t=t'}^{T+B_r}\E_{q_{-\ell'}}\left[\lambda_{t}r_{-\ell't}\right]\right]  + \log \pi_{\ell' t}.
+\end{align*}
+We can now calculate the posterior parameters for $b_{\ell'}$ given $\gamma_{\ell'} = t'$:
+\begin{align*}
+    \overline{\tau}_{\ell't'} &= \tau_{\ell'} +\sum_{t=t'}^{T+B_r} \overline{\lambda}_t \\
+    \overline{b}_{\ell't'} &= \overline{\tau}_{\ell't'}^{-1}  \sum_{t=t'}^{T+B_r} \E_{q_{-\ell'}}\left[\lambda_{t}r_{-\ell't}\right].
+\end{align*}
+We now have:
+\begin{align*}
+    \log q_{\ell'}(b_{\ell'},\gamma_{\ell'}=t') 
+    &\underset{\theta_{\ell'}}{\propto} \log \overline{\tau}_{\ell't'} - \frac{\overline{\tau}_{\ell't'}(b_{\ell'} - \overline{b}_{\ell't'})^2}{2} - \log \overline{\tau}_{\ell't'} + \frac{\overline{\tau}_{\ell't'}\overline{b}^2_{\ell't'}}{2}+ \log \pi_{\ell' t'}
+\end{align*}
+The first two terms above are just the log density of a Normal distribution with mean $\overline{b}_{\ell't'} $ and precision $\overline{\tau}_{\ell't'}$: 
+\begin{align*}
+    q_{\ell'}(b_{\ell'} \:|\: \gamma_{\ell'} = t') \sim \text{Normal}(\overline{b}_{j't'} , \overline{\tau}^{-1}_{j't'}).
+\end{align*}
+Integrating the joint density $ q(b_{\ell'}, \gamma_{\ell'})$ with respect to $b_{\ell'}$ and calculating the normalizing constant, we are left with: 
+\begin{align*}
+    q_{\ell'}(\gamma_{\ell'} = t') &= \frac{\pi_{\ell't'} \overline{\tau}_{\ell't'}^{-\frac{1}{2}} \exp[\overline{\tau}_{\ell't'} \overline{b}^2_{\ell't'}/2]}{\sum_{t=1}^T \pi_{\ell't} \overline{\tau}_{\ell't}^{-\frac{1}{2}} \exp[\overline{\tau}_{\ell't} \overline{b}^2_{\ell't}/2]}\\ 
+    &:= \overline{\pi}_{\ell't'} 
+\end{align*}
+and thus, under the distribution $q_{\ell'}$ we have:
+\begin{align*}
+    \theta_{\ell'} \sim \text{SMCP}(\{\overline{b}_{\ell't'} , \overline{\tau}_{\ell't'}, \overline{\pi}_{\ell't}\}_{t=1}^T).
+\end{align*}
+Again, we define a modified partial residual as in (\ref{eq:smcp-e-resid}):
+\begin{align*}
+    \tilde{r}_{-\ell t} &:= y_t - \overline{\mu}_{-\ell t} - \sum_{j=1}^J \overline{\lambda}_{jt}^{-1} \E_{q_{j}}[\lambda_{jt}\mu_{jt}].
+\end{align*}
+Then we have:
+\begin{align*}
+    \E_{q_{-\ell}}\left[\lambda_{t}r_{-\ell t}\right] &= \E_{q_{-\ell}}\left[\lambda_0\prod_{j=1}^J\lambda_{jt}\prod_{k=1}^K\lambda_{kt} \left(y_t - \mu_0 - \sum_{\ell'\neq \ell} \mu_{\ell't} - \sum_{j=1}^J \mu_{jt}\right)\right] \\
+    &= \lambda_0 \prod_{k=1}^K\E_{q_{k}}\left[\lambda_{kt}\right]\left(y_t -\mu_0 - \sum_{\ell'\neq \ell} \E_{q_{\ell'}}\left[\mu_{\ell' t}\right] - \sum_{j=1}^J \E_{q_{-\ell}}\left[\lambda_{jt}\mu_{jt}\prod_{j'\neq j} \lambda_{j't}\right]\right) \tag{by (\ref{eq:mean-field})} \\
+    &= \overline{\lambda}_{t}\left(y_t - \mu_0 - \overline{\mu}_{-\ell t} -  \sum_{j=1}^J\overline{\lambda}_{jt}^{-1} \E_{q_{j}}\left[\lambda_{jt}\mu_{jt}\right]\right) \\
+    &=  \overline{\lambda}_{t} \tilde{r}_{-\ell t}.
+\end{align*}
+Returning to the posterior parameters for $b_{\ell}$ and $\gamma_{\ell}$, we now have 
+\begin{align*}
+    \overline{\tau}_{jt} &=  \tau_{\ell} +  \sum_{t'=t}^{T+B_r} \overline{\lambda}_{t'} \\
+    \overline{b}_{\ell t}  &= \overline{\tau}_{\ell t}^{-1}  \sum_{t'=t}^{T+B_r} \overline{\lambda}_{t'}\tilde{r}_{-\ell t'}.
+\end{align*}
+Then we notice that the posterior parameters for the block $\theta_\ell$ are just the parameters that result from plugging the modified partial residual into the $\texttt{SMCP}$ function,
+\small
+\begin{align*}
+    \left\{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\right\}_{t=1}^T = \texttt{SMCP}\left(\{\tilde{r}_{-\ell t}\}_{t=1-B_l}^{T+B_r} \:;\: \{\overline{\lambda}_t\}_{t=1-B_l}^{T+B_r}, \tau_{\ell}, \pmb{\pi}_{\ell}, B_l,B_r\right).
+\end{align*}
+\normalsize
+i.e. the approximate posterior for $\theta_\ell$ under the mean-field assumption (\ref{eq:mean-field}) is just the exact posterior for the SMCP model using the modified partial residual as the response. This completes the proof of part ii of Proposition \ref{prop:1}.
+
+\item For fixed $k' \in\{1,\ldots,K\}$, we treat the distributions $\{q(\theta_{j})\}_{j=1}^J$, $\{q(\theta_\ell)\}_{\ell=1}^L$, and $\{q(\theta_k)\}_{k \neq k'}$ as fixed and known. Then by (\ref{eq:q-soln}), the solution to (\ref{eq:elbo-k}) is to pick $q_{k'}$ so that:
+\begin{align*}
+    \log q_{k'}(\theta_{k'}) &\underset{\theta_{k'}}{\propto} \E_{q_{-k'}} \left[\log p\left(\mathbf{y} \:|\: \theta;\mu_0,\lambda_0\right)\right] + \log p_{k'}(\theta_{k'}) \\
+    &\underset{\theta_{k'}}{\propto}  \E_{q_{-k'}}\left[\frac{1}{2}\sum_{t=1}^{T+B_r} \log\lambda_t - \frac{1}{2}\sum_{t=1}^{T+B_r} \lambda_{t}\left(y_t - \mu_t\right)^2\right] + \log p_{k'}(\theta_{k'}).
+\end{align*}
+Next define the partial scale residual as in (\ref{eq:sscp-resid}):
+\begin{align*}
+    \lambda_{-k't} &:= \lambda_{k't}^{-1}\lambda_t = \lambda_0\prod_{j =1 }^J\lambda_{jt} \prod_{k=k'} \lambda_{kt}, 
+\end{align*}
+If we fix $\gamma_{k'} = t'$, then we have:
+\begin{align*}
+    \log q_{k'}(s_{k'},\gamma_{k'} = t') &\underset{\theta_{k'}}{\propto} \frac{T+B_r - t' + 1}{2} \log s_{k'} - \frac{s_{k'}}{2}\sum_{t=t'}^{T+B_r} \E_{q_{-k'}}\left[\lambda_{-k't}\left(y_t - \mu_t\right)^2\right] \\
+    &\quad - \frac{1}{2}\sum_{t=1}^{t'-1} \E_{q_{-k'}}\left[\lambda_{-k't}\left(y_t - \mu_t\right)^2\right]  + (u_{k'}-1)\log s_{k'} - v_{k'} s_{k'} + \log \pi_{k't'}.
+\end{align*}
+We can now calculate the posterior parameters for $s_{k'}$ given $\gamma_{k'} = t'$:
+\begin{align*}
+    \overline{u}_{k't'} &= u_{k'} + \frac{T+B_r-t'+1}{2} \\
+    \overline{v}_{k't'} &= v_{k'} + \frac{1}{2}\sum_{t=t'}^{T+B_r} \E_{q_{-k'}}\left[\lambda_{-k't}\left(y_t - \mu_t\right)^2\right].
+\end{align*}
+We now have:
+\begin{align*}
+    \log q_{k'}(s_{k'},\gamma_{k'} = t') 
+    &\underset{\theta_{k'}}{\propto} -  \log\Gamma(\overline{u}_{k't'}) + \overline{u}_{k't'} \log \overline{v}_{k't'} + \left(\overline{u}_{k't'} -1\right)\log s_{k'}  - \overline{v}_{k't'} s_{k'} \\
+    &\quad + \log \pi_{k't'} + \log\Gamma(\overline{u}_{k't'}) - \overline{u}_{k't'} \log \overline{v}_{k't'} - \frac{1}{2}\sum_{t=1}^{t'-1} \E_{q_{-k'}}\left[\lambda_{-k't}\left(y_t - \mu_t\right)^2\right]
+\end{align*}
+The first line above is just the log density of a Gamma distribution with shape and rate parameters $\overline{u}_{k't'}$, and $\overline{v}_{k't'}$, and thus 
+\begin{align*}
+    q_{k'}(s_{k'} \:|\: \gamma_{k'} = t') \sim \text{Gamma}(\overline{u}_{k't'}, \overline{v}_{k't'}).
+\end{align*}
+Integrating the joint density $q_{k'}(\theta_{k'})$ with respect to $s_{k'}$ and calculating the normalizing constant, we are left with 
+\begin{align*}
+    q_{k'}(\gamma_{k'} = t) &= \frac{\pi_{k't}\Gamma(\overline{u}_{k't})\overline{v}_{k't}^{-\overline{u}_{k't}}\exp\left( -\frac{1}{2} \sum_{t'=1}^{t-1} \E_{q_{-k'}}\left[\lambda_{-k't'}(y_{t'} - \mu_{t'})^2\right] \right)}{\sum_{t'=1}^T \pi_{k't'}\Gamma(\overline{u}_{k't'})\overline{v}_{k't'}^{-\overline{u}_{k't'}}\exp\left( -\frac{1}{2} \sum_{t''=1}^{t'-1} \E_{q_{-k'}}\left[\lambda_{-k't''}(y_{t''} - \mu_{t''})^2\right] \right)} \\
+    &:= \overline{\pi}_{k't} 
+\end{align*}
+and thus under the distribution $q_{k'}$ we have:
+\begin{align*}
+    \theta_{k'} &\sim \text{SSCP}(\{\overline{u}_{k't}, \overline{v}_{k't}, \overline{\pi}_{k't}\}_{t=1}^T). 
+\end{align*}
+Define the modified residual $\tilde{r}_t$ as in (\ref{eq:mod-resid}) and the variance correction term $\delta_t$ as in (\ref{eq:delta}), then we have:
+\footnotesize
+\begin{align*}
+    \E_{q_{-k}}\left[\lambda_{-kt}(y_t - \mu_t)^2\right] &= \E_{q_{-k}}\left[\lambda_0\prod_{j =1}^J\lambda_{jt} \prod_{k' \neq k} \lambda_{k't}\left(y_t - \mu_0 - \sum_{j'=1}^J \mu_{j't} - \sum_{\ell=1}^L \mu_{\ell t}\right)^2\right] \\
+    &= \lambda_0\prod_{j =1}^J\E_{q_{j}}\left[\lambda_{jt}\right] \prod_{k'\neq k} \E_{q_{k'}}\left[\lambda_{k't}\right]\E_{q_{-k}}\left[\left(y_t - \mu_0 - \sum_{\ell=1}^L \mu_{\ell t}\right)^2\right] \\
+    &\quad -2 \lambda_0 \prod_{k'\neq k} \E_{q_{k'}}\left[\lambda_{k't}\right]\E_{q_{-k}}\left[y_t - \mu_0  - \sum_{\ell=1}^L \mu_{\ell t}\right] \sum_{j=1}^J \E_{q_{j}}\left[\lambda_{jt} \mu_{jt}\right]\prod_{j' \neq j}\E_{q_{j'}}[\lambda_{j't}]  \\
+    &\quad + \lambda_0 \prod_{k' \neq k} \E_{q_{k'}}\left[ \lambda_{k't}\right]\E_{q_{-k}}\left[\sum_{j=1}^J\sum_{j'=1}^J  \prod_{j''=1}^J \lambda_{j''t} \mu_{jt} \mu_{j't}\right] \\
+    &= \overline{\lambda}_{-kt}\left[\left(y_t - \mu_0 - \sum_{\ell=1}^L \overline{\mu}_{\ell t}\right)^2 + \sum_{\ell=1}^L \left(\overline{\mu^2_{\ell t}} - \overline{\mu}^2_{\ell t} \right) \right] \\
+    &\quad -2  \overline{\lambda}_{-kt}\left(y_t - \mu_0  - \overline{\mu}_{1:L, t}\right) \sum_{j=1}^J \overline{\lambda}_{jt}^{-1} \E_{q_{j}}\left[\lambda_{jt} \mu_{jt}\right] \\
+    &\quad + \overline{\lambda}_{-kt} \sum_{j=1}^J\sum_{j'=1}^J \overline{\lambda}_{jt}^{-1}\E_{q_{-k}}\left[\lambda_{jt} \mu_{jt}\right]\overline{\lambda}_{j't}^{-1}\E_{q_{j'}}\left[ \lambda_{j't}\mu_{j't}\right] \\
+    &\quad + \overline{\lambda}_{-kt} \sum_{j=1}^J\left(\overline{\lambda}_{jt}^{-1}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}^2\right] -\overline{\lambda}_{jt}^{-2}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}\right]^2\right) \\
+    &=  \overline{\lambda}_{-kt}\left(y_t - \mu_0 - \sum_{j=1}^J \overline{\lambda}_{jt}^{-1} \E_{q_{j}}\left[\lambda_{jt} \mu_{jt}\right] - \overline{\mu}_{1:L, t}\right)^2 \\
+    &\quad + \overline{\lambda}_{-kt}\left[\sum_{\ell=1}^L \left(\overline{\mu^2_{\ell t}} - \overline{\mu}^2_{\ell t} \right) + \sum_{j=1}^J\left(\overline{\lambda}_{jt}^{-1}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}^2\right] -\overline{\lambda}_{jt}^{-2}\E_{q_{j}}\left[ \lambda_{jt}\mu_{jt}\right]^2\right)\right] \\
+    &= \overline{\lambda}_{-kt}(\tilde{r}^2_t + \delta_t). \tag{by (\ref{eq:mod-resid}) and (\ref{eq:delta})} 
+\end{align*}
+\normalsize
+Returning to the posterior parameters for $s_{k}$ when $\gamma_{k}=t$, we now have \:
+\begin{align*}
+    \overline{u}_{kt} &= u_{k} + \frac{T+B_r-t+1}{2} \\
+    \overline{v}_{kt} &= v_{k} + \frac{1}{2}\sum_{t'=t}^{T+B_r}\overline{\lambda}_{-kt'}\tilde{r}^2_{t'} + \frac{1}{2}\sum_{t'=t}^{T+B_r}\overline{\lambda}_{-kt'}\delta_{t'} \\
+    \overline{\pi}_{kt}  &= \frac{\exp\left(-\frac{1}{2}\sum_{t'=1}^{t-1}\overline{\lambda}_{-kt'}\delta_{t'}\right)\pi_{kt}\Gamma(\overline{u}_{kt})\overline{v}_{kt}^{-\overline{u}_{kt}}\exp\left( -\frac{1}{2} \sum_{t'=1}^{t-1} \overline{\lambda}_{-kt'}\tilde{r}_{t'}^2 \right)}{\sum_{t'=1}^T \exp\left(-\frac{1}{2}\sum_{t''=1}^{t'-1}\overline{\lambda}_{-kt''}\delta_{t''}\right) \pi_{kt'}\Gamma(\overline{u}_{kt'})\overline{v}_{kt'}^{-\overline{u}_{kt'}}\exp\left( -\frac{1}{2} \sum_{t''=1}^{t'-1} \overline{\lambda}_{-kt''}\tilde{r}_{t''}^2\right)}
+\end{align*}
+We can define a modified prior parameter for the rate of $s_{k}$ and a modified prior for the location of the change-point:
+\begin{align*}
+    \tilde{v}_{kt} &:= v_k + \frac{1}{2}\sum_{t'=t}^{T+B_r}\overline{\lambda}_{-kt'}\delta_{t'} \\
+    \tilde{\pi}_{kt} &:= \frac{\pi_{kt} \exp\left(-\frac{1}{2}\sum_{t'=1}^{t-1}\overline{\lambda}_{-kt'}\delta_{-kt'}\right)}{\sum_{t'=1}^T \pi_{kt'} \exp\left(-\frac{1}{2}\sum_{t''=1}^{t'-1}\overline{\lambda}_{-kt''}\delta_{-kt''}\right)} 
+\end{align*}
+Then we notice that the posterior parameters for the block $\theta_k$ are just the parameters that result from plugging the modified mean residual, partial scale residual, as well as the modified prior parameters into the $\texttt{SSCP}$ function:
+\small
+\begin{align*}
+    \left\{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\right\}_{t=1}^T = \texttt{SSCP}\left(\{\tilde{r}_{t}\}_{t=1-B_l}^{T+B_r} \:;\:\{\overline{\lambda}_{-kt}\}_{t=1-B_l}^{T+B_r}, u_k, \{\tilde{v}_{kt}\}_{t=1}^T, \{\tilde{\pi}_{kt}\}_{t=1}^T, B_l,B_r\right).
+\end{align*}
+\normalsize
+i.e. the approximate posterior for $\theta_{k}$ under the mean-field assumption (\ref{eq:mean-field}) is just the exact posterior for the SSCP model using the modified residual as the response and with $v_k$ offset by and $\pi_{kt}$ scaled by functions the partial scale residual $\overline{\lambda}_{-kt}$ and the variance correction term $\delta_{t}$. This completes the proof of part iii of Proposition \ref{prop:1}.
+
+\end{enumerate}
+\end{proof}

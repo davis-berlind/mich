@@ -1,0 +1,73 @@
+% document set up
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{1em}
+
+% math packages
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumitem}
+\usepackage{bbm}
+
+% general packages
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage{natbib}
+
+% algorithms
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+
+% plate diagram
+\usepackage{tikz}
+\usetikzlibrary{bayesnet}
+
+\newcommand\indep{\perp\!\!\!\perp}
+\newcommand{\sforall}{\;\forall\;}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\argmin}[1]{\underset{#1}{\text{arg min}}}
+\newcommand{\argmax}[1]{\underset{#1}{\text{arg max}}}
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+
+
+\title{MICH: A Variational Bayes Approach to Detecting Changes to the Mean and Variance of a Series}
+\author{Davis Berlind}
+\date{September 1, 2023}
+
+\begin{document}
+
+\numberwithin{equation}{section}
+
+\maketitle
+
+\input{MICH/1. Introduction}
+
+\input{MICH/2. Single Change-Point Models}
+
+\input{MICH/3. MICH}
+
+\input{MICH/4. Simulations}
+
+\input{MICH/5. Data}
+
+\input{MICH/6. Discussion}
+
+\bibliographystyle{chicago}
+
+\bibliography{MICH/references}
+
+\appendix
+
+\input{MICH/Appendix/Appendix.tex}
+
+\end{document}
