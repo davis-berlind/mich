@@ -1,0 +1,204 @@
+\subsection{Concentration Results and Event Bounds}
+\label{app:concentration}
+
+% Centered Moments Lemma
+\begin{lemma}\label{lemma:centered-moments}
+For any non-negative random variable $X \geq 0$ and any integer $k \geq 2$, 
+\begin{align*}
+    \E[|X - \E[X]|^k] \leq \E[X^k].
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+By rescaling $X$, we can assume without loss of generality that $\E[X] = 1$, then the result is a direct consequence of the fact that: 
+\begin{align*}
+    f_k(x) &:= x^k - |x-1|^k \geq x - 1 =: g(x)
+\end{align*}
+for each $x \geq 0$ and $k \geq 2$. To prove this inequality, consider the cases of even and odd $k$ separately.
+
+\textbf{Case 1:} Even $k$.
+
+For even $k$, $|x-1|^k = (x-1)^k$, so $f_k = x^k - (x-1)^k$ in this case. For $x \in [0,1/2]$ we have $x \leq |x - 1|$. Since $k-2$ is even we then have:
+\begin{align*}
+    f''_k(x) = k(k-1)(x^{k-2} - (x-1)^{k-2}) \leq 0
+\end{align*}
+so $f_k$ is concave on this interval. Since $f_k(0) = -1 = g(0)$ and $f_k(1/2) = 0 > -1/2 = g(1/2)$, then the concavity of $f_k$ on this interval implies $f_k(x) \geq g(x)$ for all $x \in [0,1/2]$. On $(1/2, 1]$ we have $x > |x - 1|$ and thus $x^k - (x-1)^k > 0$ while $g(x) \geq 0$ on $(1/2,1]$. For $x > 1$, since $f'_k(1) = k > 1$ and since $x > x-1 > 0$ on this interval, then:
+\begin{align*}
+    f''_k(x) = k(k-1)(x^{k-2} - (x-1)^{k-2}) > 0 
+\end{align*}
+so $f'_k(x) > 1$ for all $x > 1$, i.e. $f_k$ is increasing faster than $g$ for $x > 1$ and $f_k(1) = 1 >  0 = g(1)$ so $f_k(x) > g(x)$. 
+
+\textbf{Case 2:} Odd $k$.
+
+For odd $k$, on $(0,1/2)$ we have:
+\begin{align*}
+    f_k(x) &= x^k - (1-x)^k \\
+    f''_k(x) &= k(k-1)(x^{k-2} - (1-x)^{k-2}).
+\end{align*}
+Since $x < 1 - x$ on $(0,1/2)$, then $f''(x)_k \leq 0$ on this interval, i.e. $f_k$ is concave on $(0,1/2)$. Since $f_k(0) = -1 = g(0)$ and $f_k(1/2) = 0 > -1/2 = g(1/2)$, we then have that $f_k(x) \geq g(x)$ on $[0,1/2]$. Next, for $x \in (1/2,1]$ we have $x > |x-1|$ so $f_k(x) \geq 0 \geq g(x)$ on $(1/2,1]$. For $x > 1$, $x - 1 > 0$ so we have $f_k = x^k - (x-1)^k$ and the exact same argument as in the case of even $k$ gives $f'_k(x) > 1$ for all $x > 1$, i.e. $f_k$ is increasing faster than $g$ for $x > 1$ and $f_k(1) = 1 >  0 = g(1)$ so $f_k(x) > g(x)$.  
+\end{proof}
+
+% Sum of sub-Gaussians/Exponentials Lemma
+\begin{lemma}\label{lemma:sum-sub-gaussian}
+If $\{X_i\}_{i=1}^n$ is a collection of random variables such that for each $i \in [n]$, $\E[X_i] = 0$ and $X_i \in \mathcal{SG}(\sigma_i)$ for some $\sigma_i > 0$, then letting $\pmb{\sigma} = \{\sigma_i\}_{i=1}^n$, we have:
+\begin{align*}
+    \sum_{i=1}^N X_i \in 
+    \begin{cases}
+        \mathcal{SG}(\lVert \pmb{\sigma}\rVert_2), &\text{if $\{X_i\}_{i=1}^n$ are mutually independent,} \\
+        \mathcal{SG}(\lVert \pmb{\sigma}\rVert_1), &\text{otherwise.}
+    \end{cases}
+\end{align*}
+Similarly, if $X_i \in \mathcal{SE}(\nu_i, \alpha_i)$ for some $\sigma_i,\:\alpha_i > 0$, then letting $\pmb{\nu} = \{\nu_i\}_{i=1}^n$ and $\pmb{\alpha} = \{\alpha_i\}_{i=1}^n$ , we have:
+\begin{align*}
+    \sum_{i=1}^N X_i \in 
+    \begin{cases}
+        \mathcal{SE}(\lVert \pmb{\nu}\rVert_2, \lVert \pmb{\alpha}\rVert_\infty), &\text{if $\{X_i\}_{i=1}^n$ are mutually independent,} \\
+        \mathcal{SE}(\lVert \pmb{\nu}\rVert_1,  \lVert \pmb{\alpha}\rVert_\infty), &\text{otherwise.}
+    \end{cases}
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+First suppose that $X_i \in \mathcal{SE}(\nu_i, \alpha_i)$ and that $\{X_i\}_{i=1}^n$ is a collection of independent random variables, then by independence:
+\begin{align*}
+    \E\left[\exp\left(\lambda \sum_{i=1}^n X_i\right)\right] &=  \prod_{i=1}^n \E\left[\exp\left(\lambda X_i\right)\right].
+\end{align*}
+Next, note that if $|\lambda| < \lVert \pmb{\alpha}\rVert^{-1}_{\infty}$, then $|\lambda| < \alpha_i^{-1}$ for each $i \in [n]$ and thus:
+\begin{align*}
+    \E\left[\exp\left(\lambda X_i\right)\right] \leq \exp\left[\frac{\lambda^2\nu_{i}^2}{2}\right]
+\end{align*}
+which implies:
+\begin{align*}
+    \E\left[\exp\left(\lambda \sum_{i=1}^n X_i\right)\right] &\leq \exp\left[\frac{\lambda\sum_{i=1}^n\nu^2_i}{2}\right].
+\end{align*}
+So $\sum_{i=1}^n X_i \in \mathcal{SE}(\lVert \pmb{\nu}\rVert_2, \lVert \pmb{\alpha}\rVert_\infty)$. When $\{X_i\}_{i=1}^n$ are not independent, then for any $|\lambda| \leq \lVert \pmb{\alpha}\rVert^{-1}_{\infty}$ and any collection of parameters $\{p_i\}_{i=1}^n$ such that $p_i > 0$ and $\sum_{i=1}^n p_i^{-1} = 1$, we have:
+\begin{align*}
+    \E\left[\exp\left(\lambda \sum_{i=1}^n X_i\right)\right] &= \E\left[ \prod_{i=1}^n \exp\left(\lambda X_i\right)\right] \\
+    &\leq \prod_{i=1}^n \left(\E[\exp\left(p_i \lambda X_i\right)]\right)^{1/p_i} \tag{H\"older's inequality} \\
+    &\leq \prod_{i=1}^n \left(\E\left[\exp\left(\frac{p^2_i\nu_i^2 \lambda^2}{2}\right)\right]\right)^{1/p_i} \tag{$X_i \in \mathcal{SE}(\nu_i,\alpha_i)$} \\
+    &= \exp\left[\frac{\lambda^2\sum_{i=1}^n p_i \nu_i^2}{2}\right].
+\end{align*}
+Since our choice of $\{p_i\}_{i=1}^n$ was arbitrary so long as $p_i > 0$ and $\sum_{i=1}^n p_i^{-1} = 1$, we can set each $p_i = \frac{\lVert\pmb{\nu}\rVert_1}{\nu_i},$ then we get:
+\begin{align*}
+    \E\left[\exp\left(\lambda \sum_{i=1}^n X_i\right)\right] &\leq \exp\left[\frac{\lambda \lVert \pmb{\nu}\rVert^2_1}{2}\right]
+\end{align*}
+showing that $\sum_{i=1}^n X_i \in \mathcal{SE}(\lVert\pmb{\nu}\rVert_1, \lVert \pmb{\alpha}\rVert_\infty).$ The proof for the case where $X_i \in \mathcal{SG}(\sigma_i)$ follows an identical argument as above with $\sigma_i$ replacing $\nu_i$ and ignoring any constraints on $\lambda$. 
+\end{proof}
+
+% Squared sub-Gaussians Lemma
+\begin{lemma}\label{lemma:squared-sub-gaussian}
+    If $X \in \mathcal{SG}(\sigma)$ with $\E[X] = 0$, then $X^2 \in \mathcal{SE}(\sqrt{32}\sigma^2, 4\sigma^2).$
+\end{lemma}
+
+\begin{proof}
+For $p \geq 1$, by the layer cake representation we have:
+\begin{align}
+    \E[|X|^p] &= \int_0^\infty \Pr(|X|^p > t) \; dt \notag \\
+    &= \int_0^\infty \Pr(|X|^p > u) pu^{p-1}\; du  \tag{change of variable $u = t^{1/p}$} \\
+    &\leq \int_0^\infty 2\exp\left(-\frac{u^2}{2\sigma^2}\right)pu^{p-1}\; du \tag{$X\in\mathcal{SG}(\sigma)$} \\
+    &= p\sigma^p2^{\frac{p}{2}}\int_0^\infty \exp(-s)s^{\frac{p}{2}-1}\;ds \tag{change of variable $s = \frac{u^2}{2\sigma^2}$} \\
+    &= p(2\sigma^2)^{\frac{p}{2}}\Gamma\left(\frac{p}{2}\right). \label{eq:sg-moment}
+\end{align}
+For any $\lambda \in \mathbb{R}$, we then have:
+\begin{align*}
+    \E[\exp(\lambda (X^2-\E[X^2]))] &= \E\left[\sum_{n=0}^{\infty} \frac{\lambda^n (X^2-\E[X^2])^n}{n!}\right] \tag{Taylor expansion of $e^x$} \\
+    &= 1 + \lambda(\E[X^2] - \E[X^2]) + \E\left[\sum_{n=2}^{\infty} \frac{\lambda^n (X^2-1)^n}{n!}\right] \\ 
+    &\leq  1 + \E\left[\sum_{n=2}^{\infty} \frac{|\lambda|^n |X^2-\E[X^2]|^n}{n!}\right] \\
+    &= 1 + \sum_{n=2}^{\infty} \frac{|\lambda|^n \E\left[|X^{2} - \E[X^2]|^n\right]}{n!}\tag{monotone convergence theorem} \\
+    &= 1 + \sum_{n=2}^{\infty} \frac{|\lambda|^n \E\left[X^{2n}\right]}{n!}\tag{Lemma \ref{lemma:centered-moments}} \\
+    &\leq 1 + \sum_{n=2}^{\infty} \frac{|\lambda|^n 2n(2\sigma^2)^n\Gamma\left(n\right)}{n!}\tag{by (\ref{eq:sg-moment})} \\
+    &= 1 + 2 \sum_{n=2}^{\infty} (2|\lambda|\sigma^{2})^n. \tag{$\Gamma(n) = (n-1)! \sforall n \in \mathbb{N}$} \\
+\end{align*}
+So if $|\lambda| \in \left(0, \frac{1}{2\sigma^2}\right)$, then: 
+\begin{align*}
+    \E[\exp(\lambda (X^2-1))] \leq 1 + \frac{8\lambda^2\sigma^4}{1 - 2|\lambda|\sigma^{2}}
+\end{align*}
+and if we further restrict $\lambda$ so that $|\lambda| < \frac{1}{4\sigma^2}$, then $\frac{1}{1 - 2|\lambda|\sigma^2} < 2$ and thus:
+\begin{align*}
+    \E[\exp(\lambda (X^2-1))] &\leq 1 + 16\lambda^2\sigma^4 \\
+    &\leq \exp\left(16\lambda^2\sigma^4\right). \tag{$1+x < e^x \sforall x$}
+\end{align*}
+So $X^2 \in \mathcal{SE}(\sqrt{32}\sigma^2, 4\sigma^2)$
+\end{proof}
+
+\subsubsection{Theorem \ref{theorem:smcp} Event Bounds}
+
+\begin{lemma}\label{lemma:thm1-event-bound}
+Let $\{\mathbf{z}_t\}_{t=1}^T$ be a sequence of independent random vectors with $\mathbf{z}_t \in \mathbb{R}^d$, $\E[\mathbf{z}_t] = \mathbf{0}$, and $\E[\mathbf{z}_t\mathbf{z}'_t] = \mathbf{I}_d$. Assume that for each $j \in \{1,\ldots, d\}$, $z_{t,j} \in \mathcal{SG}(1)$ and that Assumption \ref{assumption:1} (i) and Assumption \ref{assumption:mean} hold so that $\min\{t_0, T-t_0\} > cT$ for some $c \in (0,1/2)$ and $\mathbf{b}_0 \geq \underline{b}^2 \log^{-\varepsilon} T$ for some $\underline{b} > 0$ and $\varepsilon \geq 0$. For $\kappa \geq \frac{256}{c^2 \underline{b}^2}$, if we define the events:
+\begin{align*}
+    \Omega_1 &:= \bigcap_{t \;:\; |t_0 - t| > \kappa \log^{1+\varepsilon}T} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| < \frac{c|b_0||t_0-t|}{8}\right\} \\
+    \Omega_2 &:= \bigcap_{t=1}^{t_0} \left\{\left|\sum_{t'=t}^T z_{t'}\right| < \frac{c|b_0|(T-t+1)}{8}\right\} \\
+    \Omega_3 &:= \bigcap_{t=1}^T \left\{\left|\frac{1}{(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2 - 1\right| < 16 \log T \right\}
+\end{align*}
+and $\Omega := \cap_{i=1}^3 \Omega_i$, then $\lim_{T\to\infty} \Pr(\Omega) = 1$.
+\end{lemma}
+
+\begin{proof}
+
+First, we have:
+\begin{align*}
+    \sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'} \sim \mathcal{N}(0,|t_0-t|)
+\end{align*}
+so by the Chernoff bound: 
+\begin{align*}
+    \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'} \right| > \frac{c|b_0||t_0-t|}{8}\right) &\leq 2 \exp\left[- \frac{c^2b_0^2|t_0-t|}{128}\right]. 
+\end{align*}
+If $|t_0-t| > \kappa \log^{1+\varepsilon}T$, we have:
+\begin{align*}
+    \frac{c^2b_0^2|t_0-t|}{128} &\geq \frac{c^2b_0^2 \kappa \log^{1+\varepsilon}T}{128} \\
+    &\geq \frac{2 b_0^2 \log^{1+\varepsilon}T}{\underline{b}^2} \tag{$\kappa \geq \frac{256}{c^2 \underline{b}^2}$} \\
+    &\geq 2 \log T \tag{$b_0^2 \geq \underline{b}^2\log^{-\varepsilon}T$}
+\end{align*}
+and thus:
+\begin{align*}
+    \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'} \right| > \frac{c|b_0||t_0-t|}{8}\right) &\leq \frac{2}{T^2}. 
+\end{align*}
+Therefore:
+\begin{align*}
+    \Pr(\Omega^c_1) &= \Pr\left(\bigcup_{t \;:\; |t_0 - t| > \kappa \log^{1+\varepsilon}T} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq \frac{c|b_0||t_0-t|}{8}\right\} \right) \\
+    &\leq \sum_{t \;:\; |t_0 - t| > \kappa \log^{1+\varepsilon}T} \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq \frac{c|b_0||t_0-t|}{8} \right)\tag{union bound} \\
+    &\leq \sum_{t \;:\; |t_0 - t| > \kappa \log^{1+\varepsilon}T} \frac{2}{T^2} \\
+    &\leq \sum_{t=1}^T \frac{2}{T^2} \\
+    &= \frac{2}{T}.
+\end{align*}
+We also have:
+\begin{align*}
+    \sum_{t'=t}^T z_{t'} \sim \mathcal{N}(0,T-t+1) 
+\end{align*}
+so if $t \leq t_0$, then again by the Chernoff bound:
+\begin{align*}
+    \Pr\left(\left|\sum_{t'=t}^T z_{t'} \right| > \frac{c|b_0|(T-t+1)}{8}\right) &\leq 2 \exp\left[- \frac{c^2b_0^2(T-t+1)}{128}\right] \\
+    &\leq 2 \exp\left[- \frac{c^3\underline{b}^2T\log^{-\varepsilon}T}{128}\right] \tag{$T- t +1> T-t_0 > cT$ and $b_0^2 \geq \underline{b}^2\log^{-\varepsilon}T$}
+\end{align*}
+and thus:
+\begin{align*}
+    \Pr(\Omega^c_2) &= \Pr\left(\bigcup_{t=1}^{t_0} \left\{\left|\sum_{t'=t}^{T} z_{t'}\right| \geq \frac{c|b_0|(T-t+1)}{8}\right\} \right) \\
+    &\leq \sum_{t=1}^{t_0} \Pr\left(\left|\sum_{t'=t}^{T} z_{t'}\right| \geq \frac{c|b_0|(T-t+1)}{8}\right)\tag{union bound} \\
+    &\leq \sum_{t=1}^{t_0}  2 \exp\left[- \frac{c^3\underline{b}^2T\log^{-\varepsilon}T}{128}\right] \\
+    &\leq \sum_{t=1}^{(1-c)T} 2 \exp\left[- \frac{c^3\underline{b}^2T\log^{-\varepsilon}T}{128}\right] \tag{$t_0 < (1-c)T$}  \\
+    &= 2 (1-c)\exp\left[\log T- \frac{c^3\underline{b}^2T\log^{-\varepsilon}T}{128}\right].
+\end{align*}
+Finally, we have:
+\begin{align*}
+    \frac{1}{(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2 \sim \chi_1^2
+\end{align*}
+so by the $\chi^2$-concentration inequality (\ref{eq:chi2-ineq}) we get: 
+\begin{align*}
+    \Pr\left(\left|\frac{1}{(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2 - 1\right| \geq 16 \log T\right) &\leq 2\exp\left[-2\log T\right] \\
+    &= \frac{2}{T^2}.
+\end{align*}
+and thus:
+\begin{align*}
+    \Pr(\Omega^c_3) &= \Pr\left(\bigcup_{t=1}^T \left\{\left|\frac{1}{(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2 - 1\right| \geq 16 \log T\right\} \right) \\
+    &\leq \sum_{t = 1}^{T} \Pr\left(\left|\frac{1}{(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2 - 1\right| > 16 \log T\right) \tag{union bound} \\
+    &\leq \sum_{t = 1}^{T} \frac{2}{T^2} \\
+    &= \frac{2}{T}.
+\end{align*}
+Altogether we have:
+\begin{align*}
+    \lim_{T\to\infty} \Pr(\Omega) &= 1 - \lim_{T\to\infty} \Pr(\cup_{i=1}^3 \Omega_i^c) \\
+    &\geq 1 - \lim_{T\to\infty} \sum_{i=1}^3 \Pr(\Omega_i^c) \tag{union bound} \\
+    &\geq 1 -  \lim_{T\to\infty} \left(\frac{2}{T} - 2 (1-c)\exp\left[\log T+ \frac{c^3\underline{b}^2T\log^{-\varepsilon}T}{128}\right] + \frac{2}{T}\right) \\
+    &= 1.
+\end{align*}
+\end{proof}

@@ -1,0 +1,159 @@
+\subsection{Proof of Theorem \ref{theorem:smcp}}
+\label{app:localization-smcp}
+
+For some mean vector $\mathbf{b}_0 \in \mathbb{R}^d$ and some positive definite precision matrix $\Lambda \in \mathbb{R}^{d \times d}$, suppose that:
+\begin{align*}
+    \mathbf{y}_t \overset{\text{ind.}}{\sim}
+    \begin{cases}
+        \mathcal{N}_d(\mathbf{0},\Lambda^{-1}), &\text{if } 1 \leq t < t_0, \\
+        \mathcal{N}_d(\mathbf{b}_0,\Lambda^{-1}), &\text{if } t_0 \leq t \leq T. \\
+    \end{cases}
+\end{align*}
+Suppose further that Assumption \ref{assumption:1} (i), (ii), and (iii) (a) hold so that $\min\{t_0, T-t_0\} > cT$ for some $c \in (0,1/2)$ and there is some $\underline{b} > 0$ and $\varepsilon \geq 0$ so that:
+\begin{align}\label{eq:thm1-b_0-bd}
+    b^2_0 \geq \frac{\underline{b}^2}{\log^{\varepsilon} T}.
+\end{align}
+Furthermore, because the variance of $y_t$ is assumed to be known in the SMCP model, it is without loss of generality to assume $s_0^2 = 1$, i.e. $\Var(y_t) = 1 \sforall t \in [T]$, as we can just rescale the data. If we take the ratio of the posterior probabilities of the change-point location, we get:
+\begin{align*}
+    \log \frac{\Pr(\gamma = t_0  \:|\: \mathbf{y} ; \tau_0,\pmb{\pi})}{\Pr(\gamma = t  \:|\: \mathbf{y} \:; \tau_0,\pmb{\pi})} &=  \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)\Pr(\gamma = t_0 \:; \pmb{\pi})/ p(\mathbf{y}\:;\tau_0,\pmb{\pi})}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)\Pr(\gamma = t \:;\pmb{\pi})/ p(\mathbf{y}\:;\tau_0,\pmb{\pi})} \tag{Bayes' rule} \\
+    &= \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)} + \log \frac{\pi_{t_0}}{\pi_t}.
+\end{align*}
+By Assumption \ref{assumption:1} (iii) (a), for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
+\begin{align}\label{eq:thm1-prior-bd}
+    \left|\log \frac{\pi_{t_0}}{\pi_t}\right| \leq C_\pi \log T.
+\end{align}
+Therefore, if we can show that there is some constant $\kappa > 0$ such that for all $t$ that satisfy $|t - t_0| > \kappa\log^{1+\varepsilon} T$ we have:
+\begin{align}
+    \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)} > C_\pi \log T + o(\log T) \label{eq:thm1-result}
+\end{align}
+with probability approaching one as $T \to \infty$, then we will have:
+\begin{align*}
+    \max_{t \;:\; |t - t_0| > \kappa \log^{1+\varepsilon} T} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0,\pmb{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0,\pmb{\pi}).
+\end{align*}
+with probability approaching one as $T \to \infty$. We now prove (\ref{eq:thm1-result}) holds for $\kappa = \frac{256 + 4C_\pi}{c^2\underline{b}^2}$.
+
+\begin{proof}
+We begin by directly calculating the log-marginal density of $\mathbf{y}_{1:T}$: 
+\begin{align*}
+    \log p(\mathbf{y}_{1:T} \:|\:\gamma = t ; \Lambda, \Lambda_0) &= \log \int \Pr(\mathbf{y}_{1:T} \:|\:\mathbf{b},\gamma = t) \:\; d\Pr(\mathbf{b};\Lambda_0) \\
+    &= \log \int_{-\infty}^\infty (2\pi)^{-\frac{dT}{2}}|\Lambda|^\frac{1}{2} \exp\left[-\frac{\sum_{t'=1}^{t-1} \mathbf{y}'_{t'}\Lambda\mathbf{y}_{t'} + \sum_{t'=t}^{T} (\mathbf{y}_{t'} - \mathbf{b})'\Lambda(\mathbf{y}_{t'} - \mathbf{b})}{2}\right] \\
+    &\quad\quad\quad\quad\quad\times (2\pi)^{-\frac{d}{2}}|\Lambda_0|^\frac{1}{2}\exp\left[-\frac{\mathbf{b}'\Lambda_0 \mathbf{b}}{2}\right] \; db \\
+    &= \log \int_{-\infty}^\infty \exp\left[-\frac{\mathbf{b}'[(T-t+1)\Lambda + \Lambda_0]\mathbf{b}-2\mathbf{b}'\Lambda \sum_{t'=t}^T\mathbf{y}_{t'}}{2}\right] \; db + C\\ 
+\end{align*}
+where $C>0$ is a constant that does not depend on the value of $\gamma$. If we define $\Lambda_t := (T-t+1)\Lambda + \Lambda_0$ and $\overline{\mathbf{b}}_t := \Lambda^{-1}_t \Lambda \sum_{t'=t}^T \mathbf{y}_{t'}$, then we have:
+\begin{align*}
+    \log p(\mathbf{y}_{1:T} \:|\:\gamma = t ; \Lambda, \Lambda_0)
+    &= \log \int_{-\infty}^\infty \exp\left[-\frac{(\mathbf{b} - \overline{\mathbf{b}}_t)'\Lambda_t(\mathbf{b} - \overline{\mathbf{b}}_t) - \overline{\mathbf{b}}'_t \Lambda_t \overline{\mathbf{b}}_t }{2}\right] \; db + C\\
+    &= -\frac{1}{2}\log |\Lambda_t| + \frac{1}{2} \overline{\mathbf{b}}'_t \Lambda_t \overline{\mathbf{b}}_t + C.
+\end{align*}
+Assume that $\tau_0$ is small\footnote{Formally, for any $\tau_0 >0$, we can show that for each $t$ we consider, $\Delta_t \sim p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)$ as $T \to \infty$ with high probability. So if we can show there is some $\delta > 0$ such that $\log \frac{\Delta_{t_0}}{\Delta_t} > \delta-2\log(1-\delta)$, then we can show: $$\log \frac{p(\mathbf{y} \:|\:\gamma = t_0 ; \tau_0)}{p(\mathbf{y} \:|\:\gamma = t ; \tau_0)} = \log\frac{p(\mathbf{y} \:|\:\gamma = t_0 ; \tau_0)}{\Delta_{t_0}} + \log \frac{\Delta_{t_0}}{\Delta_t} + \log \frac{p(\mathbf{y} \:|\:\gamma = t ; \tau_0)}{\Delta_t} > \log(1-\delta) + \delta-2\log(1-\delta) +\log(1-\delta) > 0$$ with high probability, which is the desired result.} so that: 
+\begin{align*}
+    \log p(\mathbf{y} \:|\: \gamma = t; \tau_0) &\approx -\frac{1}{2}\log(T - t + 1) + \frac{1}{2(T-t+1)}\left(\sum_{t'=t}^{T} y_{t'}\right)^2 + \log C \\
+    &:= \log \Delta_t.
+\end{align*}
+We therefore have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &= \frac{1}{2} \log \left(\frac{T-t+1}{T-t_0+1}\right) + \frac{1}{2} \left[\frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2- \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2\right].
+\end{align*}
+We also define the standardized terms:
+\begin{align*}
+    z_{t} :=
+    \begin{cases}
+        y_t, & \text{if } t < t_0, \\
+        y_t - b_0, & \text{if } t \geq t_0.
+    \end{cases}
+\end{align*}
+When $\kappa = \frac{256 + 4C_\pi}{c^2\underline{b}^2}$, the conditions for Lemma \ref{lemma:thm1-event-bound} are met so we will be on the event $\Omega$ defined in  Lemma \ref{lemma:thm1-event-bound} with high probability. We can show that (\ref{eq:thm1-result}) holds on $\Omega$ for this choice of $\kappa$. There are two cases to consider:
+
+\subsubsection*{Case 1: $t > t_0$.}
+
+First, since $T-t +1\geq 1$ and $T-t_0+1 < T$, by the monotonicity of the $\log$ we have: 
+\begin{align*}
+    \log \left(\frac{T-t+1}{T-t_0+1}\right) \geq -\log(T-t_0+1) > -\log T.
+\end{align*}
+and thus:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> -\frac{1}{2} \log T + \frac{1}{2} \left[\frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2- \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2\right]. 
+\end{align*}
+If we define the following terms:
+\begin{align*}
+    \overline{z}_{t_0:T} &:= \frac{1}{T-t_0+1}\sum_{t'=t_0}^T z_{t'} \\
+    \overline{z}_{t:T} &:= \frac{1}{T-t+1}\sum_{t'=t}^T z_{t'}
+\end{align*}
+then we can write:
+\small
+\begin{align*}
+    \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2- \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2 &= (t-t_0)b_0^2 + 2b_0\sum_{t'=t_0}^{t-1}z_{t'} + (T-t_0+1) \overline{z}^2_{t_0:T} - (T-t+1)\overline{z}^2_{t:T}.
+\end{align*}
+\normalsize
+Since $(T-t_0+1) \overline{z}^2_{t_0:T} > 0$, we now have: 
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> -\frac{1}{2} \log T + \frac{1}{2} \left[(t-t_0)b_0^2 + 2b_0\sum_{t'=t_0}^{t-1}z_{t'} - (T-t+1)\overline{z}^2_{t:T}\right].
+\end{align*}
+On $\Omega$ we have:
+\begin{align*}
+    \left|\sum_{t'=t_0}^{t-1}z_{t'}\right| \leq \frac{c|b_0|(t-t_0)}{8} \leq \frac{|b_0|(t-t_0)}{4}
+\end{align*}
+and:
+\begin{align*}
+    (T-t+1)\overline{z}^2_{t:T} = \frac{1}{(T-t+1)}\left(\sum_{t'=t}^T z_{t'}\right)^2 - 1 +1 \leq 16\log T.
+\end{align*}
+So for $t > t_0 + \kappa \log^{1+\varepsilon} T$ on $\Omega$:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t}  &> -\frac{1}{2} \log T + \frac{1}{2} \left[(t-t_0)b_0^2 + 2b_0\sum_{t'=t_0}^{t-1}z_{t'} - (T-t+1)\overline{z}^2_{t:T}\right]\\
+    &> -\frac{1}{2} \log T + \frac{1}{2} \left[\frac{(t-t_0)b_0^2 }{2}- 16 \log T -1\right]  \\
+    &\geq \left(8 - \frac{1}{2} + C_\pi\right) \log T - \frac{1}{2} \tag{$\kappa \geq \underline{b}^{-2}(64 + 4 C_\pi)$}
+\end{align*}
+which proves (\ref{eq:thm1-result}) for this case.
+
+\subsubsection*{Case 2: $t < t_0$.}
+
+We can write:
+\small
+\begin{align*}
+    \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2 - \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2 &= \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} z_{t'} + (T-t_0+1)b_0\right)^2 \\
+    &\quad - \frac{1}{T-t+1}\left(\sum_{t'=t}^{t_0-1} z_{t'} + \sum_{t'=t_0}^{T} z_{t'} + (T-t_0+1)b_0\right)^2 \\ 
+    &= \frac{(T-t_0+1)(t_0 - t) b_0^2}{T-t+1} \\
+    &\quad + \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} z_{t'}\right)^2 -\frac{1}{T-t+1}\left(\sum_{t'=t}^{T} z_{t'}\right)^2\\
+    &\quad  + 2(t_0 - t) b_0\left(\frac{1}{T-t+1}\sum_{t'=t}^{T} z_{t'} - \frac{1}{t_0-t}\sum_{t'=t}^{t_0-1} z_{t'}\right).
+\end{align*}
+\normalsize
+Since $T-t+1 < T$ and $T - t_0 + 1 > cT$ by Assumption \ref{assumption:1} (i), we have:
+\begin{align*}
+    \frac{(T - t_0 + 1)(t_0-t)b_0^2}{T-t+1} &> c (t_0-t) b_0^2 
+\end{align*}
+and thus:
+\begin{align*}
+    \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2 - \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2 &> c(t_0 - t)b_0^2 -\frac{1}{T-t+1}\left(\sum_{t'=t}^{T} z_{t'}\right)^2\\
+    &\quad  - 2(t_0 - t) |b_0|\left(\frac{1}{T-t+1}\left|\sum_{t'=t}^{T} z_{t'}\right| + \frac{1}{t_0-t}\left|\sum_{t'=t}^{t_0-1} z_{t'}\right|\right).
+\end{align*}
+Noting that $t < t_0$ implies $T - t + 1 > T - t_0 + 1$ and thus $ \log (T-t+1) > \log(T-t_0+1)$, so we have:
+\small
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &= \frac{1}{2} \log \left(\frac{T-t+1}{T-t_0+1}\right) + \frac{1}{2} \left[\frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2- \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2\right] \notag \\
+    &> \frac{c (t_0-t)b_0^2 }{2} - (t_0 -t) |b_0| \left(\frac{1}{T-t+1}\left|\sum_{t'=t}^{T} z_{t'}\right| + \frac{1}{t_0-t}\left|\sum_{t'=t}^{t_0-1} z_{t'}\right|\right) -\frac{1}{2(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2.
+\end{align*}
+\normalsize
+Like in the previous case, on $\Omega$ we have:
+\begin{align*}
+    \left|\sum_{t'=t}^{t_0-1}z_{t'}\right| \leq \frac{c|b_0|(t_0 - t)}{8} 
+\end{align*}
+and:
+\begin{align*}
+    \left|\sum_{t'=t}^T z_{t'}\right| \leq \frac{c|b_0|(T - t + 1)}{8} 
+\end{align*}
+and:
+\begin{align*}
+    (T-t+1)\overline{z}^2_{t:T} = \frac{1}{(T-t+1)}\left(\sum_{t'=t}^T z_{t'}\right)^2 - 1 +1 \leq 16\log T
+\end{align*}
+So for $t < t_0 - \kappa \log^{1+\varepsilon} T$ on $\Omega$:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{c (t_0-t)b_0^2 }{2} - (t_0 -t) |b_0| \left(\frac{1}{T-t+1}\left|\sum_{t'=t}^{T} z_{t'}\right| + \frac{1}{t_0-t}\left|\sum_{t'=t}^{t_0-1} z_{t'}\right|\right) -\frac{1}{2(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2 \\
+    &> \frac{c (t_0-t)b_0^2 }{2} - (t_0 -t) |b_0| \left(\frac{c|b_0|}{8} + \frac{c|b_0|}{8}\right) -8\log T - \frac{1}{2} \\
+    &> \left(\frac{c\underline{b}^2\kappa}{4} - 8\right)\log T - \frac{1}{2} \tag{$(t_0-t) > \kappa\log^{1+\varepsilon} T$ and \ref{eq:thm1-b_0-bd}} \\
+    &= \left[c^{-1}(64 + C_\pi) - 8\right] \log T - \frac{1}{2} \tag{$\kappa = \frac{256 + 4 C_\pi}{c^2\underline{b}^2}$}
+\end{align*}
+which proves (\ref{eq:thm1-result}).
+
+
+\end{proof}

@@ -66,7 +66,7 @@
   \edge[-] {u_j, v_j} {s_j-f} ; %
   
   % Plates
-  \plate[thick, inner sep=.25cm]{y} {(y)(mu)(lambda)} {$1 -B_l \leq t \leq T+B_r$} ;
+  \plate[thick, inner sep=.25cm]{y} {(y)(mu)(lambda)} {$1 \leq t \leq T$} ;
   \tikzset{plate caption/.append style={above right =0pt of #1.north west}}
   \plate[thick,color=violet]{mu lambda} {(mu)(lambda)(gamma_j)(gamma_j-f)(pi_j)(b_j)(b_j-f)(tau_j)(s_j)(s_j-f)(u_j)(v_j)}{\textcolor{violet}{$1 \leq j \leq J$}} ;
   \tikzset{plate caption/.append style={below left = 5pt of #1.south east}}
