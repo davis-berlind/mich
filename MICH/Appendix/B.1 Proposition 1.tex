@@ -256,7 +256,7 @@ Returning to the posterior parameters for $b_{\ell}$ and $\gamma_{\ell}$, we now
 Then we notice that the posterior parameters for the block $\theta_\ell$ are just the parameters that result from plugging the modified partial residual into the $\texttt{SMCP}$ function,
 \small
 \begin{align*}
-    \left\{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\right\}_{t=1}^T = \texttt{SMCP}\left(\{\tilde{r}_{-\ell t}\}_{t=1-B_l}^{T+B_r} \:;\: \{\overline{\lambda}_t\}_{t=1-B_l}^{T+B_r}, \tau_{\ell}, \pmb{\pi}_{\ell}, B_l,B_r\right).
+    \left\{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\right\}_{t=1}^T = \texttt{SMCP}\left(\{\tilde{r}_{-\ell t}\}_{t=1-B_l}^{T+B_r} \:;\: \{\overline{\lambda}_t\}_{t=1-B_l}^{T+B_r}, \tau_{\ell}, \boldsymbol{\pi}_{\ell}, B_l,B_r\right).
 \end{align*}
 \normalsize
 i.e. the approximate posterior for $\theta_\ell$ under the mean-field assumption (\ref{eq:mean-field}) is just the exact posterior for the SMCP model using the modified partial residual as the response. This completes the proof of part ii of Proposition \ref{prop:1}.

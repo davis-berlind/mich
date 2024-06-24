@@ -1,159 +1,230 @@
 \subsection{Proof of Theorem \ref{theorem:smcp}}
 \label{app:localization-smcp}
 
-For some mean vector $\mathbf{b}_0 \in \mathbb{R}^d$ and some positive definite precision matrix $\Lambda \in \mathbb{R}^{d \times d}$, suppose that:
+If we take the ratio of the posterior probabilities of the change-point location from the SMCP model, we get:
 \begin{align*}
-    \mathbf{y}_t \overset{\text{ind.}}{\sim}
-    \begin{cases}
-        \mathcal{N}_d(\mathbf{0},\Lambda^{-1}), &\text{if } 1 \leq t < t_0, \\
-        \mathcal{N}_d(\mathbf{b}_0,\Lambda^{-1}), &\text{if } t_0 \leq t \leq T. \\
-    \end{cases}
-\end{align*}
-Suppose further that Assumption \ref{assumption:1} (i), (ii), and (iii) (a) hold so that $\min\{t_0, T-t_0\} > cT$ for some $c \in (0,1/2)$ and there is some $\underline{b} > 0$ and $\varepsilon \geq 0$ so that:
-\begin{align}\label{eq:thm1-b_0-bd}
-    b^2_0 \geq \frac{\underline{b}^2}{\log^{\varepsilon} T}.
-\end{align}
-Furthermore, because the variance of $y_t$ is assumed to be known in the SMCP model, it is without loss of generality to assume $s_0^2 = 1$, i.e. $\Var(y_t) = 1 \sforall t \in [T]$, as we can just rescale the data. If we take the ratio of the posterior probabilities of the change-point location, we get:
-\begin{align*}
-    \log \frac{\Pr(\gamma = t_0  \:|\: \mathbf{y} ; \tau_0,\pmb{\pi})}{\Pr(\gamma = t  \:|\: \mathbf{y} \:; \tau_0,\pmb{\pi})} &=  \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)\Pr(\gamma = t_0 \:; \pmb{\pi})/ p(\mathbf{y}\:;\tau_0,\pmb{\pi})}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)\Pr(\gamma = t \:;\pmb{\pi})/ p(\mathbf{y}\:;\tau_0,\pmb{\pi})} \tag{Bayes' rule} \\
-    &= \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)} + \log \frac{\pi_{t_0}}{\pi_t}.
+    \log \frac{\Pr(\gamma = t_0  \:|\: \mathbf{y}_{1:T} ; \lambda_0,\boldsymbol{\pi}_{1:T})}{\Pr(\gamma = t  \:|\: \mathbf{y}_{1:T} \:; \lambda_0,\boldsymbol{\pi}_{1:T})} &=  \log \frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 \:; \lambda_0)\Pr(\gamma = t_0 \:; \boldsymbol{\pi}_{1:T})/ p(\mathbf{y}_{1:T}\:;\lambda_0,\boldsymbol{\pi}_{1:T})}{p(\mathbf{y}_{1:T} \:|\:\gamma = t \:; \lambda_0)\Pr(\gamma = t \:;\boldsymbol{\pi}_{1:T})/ p(\mathbf{y}_{1:T}\:;\lambda_0,\boldsymbol{\pi}_{1:T})} \tag{Bayes' rule} \\
+    &= \log \frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 \:; \lambda_0)}{p(\mathbf{y}_{1:T} \:|\:\gamma = t \:; \lambda_0)} + \log \frac{\pi_{t_0}}{\pi_t}.
 \end{align*}
 By Assumption \ref{assumption:1} (iii) (a), for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
 \begin{align}\label{eq:thm1-prior-bd}
     \left|\log \frac{\pi_{t_0}}{\pi_t}\right| \leq C_\pi \log T.
 \end{align}
-Therefore, if we can show that there is some constant $\kappa > 0$ such that for all $t$ that satisfy $|t - t_0| > \kappa\log^{1+\varepsilon} T$ we have:
+Therefore, if we can show that there is some constant $\kappa > 0$ such that:
 \begin{align}
-    \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)} > C_\pi \log T + o(\log T) \label{eq:thm1-result}
+    \lim_{T\to\infty}\Pr\left(\bigcap_{t\::\: |t - t_0| > \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2}}\left\{ \log \frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 \:; \lambda_0)}{p(\mathbf{y}_{1:T} \:|\:\gamma = t \:; \lambda_0)} > C_\pi \log T\right\}\right) = 1 \label{eq:thm1-result}
 \end{align}
-with probability approaching one as $T \to \infty$, then we will have:
+then with probability approaching one as $T \to \infty$ we will have:
 \begin{align*}
-    \max_{t \;:\; |t - t_0| > \kappa \log^{1+\varepsilon} T} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0,\pmb{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0,\pmb{\pi}).
+    \max_{t\::\: |t - t_0| > \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2}} \; \Pr(\gamma = t  \;|\; \mathbf{y}_{1:T} ; \lambda_0,\boldsymbol{\pi}_{1:T}) < \Pr(\gamma = t_0  \;|\; \mathbf{y}_{1:T} ; \lambda_0,\boldsymbol{\pi}_{1:T}).
 \end{align*}
-with probability approaching one as $T \to \infty$. We now prove (\ref{eq:thm1-result}) holds for $\kappa = \frac{256 + 4C_\pi}{c^2\underline{b}^2}$.
+Since: 
+\begin{align*}
+    \lambda_{\min} = \min_{\mathbf{x}\in\mathbb{R}^d}\frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{x}\rVert_2^2}{\lVert\mathbf{x}\rVert_2^2}
+\end{align*}
+we have $\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2 \geq \lambda_{\min} \lVert \mathbf{b}_0\rVert^2_2$ and thus:
+\begin{align*}
+    \frac{\kappa \log T}{\lVert \boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2} \leq 
+    \frac{\kappa \log T}{\lambda_{\min}\lVert\mathbf{b}_0\rVert_2^2}. 
+\end{align*}
+By Assumption \ref{assumption:mean}, there is some finite $\underline{b} > 0$ such that $\lVert\mathbf{b}_0\rVert_2^2 \geq \underline{b}^2 d$ and thus:
+\begin{align*}
+    \frac{\kappa \log T}{\lVert \boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2} \leq 
+    \frac{\kappa \log T}{\lambda_{\min}\underline{b}^2 d}. 
+\end{align*}
+Since $\lambda_{\min} > 0$, this establishes the localization rate is of order $d^{-1} \log T$. When $d$ grows faster than $\log T$, for large enough $T$ we have $\frac{\kappa \log T}{\lambda_{\min}\underline{b}^2 d} < 1$, and since $|t - t_0| > 1$ for all $t\neq t_0$, we have:
+\begin{align*}
+    \lim_{T\to\infty}\Pr\left(\bigcap_{t \neq t_0}\left\{ \log \frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 \:; \lambda_0)}{p(\mathbf{y}_{1:T} \:|\:\gamma = t \:; \lambda_0)} > C_\pi \log T\right\}\right) = 1
+\end{align*}
+i.e. $\lim_{T\to\infty}\Pr(\hat{t}_{\text{MAP}} = t_0) = 1$.
 
 \begin{proof}
 We begin by directly calculating the log-marginal density of $\mathbf{y}_{1:T}$: 
+\small
 \begin{align*}
-    \log p(\mathbf{y}_{1:T} \:|\:\gamma = t ; \Lambda, \Lambda_0) &= \log \int \Pr(\mathbf{y}_{1:T} \:|\:\mathbf{b},\gamma = t) \:\; d\Pr(\mathbf{b};\Lambda_0) \\
-    &= \log \int_{-\infty}^\infty (2\pi)^{-\frac{dT}{2}}|\Lambda|^\frac{1}{2} \exp\left[-\frac{\sum_{t'=1}^{t-1} \mathbf{y}'_{t'}\Lambda\mathbf{y}_{t'} + \sum_{t'=t}^{T} (\mathbf{y}_{t'} - \mathbf{b})'\Lambda(\mathbf{y}_{t'} - \mathbf{b})}{2}\right] \\
-    &\quad\quad\quad\quad\quad\times (2\pi)^{-\frac{d}{2}}|\Lambda_0|^\frac{1}{2}\exp\left[-\frac{\mathbf{b}'\Lambda_0 \mathbf{b}}{2}\right] \; db \\
-    &= \log \int_{-\infty}^\infty \exp\left[-\frac{\mathbf{b}'[(T-t+1)\Lambda + \Lambda_0]\mathbf{b}-2\mathbf{b}'\Lambda \sum_{t'=t}^T\mathbf{y}_{t'}}{2}\right] \; db + C\\ 
+    \log p(\mathbf{y}_{1:T} \:|\:\gamma = t ; \lambda_0) &= \log \int_{\mathbb{R}^d} \Pr(\mathbf{y}_{1:T} \:|\:\mathbf{b},\gamma = t) \:\; d\Pr(\mathbf{b};\lambda_0) \\
+    &= \log \int_{\mathbb{R}^d} (2\pi)^{-\frac{dT}{2}}|\boldsymbol{\Lambda}|^\frac{T}{2} \exp\left[-\frac{\sum_{t'=1}^{t-1} \lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{y}_{t'}\rVert_2^2 + \sum_{t'=t}^{T} \lVert\boldsymbol{\Lambda}^{\frac{1}{2}}(\mathbf{y}_{t'} - \mathbf{b})\rVert_2^2}{2}\right] \\
+    &\quad\quad\quad\quad\quad\times \left(\frac{\lambda_0}{2\pi}\right)^{\frac{d}{2}}\exp\left[-\frac{\lambda_0\lVert\mathbf{b}\rVert_2^2}{2}\right] \; d\mathbf{b} \\
+    &= \frac{T}{2}\left[\log|\boldsymbol{\Lambda}| - d\log(2\pi)\right] + \frac{d}{2}\log \left(\frac{\lambda_0}{2\pi}\right)\\
+    &\quad + \log \int_{\mathbb{R}^d} \exp\left[-\frac{\sum_{t'=1}^{t-1} \lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{y}_{t'}\rVert_2^2 + \sum_{t'=t}^{T} \lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}\rVert_2^2 +\lambda_0 \lVert\mathbf{b}\rVert_2^2 + \sum_{t'=t}^{T} \lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{y}_{t'}\rVert_2^2 + -2\langle \mathbf{b}, \boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t}^T\mathbf{y}_{t'}\rangle}{2}\right] \\
+    &=  \frac{T}{2}\left[\log|\boldsymbol{\Lambda}| - d\log(2\pi)\right] + \frac{d}{2}\log \left(\lambda_0\right) - \frac{\sum_{t'=1}^T \lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{y}_{t'}\rVert_2^2}{2} \\
+    &\quad + \log \int_{\mathbb{R}^d} (2\pi)^{-\frac{d}{2}}\exp\left[-\frac{\lVert[(T-t+1)\boldsymbol{\Lambda} + \lambda_0\mathbf{I}_d]^{\frac{1}{2}}\mathbf{b}\rVert_2^2-2\langle \mathbf{b}, \boldsymbol{\Lambda} \sum_{t'=t}^T\mathbf{y}_{t'}\rangle}{2}\right] \; d\mathbf{b}\\ 
+    &= \log \int_{\mathbb{R}^d} (2\pi)^{-\frac{d}{2}}\exp\left[-\frac{\lVert[(T-t+1)\boldsymbol{\Lambda} + \lambda_0\mathbf{I}_d]^{\frac{1}{2}}\mathbf{b}\rVert_2^2-2\langle \mathbf{b}, \boldsymbol{\Lambda} \sum_{t'=t}^T\mathbf{y}_{t'}\rangle}{2}\right] \; d\mathbf{b} + C \tag{$C$ constant independent of $\gamma$}
 \end{align*}
-where $C>0$ is a constant that does not depend on the value of $\gamma$. If we define $\Lambda_t := (T-t+1)\Lambda + \Lambda_0$ and $\overline{\mathbf{b}}_t := \Lambda^{-1}_t \Lambda \sum_{t'=t}^T \mathbf{y}_{t'}$, then we have:
+\normalsize
+If we define $\overline{\boldsymbol{\Lambda}}_t := (T-t+1)\boldsymbol{\Lambda} + \lambda_0\mathbf{I}_d$ and $\overline{\mathbf{b}}_t := \overline{\boldsymbol{\Lambda}}^{-1}_t \boldsymbol{\Lambda} \sum_{t'=t}^T \mathbf{y}_{t'}$, then we have:
 \begin{align*}
-    \log p(\mathbf{y}_{1:T} \:|\:\gamma = t ; \Lambda, \Lambda_0)
-    &= \log \int_{-\infty}^\infty \exp\left[-\frac{(\mathbf{b} - \overline{\mathbf{b}}_t)'\Lambda_t(\mathbf{b} - \overline{\mathbf{b}}_t) - \overline{\mathbf{b}}'_t \Lambda_t \overline{\mathbf{b}}_t }{2}\right] \; db + C\\
-    &= -\frac{1}{2}\log |\Lambda_t| + \frac{1}{2} \overline{\mathbf{b}}'_t \Lambda_t \overline{\mathbf{b}}_t + C.
+    \log p(\mathbf{y}_{1:T} \:|\:\gamma = t ; \lambda_0)
+    &=  -\frac{1}{2}\log |\overline{\boldsymbol{\Lambda}}_t| + \log \int_{\mathbb{R}^d} \big|\overline{\boldsymbol{\Lambda}}^{\frac{1}{2}}_t\big|(2\pi)^{-\frac{d}{2}}\exp\left[-\frac{\lVert\overline{\boldsymbol{\Lambda}}^{\frac{1}{2}}_t(\mathbf{b} - \overline{\mathbf{b}}_t)\rVert_2^2}{2} + \frac{\lVert \overline{\boldsymbol{\Lambda}}^{\frac{1}{2}}_t \overline{\mathbf{b}}_t\rVert_2^2}{2}\right] \; d\mathbf{b} + C\\
+    &= -\frac{1}{2}\log |\overline{\boldsymbol{\Lambda}}_t| + \frac{1}{2}\lVert \overline{\boldsymbol{\Lambda}}^{\frac{1}{2}}_t \overline{\mathbf{b}}_t\rVert_2^2 + C.
 \end{align*}
-Assume that $\tau_0$ is small\footnote{Formally, for any $\tau_0 >0$, we can show that for each $t$ we consider, $\Delta_t \sim p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)$ as $T \to \infty$ with high probability. So if we can show there is some $\delta > 0$ such that $\log \frac{\Delta_{t_0}}{\Delta_t} > \delta-2\log(1-\delta)$, then we can show: $$\log \frac{p(\mathbf{y} \:|\:\gamma = t_0 ; \tau_0)}{p(\mathbf{y} \:|\:\gamma = t ; \tau_0)} = \log\frac{p(\mathbf{y} \:|\:\gamma = t_0 ; \tau_0)}{\Delta_{t_0}} + \log \frac{\Delta_{t_0}}{\Delta_t} + \log \frac{p(\mathbf{y} \:|\:\gamma = t ; \tau_0)}{\Delta_t} > \log(1-\delta) + \delta-2\log(1-\delta) +\log(1-\delta) > 0$$ with high probability, which is the desired result.} so that: 
+Letting $\lambda_0 \to 0$ we have $\overline{\boldsymbol{\Lambda}}_t \to (T-t + 1)\boldsymbol{\Lambda}$, therefore: 
 \begin{align*}
-    \log p(\mathbf{y} \:|\: \gamma = t; \tau_0) &\approx -\frac{1}{2}\log(T - t + 1) + \frac{1}{2(T-t+1)}\left(\sum_{t'=t}^{T} y_{t'}\right)^2 + \log C \\
+    \log p(\mathbf{y}_{1:T} \:|\: \gamma = t; \lambda_0 = 0) &= -\frac{d}{2}\log(T - t + 1) + \frac{\lVert \boldsymbol{\Lambda}^{\frac{1}{2}}\sum_{t'=t}^T\mathbf{y}_{t'}\rVert_2^2}{2(T-t+1)}+ C \\
     &:= \log \Delta_t.
 \end{align*}
-We therefore have:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &= \frac{1}{2} \log \left(\frac{T-t+1}{T-t_0+1}\right) + \frac{1}{2} \left[\frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2- \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2\right].
-\end{align*}
-We also define the standardized terms:
-\begin{align*}
-    z_{t} :=
-    \begin{cases}
-        y_t, & \text{if } t < t_0, \\
-        y_t - b_0, & \text{if } t \geq t_0.
-    \end{cases}
-\end{align*}
-When $\kappa = \frac{256 + 4C_\pi}{c^2\underline{b}^2}$, the conditions for Lemma \ref{lemma:thm1-event-bound} are met so we will be on the event $\Omega$ defined in  Lemma \ref{lemma:thm1-event-bound} with high probability. We can show that (\ref{eq:thm1-result}) holds on $\Omega$ for this choice of $\kappa$. There are two cases to consider:
+Since the determinant and $\lVert \cdot \rVert_2$ are continuous, for small $\lambda_0$, we can use $\log \Delta_t$ to approximate the log-evidence.\footnote{Formally, we can show that for each $t$ we consider, $\Delta_t \sim p(\mathbf{y}_{1:T} \:|\:\gamma = t \:; \lambda_0)$ as $T \to \infty$ with high probability. So if we can show there is some $\delta > 0$ such that $\log \frac{\Delta_{t_0}}{\Delta_t} > \delta-2\log(1-\delta)$, then we can show: $$\log \frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 ; \lambda_0)}{p(\mathbf{y}_{1:T} \:|\:\gamma = t ; \lambda_0)} = \log\frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 ; \lambda_0)}{\Delta_{t_0}} + \log \frac{\Delta_{t_0}}{\Delta_t} + \log \frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t ; \lambda_0)}{\Delta_t} > \log(1-\delta) + \delta-2\log(1-\delta) +\log(1-\delta) > 0$$ with high probability, which is the desired result.} Let $\kappa$ be large enough so that the statement of Lemma \ref{lemma:thm1-event-bound} holds. Then we will be on the event $\Omega$ defined in Lemma \ref{lemma:thm1-event-bound} with probability approaching one as $T\to\infty$. We can show that the event in (\ref{eq:thm1-result}) holds on $\Omega$. There are two cases to consider:
 
 \subsubsection*{Case 1: $t > t_0$.}
 
-First, since $T-t +1\geq 1$ and $T-t_0+1 < T$, by the monotonicity of the $\log$ we have: 
+We begin using the inequality $\log(1 - x) \geq -\frac{x}{\sqrt{1-x}}$ for $x \in [0,1)$ to write: 
 \begin{align*}
-    \log \left(\frac{T-t+1}{T-t_0+1}\right) \geq -\log(T-t_0+1) > -\log T.
+    \log \left(\frac{T-t+1}{T-t_0+1}\right) &= \log\left(1 - \frac{t-t_0}{T-t_0+1}\right) \\
+    &\geq \frac{-(t-t_0)}{\sqrt{(T-t_0+1)(T-t+1)}} \\
+    &\geq -\frac{(t-t_0)}{\sqrt{\log^{1+\varepsilon} T}} \tag{$T-t_0+1 > \log^{1+\varepsilon} T$}
 \end{align*}
 and thus:
 \begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> -\frac{1}{2} \log T + \frac{1}{2} \left[\frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2- \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2\right]. 
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> -\frac{d(t-t_0)}{2\sqrt{\log^{1+\varepsilon}  T}} + \frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t_0}^T\mathbf{y}_{t'}\rVert_2^2}{2(T-t_0+1)}- \frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t}^T\mathbf{y}_{t'}\rVert_2^2}{2(T-t+1)}.
 \end{align*}
-If we define the following terms:
+Next, for $t \geq t_0$ we have:
 \begin{align*}
-    \overline{z}_{t_0:T} &:= \frac{1}{T-t_0+1}\sum_{t'=t_0}^T z_{t'} \\
-    \overline{z}_{t:T} &:= \frac{1}{T-t+1}\sum_{t'=t}^T z_{t'}
+    \left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t}^T\mathbf{y}_{t'}\right\rVert_2^2 &= \left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t}^T(\mathbf{y}_{t'} - \mathbf{b}_0 + \mathbf{b}_0)\right\rVert_2^2 \\
+    &= \left\lVert \sum_{t'=t}^T \mathbf{z}_{t'}\right\rVert_2^2 + 2(T-t+1) \left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t}^T\mathbf{z}_{t'} \right\rangle + (T-t+1)^2\left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\right\rVert_2^2 
 \end{align*}
-then we can write:
+and thus:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t-t_0)}{2}\left[\left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\right\rVert_2^2 - \frac{d}{\sqrt{\log^{1+\varepsilon}  T}}\right] + \frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{2(T-t_0+1)} - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{2(T-t+1)} - \left| \left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^{t-1}\mathbf{z}_{t'} \right\rangle\right|. 
+\end{align*}
+For $t > t_0 + \frac{\kappa \log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert^2_2}$ on the event $\Omega$ from Lemma \ref{lemma:thm1-event-bound} we have:
+\begin{align*}
+    \left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^{t-1}\mathbf{z}_{t'} \right\rangle\right| < \frac{(t-t_0) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{4}
+\end{align*}
+so:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t-t_0)}{4}\left[\left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\right\rVert_2^2 - \frac{2d}{\sqrt{\log^{1+\varepsilon}  T}}\right] + \frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{2(T-t_0+1)} - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{2(T-t+1)}. 
+\end{align*}
+For the remaining random terms, we have:
 \small
 \begin{align*}
-    \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2- \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2 &= (t-t_0)b_0^2 + 2b_0\sum_{t'=t_0}^{t-1}z_{t'} + (T-t_0+1) \overline{z}^2_{t_0:T} - (T-t+1)\overline{z}^2_{t:T}.
+    \frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{T-t_0+1} - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{T-t+1} &=
+    \frac{\lVert\sum_{t'=t_0}^{t-1}\mathbf{z}_{t'}\rVert_2^2 + 2\langle \sum_{t'=t_0}^{t-1}\mathbf{z}_{t'}, \sum_{t'=t}^{T}\mathbf{z}_{t'}\rangle + \lVert\sum_{t'=t}^{T}\mathbf{z}_{t'}\rVert_2^2}{T-t_0+1}  - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{T-t+1} \\
+    &= \left(\frac{t-t_0}{T-t_0+1}\right)\left[\frac{\lVert\sum_{t'=t_0}^{t-1}\mathbf{z}_{t'}\rVert_2^2}{t-t_0} - d\right] - \left(\frac{t-t_0}{T-t_0+1}\right)\left[\frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{T-t+1} -d \right] \\
+    &\quad +\frac{2\sqrt{(t-t_0)(T-t+1)}\left(\lVert\sum_{t'=t}^{T}\frac{\mathbf{z}_{t'}}{\sqrt{T-t+1}}\rVert_2 -\sqrt{d} + \sqrt{d}\right)\left\langle \sum_{t'=t_0}^{t-1}\frac{\mathbf{z}_{t'}}{\sqrt{t-t_0}}, \frac{\sum_{t'=t}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=t}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle}{T-t_0+1} \\
+    &> -\left(\frac{t-t_0}{T-t_0+1}\right)\left|\frac{\lVert\sum_{t'=t_0}^{t-1}\mathbf{z}_{t'}\rVert_2^2}{t-t_0} - d\right| - \left(\frac{t-t_0}{T-t_0+1}\right)\left|\frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{T-t+1} -d \right| \\
+    &\quad -\frac{2\sqrt{(t-t_0)(T-t+1)}\left|\lVert\sum_{t'=t}^{T}\frac{\mathbf{z}_{t'}}{\sqrt{T-t+1}}\rVert_2 -\sqrt{d}\right|\left|\left\langle \sum_{t'=t_0}^{t-1}\frac{\mathbf{z}_{t'}}{\sqrt{t-t_0}}, \frac{\sum_{t'=t}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=t}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle\right|}{T-t_0+1} \\
+    &\quad-\frac{2\sqrt{(t-t_0)(T-t+1)d}\left|\left\langle \sum_{t'=t_0}^{t-1}\frac{\mathbf{z}_{t'}}{\sqrt{t-t_0}}, \frac{\sum_{t'=t}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=t}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle\right|}{T-t_0+1}.
 \end{align*}
 \normalsize
-Since $(T-t_0+1) \overline{z}^2_{t_0:T} > 0$, we now have: 
+On $\Omega$, for some universal constant $C_1 \geq 1$ we have:
 \begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> -\frac{1}{2} \log T + \frac{1}{2} \left[(t-t_0)b_0^2 + 2b_0\sum_{t'=t_0}^{t-1}z_{t'} - (T-t+1)\overline{z}^2_{t:T}\right].
+    \left|\frac{1}{t-t_0}\left\lVert\sum_{t'=t_0}^{t-1}\mathbf{z}_{t'}\right\rVert_2^2 - d\right| &< 4C_1d\log T \\
+    \left|\frac{1}{T-t+1}\left\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\right\rVert_2^2 - d\right| &< 4C_1d\log T \\
+    \left|\frac{1}{\sqrt{T-t+1}}\left\lVert\sum_{t'=t}^{T}\mathbf{z}_{t'}\right\rVert_2 -\sqrt{d}\right| &< 2\sqrt{C_1 d\log T}\\
+    \left|\left\langle \sum_{t'=t_0}^{t-1}\frac{\mathbf{z}_{t'}}{\sqrt{t-t_0}}, \frac{\sum_{t'=t}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=t}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle\right| &< 2\sqrt{C_1\log T}
 \end{align*}
-On $\Omega$ we have:
+and thus:
+\scriptsize
 \begin{align*}
-    \left|\sum_{t'=t_0}^{t-1}z_{t'}\right| \leq \frac{c|b_0|(t-t_0)}{8} \leq \frac{|b_0|(t-t_0)}{4}
-\end{align*}
-and:
+    \frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{2(T-t_0+1)} - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{2(T-t+1)} &> -\frac{4C_1(t-t_0)d\log T}{T-t_0+1} - \frac{4\sqrt{(t-t_0)(T-t+1)}C_1\sqrt{d}\log T}{T-t_0+1} - \frac{2\sqrt{C_1(t-t_0)(T-t+1)d\log T}}{T-t_0+1}\\
+    &> -\frac{4C_1(t-t_0)d}{\log^{\varepsilon}T} - \frac{6C_1\sqrt{(t-t_0)(T-t+1)}\sqrt{d}\log T}{T-t_0+1} \tag{$T-t_0+1 > \log^{1+\varepsilon}T$}
+\end{align*} 
+\normalsize
+which gives:
 \begin{align*}
-    (T-t+1)\overline{z}^2_{t:T} = \frac{1}{(T-t+1)}\left(\sum_{t'=t}^T z_{t'}\right)^2 - 1 +1 \leq 16\log T.
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t-t_0)}{4}\left[\left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\right\rVert_2^2 - \frac{2d}{\sqrt{\log^{1+\varepsilon}  T}} - \frac{16C_1 d}{\log^{\varepsilon}T} - \frac{24C_1\sqrt{T-t+1}\sqrt{d}\log T}{(T-t_0+1)\sqrt{t-t_0}}\right].
 \end{align*}
-So for $t > t_0 + \kappa \log^{1+\varepsilon} T$ on $\Omega$:
+Note that $\sqrt{(T-t+1)/(t-t_0)}$ is decreasing as a function of $t$. Therefore the term inside the square brackets is minimized when $t = t_0 + \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2}$. Therefore:
+\small
 \begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t}  &> -\frac{1}{2} \log T + \frac{1}{2} \left[(t-t_0)b_0^2 + 2b_0\sum_{t'=t_0}^{t-1}z_{t'} - (T-t+1)\overline{z}^2_{t:T}\right]\\
-    &> -\frac{1}{2} \log T + \frac{1}{2} \left[\frac{(t-t_0)b_0^2 }{2}- 16 \log T -1\right]  \\
-    &\geq \left(8 - \frac{1}{2} + C_\pi\right) \log T - \frac{1}{2} \tag{$\kappa \geq \underline{b}^{-2}(64 + 4 C_\pi)$}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t-t_0)}{4}\left[\left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\right\rVert_2^2 - \frac{2d}{\sqrt{\log^{1+\varepsilon}  T}} - \frac{16C_1 d}{\log^{\varepsilon}T}  - \frac{24C_1\sqrt{T-t_0+1 - \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2}}\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2\sqrt{d\log T}}{(T-t_0+1)\sqrt{\kappa}}\right] \\
+    &> \frac{(t-t_0)}{4}\left[\left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\right\rVert_2^2 - \frac{2d}{\sqrt{\log^{1+\varepsilon}  T}} - \frac{16C_1 d}{\log^{\varepsilon}T}  - \frac{24C_1\sqrt{T-t_0+1}\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2\sqrt{d\log T}}{(T-t_0+1)\sqrt{\kappa}}\right] \tag{$\frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2} > 0$} \\
+    &> \frac{(t-t_0)}{4}\left[\left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\right\rVert_2^2 - \frac{2d}{\sqrt{\log^{1+\varepsilon}  T}} - \frac{16C_1 d}{\log^{\varepsilon}T}  - \frac{24C_1\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2\sqrt{d}}{\sqrt{\kappa\log^{\varepsilon}T}}\right]. \tag{$T-t_0+1 > \log^{1+\varepsilon} T$} 
 \end{align*}
-which proves (\ref{eq:thm1-result}) for this case.
+\normalsize
+By Assumption \ref{assumption:mean}, there is some $C_2 > 0$ so that $C_2 \lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2 \geq d$. So for $T$ large enough that $\sqrt{\log^{1+\varepsilon}  T} > 12 C_2 $, $\log^{\varepsilon} T > 96 C_1 C_2 $, and $\sqrt{\log^{\varepsilon} T} > 144C_1\sqrt{\frac{C_2 }{\kappa}}$, we have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t-t_0)}{8}\left\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\right\rVert_2^2 \\
+    &> \frac{\kappa}{8} \log T\tag{$|t_0-t| > \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2}$}.
+\end{align*}
+So for $\kappa > 8 C_\pi$, the event in (\ref{eq:thm1-result}) holds for this case.
 
 \subsubsection*{Case 2: $t < t_0$.}
 
-We can write:
+As in the previous case, we have:
+\begin{align*}
+    \frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t_0}^T\mathbf{y}_{t'}\rVert_2^2}{T-t_0+1} &= \frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{T-t_0+1} - 2\left\langle \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^T\mathbf{z}_{t'}\right\rangle + (T-t_0+1)\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2
+\end{align*}
+and for $t < t_0$, we can write:
+\begin{align*}
+    \frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t}^T\mathbf{y}_{t'}\rVert_2^2}{T-t+1} &= \frac{\lVert \sum_{t'=t}^T\mathbf{z}_{t'} + (T-t_0+1)\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2}{T-t+1} \\
+    &= \frac{\lVert \sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{T-t+1} -2\left(\frac{T-t_0+1}{T-t+1}\right) \left\langle \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t}^T\mathbf{z}_{t'}\right\rangle  + \frac{(T-t_0+1)^2}{T-t+1}\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2.
+\end{align*}
+After rearranging terms we get:
+\begin{align*}
+    \frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t_0}^T\mathbf{y}_{t'}\rVert_2^2}{T-t_0+1} - \frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t}^T\mathbf{y}_{t'}\rVert_2^2}{T-t+1} &=\frac{\lVert \sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{T-t_0+1} - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{T-t+1} + \frac{(T-t_0+1)(t_0 - t) }{T-t+1}\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2 \\
+    &\quad - 2\left(\frac{t_0 - t}{T-t+1}\right)\left\langle \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^T\mathbf{z}_{t'}\right\rangle + 2\left(\frac{T-t_0+1}{T-t+1}\right)\left\langle \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t}^{t_0-1}\mathbf{z}_{t'}\right\rangle.
+\end{align*}
+Focusing on the second line above, for $t > t_0 + \frac{\kappa \log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert^2_2}$ on the event $\Omega$ from Lemma \ref{lemma:thm1-event-bound} we have:
+\begin{align*}
+    \left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t}^{t_0-1}\mathbf{z}_{t'} \right\rangle\right| < \frac{(t_0-t) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}
+\end{align*}
+and:
+\begin{align*}
+    \left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^T \mathbf{z}_{t'} \right\rangle\right| < \frac{(T-t_0+1) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}
+\end{align*}
+so:
+\begin{align*}
+    - 2\left(\frac{t_0 - t}{T-t+1}\right)\left|\left\langle \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^T\mathbf{z}_{t'}\right\rangle\right| - 2\left(\frac{T-t_0+1}{T-t+1}\right)\left|\left\langle \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t}^{t_0-1}\mathbf{z}_{t'}\right\rangle\right| 
+    &> \frac{(t_0-t)(T-t_0+1)\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{4(T-t+1)}.
+\end{align*}
+So on $\Omega$ we have:
+\begin{align*}
+    \frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t_0}^T\mathbf{y}_{t'}\rVert_2^2}{T-t_0+1} - \frac{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \sum_{t'=t}^T\mathbf{y}_{t'}\rVert_2^2}{T-t+1} &> \frac{\lVert \sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{T-t_0+1} - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{T-t+1} + \frac{(T-t_0+1)(t_0 - t) }{2(T-t+1)}\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2 .
+\end{align*}
+For the remaining random terms, we have:
 \small
 \begin{align*}
-    \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2 - \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2 &= \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} z_{t'} + (T-t_0+1)b_0\right)^2 \\
-    &\quad - \frac{1}{T-t+1}\left(\sum_{t'=t}^{t_0-1} z_{t'} + \sum_{t'=t_0}^{T} z_{t'} + (T-t_0+1)b_0\right)^2 \\ 
-    &= \frac{(T-t_0+1)(t_0 - t) b_0^2}{T-t+1} \\
-    &\quad + \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} z_{t'}\right)^2 -\frac{1}{T-t+1}\left(\sum_{t'=t}^{T} z_{t'}\right)^2\\
-    &\quad  + 2(t_0 - t) b_0\left(\frac{1}{T-t+1}\sum_{t'=t}^{T} z_{t'} - \frac{1}{t_0-t}\sum_{t'=t}^{t_0-1} z_{t'}\right).
+    \frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{T-t_0+1} - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{T-t+1} &= \frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{T-t_0+1} - 
+    \frac{\lVert\sum_{t'=t}^{t_0-1}\mathbf{z}_{t'}\rVert_2^2 + 2\langle \sum_{t'=t}^{t_0-1}\mathbf{z}_{t'}, \sum_{t'=t_0}^{T}\mathbf{z}_{t'}\rangle + \lVert\sum_{t'=t_0}^{T}\mathbf{z}_{t'}\rVert_2^2}{T-t+1} \\
+    &= \left(\frac{t_0-t}{T-t+1}\right)\left[\frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{T-t_0 + 1} - d\right] - \left(\frac{t_0-t}{T-t+1}\right)\left[\frac{\lVert\sum_{t'=t}^{t_0-1}\mathbf{z}_{t'}\rVert_2^2}{t_0-t} -d \right] \\
+    &\quad +\frac{2\sqrt{(t_0-t)(T-t_0+1)}\left(\lVert\sum_{t'=t_0}^{T}\frac{\mathbf{z}_{t'}}{\sqrt{T-t_0+1}}\rVert_2 -\sqrt{d} + \sqrt{d}\right)\left\langle \sum_{t'=t}^{t_0-1}\frac{\mathbf{z}_{t'}}{\sqrt{t_0-t}}, \frac{\sum_{t'=t_0}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=t_0}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle}{T-t+1} \\
+    &> -\left(\frac{t_0-t}{T-t+1}\right)\left|\frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{T-t_0 + 1} - d\right| - \left(\frac{t_0-t}{T-t+1}\right)\left|\frac{\lVert\sum_{t'=t}^{t_0-1}\mathbf{z}_{t'}\rVert_2^2}{t_0-t} -d \right| \\
+    &\quad -\frac{2\sqrt{(t_0-t)(T-t_0+1)}\left|\lVert\sum_{t'=t_0}^{T}\frac{\mathbf{z}_{t'}}{\sqrt{T-t_0+1}}\rVert_2 -\sqrt{d}\right|\left|\left\langle \sum_{t'=t}^{t_0-1}\frac{\mathbf{z}_{t'}}{\sqrt{t_0-t}}, \frac{\sum_{t'=t_0}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=t_0}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle\right|}{T-t+1} \\
+    &\quad-\frac{2\sqrt{(t_0-t)(T-t_0+1)d}\left|\left\langle \sum_{t'=t}^{t_0-1}\frac{\mathbf{z}_{t'}}{\sqrt{t_0-t}}, \frac{\sum_{t'=t_0}^T\mathbf{z}_{t'}}{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2}\right\rangle\right|}{T-t+1}.
 \end{align*}
 \normalsize
-Since $T-t+1 < T$ and $T - t_0 + 1 > cT$ by Assumption \ref{assumption:1} (i), we have:
+On $\Omega$, for some universal constant $C_1 \geq 1$ we have:
 \begin{align*}
-    \frac{(T - t_0 + 1)(t_0-t)b_0^2}{T-t+1} &> c (t_0-t) b_0^2 
+    \left|\frac{1}{t_0-t}\left\lVert\sum_{t'=t}^{t_0-1}\mathbf{z}_{t'}\right\rVert_2^2 - d\right| &< 4C_1d\log T \\
+    \left|\frac{1}{T-t_0+1}\left\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\right\rVert_2^2 - d\right| &< 4C_1d\log T \\
+    \left|\frac{1}{\sqrt{T-t_0+1}}\left\lVert\sum_{t'=t_0}^{T}\mathbf{z}_{t'}\right\rVert_2 -\sqrt{d}\right| &< 2\sqrt{C_1 d\log T}\\
+    \left|\left\langle \sum_{t'=t}^{t_0-1}\frac{\mathbf{z}_{t'}}{\sqrt{t_0-t}}, \frac{\sum_{t'=t_0}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=t_0}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle\right| &< 2\sqrt{C_1\log T}
+\end{align*}
+and thus:
+\small
+\begin{align*}
+    \frac{\lVert\sum_{t'=t_0}^T\mathbf{z}_{t'}\rVert_2^2}{2(T-t_0+1)} - \frac{\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\rVert_2^2}{2(T-t+1)} &> -\frac{4C_1(t_0-t)d\log T}{T-t+1} - \frac{4C_1\sqrt{(t_0-t)(T-t_0+1)}\sqrt{d}\log T}{T-t+1} - \frac{\sqrt{C_1(t_0-t)(T-t_0+1)d\log T}}{T-t+1}\\
+    &> -\frac{4C_1(t_0-t)d\log T}{T-t+1} - \frac{2C_1\sqrt{(t_0-t)(T-t_0+1)}\sqrt{d}\log T}{T-t+1}.
+\end{align*}
+\normalsize
+On $\Omega$, we therefore have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{d}{2}\log\left(\frac{T-t+1}{T-t_0+1}\right) + \frac{(t_0 - t) }{4(T-t+1)}\left[(T-t_0+1)\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2 -16C_1d\log T - \sqrt{\frac{T-t_0+1}{t_0-t}}8C_1\sqrt{d}\log T\right] \\
+    &> \frac{(t_0 - t) }{4(T-t+1)}\left[(T-t_0+1)\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2 -16C_1d\log T - 8C_1\sqrt{\frac{T-t_0+1}{t_0-t}}\sqrt{d}\log T\right]. \tag{$T-t+1 > T - t_0+1$}
+\end{align*}
+Note that $\sqrt{(T-t_0+1)/(t_0-t)}$ is increasing as a function of $t$. Therefore, the term inside the square brackets is minimized when $t = t_0 - \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2}$, and we have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0 - t) }{4(T-t+1)}\left[(T-t_0+1)\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2 -16C_1d\log T - \frac{8C_1}{\sqrt{\kappa}}\sqrt{T-t_0+1}\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2\sqrt{d\log T}\right] \\
+    &> \frac{(t_0 - t) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2}{4(T-t+1)}\left[(T-t_0+1) -16C_1C\log T - \frac{8C_1C_2 }{\sqrt{\kappa}}\sqrt{T-t_0+1}\sqrt{\log T}\right]. \tag{$C_2 \lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2 \geq d$}
+\end{align*}
+Since $T-t_0+1\geq \log^{1+\varepsilon} T$, for large $T$, we have: 
+\begin{align*}
+    \frac{T-t_0+1}{2} -16C_1C_2 \log T - \frac{8C_1C_2 }{\sqrt{\kappa}}\sqrt{T-t_0+1}\sqrt{\log T} > 1
 \end{align*}
 and thus:
 \begin{align*}
-    \frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2 - \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2 &> c(t_0 - t)b_0^2 -\frac{1}{T-t+1}\left(\sum_{t'=t}^{T} z_{t'}\right)^2\\
-    &\quad  - 2(t_0 - t) |b_0|\left(\frac{1}{T-t+1}\left|\sum_{t'=t}^{T} z_{t'}\right| + \frac{1}{t_0-t}\left|\sum_{t'=t}^{t_0-1} z_{t'}\right|\right).
+    \log \frac{\Delta_{t_0}}{\Delta_t} > \frac{(t_0 - t) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2}{4(T-t+1)} \left[\frac{T-t_0+1}{2} + 1 \right ] >\frac{(t_0 - t)(T-t_0+1) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2}{8(T-t+1)}.
 \end{align*}
-Noting that $t < t_0$ implies $T - t + 1 > T - t_0 + 1$ and thus $ \log (T-t+1) > \log(T-t_0+1)$, so we have:
-\small
+The term $(t_0 - t)(T-t_0+1) / (T-t+1)$ is decreasing as a function of $t$, and is minimized by setting  $t = t_0 - \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2}$. Therefore:
 \begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &= \frac{1}{2} \log \left(\frac{T-t+1}{T-t_0+1}\right) + \frac{1}{2} \left[\frac{1}{T-t_0+1}\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2- \frac{1}{T-t+1}\left(\sum_{t'=t}^{T} y_{t'}\right)^2\right] \notag \\
-    &> \frac{c (t_0-t)b_0^2 }{2} - (t_0 -t) |b_0| \left(\frac{1}{T-t+1}\left|\sum_{t'=t}^{T} z_{t'}\right| + \frac{1}{t_0-t}\left|\sum_{t'=t}^{t_0-1} z_{t'}\right|\right) -\frac{1}{2(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2.
+    \log \frac{\Delta_{t_0}}{\Delta_t} > \frac{(T-t_0+1) \kappa\log T}{8\left(T-t_0+1 + \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2} \right)}.
 \end{align*}
-\normalsize
-Like in the previous case, on $\Omega$ we have:
+The bound above is decreasing as a function of $t_0$, and is therefore minimized when $t_0 = T - \log^{1+\varepsilon} T$, and thus:
 \begin{align*}
-    \left|\sum_{t'=t}^{t_0-1}z_{t'}\right| \leq \frac{c|b_0|(t_0 - t)}{8} 
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\kappa\log^{2+\varepsilon} T + \kappa \log T}{8\left(1 + \log^{1+\varepsilon} T + \frac{\kappa\log T}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2} \right)} \\
+    &= \frac{\kappa\log T + \frac{\kappa}{\log^\varepsilon T}}{8\left(1 +\frac{1}{\log^{1+\varepsilon} T}+ \frac{\kappa}{\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2\log^{\varepsilon} T} \right)}.
 \end{align*}
-and:
-\begin{align*}
-    \left|\sum_{t'=t}^T z_{t'}\right| \leq \frac{c|b_0|(T - t + 1)}{8} 
-\end{align*}
-and:
-\begin{align*}
-    (T-t+1)\overline{z}^2_{t:T} = \frac{1}{(T-t+1)}\left(\sum_{t'=t}^T z_{t'}\right)^2 - 1 +1 \leq 16\log T
-\end{align*}
-So for $t < t_0 - \kappa \log^{1+\varepsilon} T$ on $\Omega$:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{c (t_0-t)b_0^2 }{2} - (t_0 -t) |b_0| \left(\frac{1}{T-t+1}\left|\sum_{t'=t}^{T} z_{t'}\right| + \frac{1}{t_0-t}\left|\sum_{t'=t}^{t_0-1} z_{t'}\right|\right) -\frac{1}{2(T-t+1)}\left(\sum_{t'=t}^{T} z_{t'}\right)^2 \\
-    &> \frac{c (t_0-t)b_0^2 }{2} - (t_0 -t) |b_0| \left(\frac{c|b_0|}{8} + \frac{c|b_0|}{8}\right) -8\log T - \frac{1}{2} \\
-    &> \left(\frac{c\underline{b}^2\kappa}{4} - 8\right)\log T - \frac{1}{2} \tag{$(t_0-t) > \kappa\log^{1+\varepsilon} T$ and \ref{eq:thm1-b_0-bd}} \\
-    &= \left[c^{-1}(64 + C_\pi) - 8\right] \log T - \frac{1}{2} \tag{$\kappa = \frac{256 + 4 C_\pi}{c^2\underline{b}^2}$}
-\end{align*}
-which proves (\ref{eq:thm1-result}).
-
+For large $T$ the bound above behaves like $\frac{\kappa \log T}{8}$, so again for $\kappa > 8 C_\pi$, the event in (\ref{eq:thm1-result}) holds for this case.
 
 \end{proof}

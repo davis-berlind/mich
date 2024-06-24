@@ -12,13 +12,20 @@ For a generic real-valued random variable $X$, we use $p(x)$ to denote the densi
 \subsubsection{Sub-Gaussian Distributions}
 
 We write $X\in\mathcal{SG}(\sigma)$ to denote that the random variable $X$ has a sub-Gaussian distribution with parameter $\sigma$, i.e. for all $\lambda \in \mathbb{R}$: 
-\begin{align*}
-    \E[\exp(\lambda X)] \leq \exp\left[\frac{\lambda^2\sigma^2}{2}\right].
-\end{align*}
-By the Chernoff bound, if $X\in\mathcal{SG}(\sigma)$, then for $t > 0$:
-\begin{align*}
+\begin{align} 
+    \E[\exp(\lambda X)] \leq \exp\left[\frac{\lambda^2\sigma^2}{2}\right]. \label{def:sub-gaussian}
+\end{align}
+For $t, \lambda > 0$, we have:
+\begin{align}
+     \Pr(|X| > t) &\leq \Pr(X > t) + \Pr(-X > t) \tag{union bound} \\
+     &= \Pr(e^{\lambda X} > e^{\lambda t}) + \Pr(e^{-\lambda X} > e^{\lambda t}) \notag \\
+     &\leq \E[\exp(\lambda X - \lambda t)] + \E[\exp(-\lambda X - \lambda t)] \tag{Markov inequality} \\
+     &\leq 2\exp\left(\frac{\lambda^2\sigma^2}{2} - \lambda t\right). \tag{by (\ref{def:sub-gaussian})} 
+\end{align}
+The last bound is minimized be setting $\lambda = \frac{t}{\sigma^2}$, which yields the Chernoff bound:
+\begin{align} \label{eq:chernoff}
     \Pr(|X| > t) \leq 2\exp\left[-\frac{t^2}{2\sigma^2}\right]
-\end{align*}
+\end{align}
 
 \subsubsection{Sub-Exponential Distributions}
 
@@ -27,13 +34,13 @@ We write $X\in\mathcal{SE}(\nu, \alpha)$ to denote that the random variable $X$ 
     \E[\exp(\lambda X)] \leq \exp\left[\frac{\lambda^2\nu^2}{2}\right].
 \end{align*}
 If $X\in\mathcal{SE}(\nu, \alpha)$, then by Proposition 2.9 of \cite{Wainwright19}:
-\begin{align*}
+\begin{align}\label{eq:wainwright_prop_2.9}
     \Pr(|X - \E[x]| \geq t) \leq 
     \begin{cases}
         2 \exp\left[-\frac{t^2}{2\nu^2}\right], & \text{if } t \in \left(0, \frac{\nu^2}{\alpha}\right], \\
         2 \exp\left[-\frac{t}{2\alpha}\right], & \text{if } t \in \left(\frac{\nu^2}{\alpha}, \infty\right).
     \end{cases}
-\end{align*}
+\end{align}
 As per Example 2.11 of \cite{Wainwright19}, if $X \sim \chi^2_n$, then $X\in\mathcal{SE}(2\sqrt{n}, 4)$, and thus: 
 \begin{align} \label{eq:chi2-ineq}
     \Pr\left(\frac{|X - n|}{n} \geq t\right) \leq 
@@ -251,7 +258,7 @@ If $y_t \sim \mathcal{N}(0,1)$ for $t < t_0$ and $y_t \sim \mathcal{N}(b_0,s^2_0
 \begin{align*}
     \Pr(\mathcal{E}^c_1) &= \Pr\left(\bigcup_{t \;:\; cT < t < (1-c)T\; t \neq t_0} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq 2\sqrt{T \log T} \right\} \right) \\
     &\leq \sum_{t = cT}^{t_0 - 1} \Pr\left(\left|\sum_{t'=t}^{t_0-1} z_{t'}\right| \geq 2\sqrt{T \log T} \right) + \sum_{t = t_0+1}^{(1-c)T} \Pr\left(\left|\sum_{t'=t_0}^{t-1} z_{t'}\right| \geq 2\sqrt{T \log T} \right) \tag{union bound} \\
-    &\leq \sum_{t = cT}^{t_0 - 1} 2\exp\left[-\frac{2 T\log T}{t_0-t}\right] + \sum_{t = t_0+1}^{(1-c)T} 2\exp\left[-\frac{2 T\log T}{t-t_0}\right] \tag{Chernoff bound} \\
+    &\leq \sum_{t = cT}^{t_0 - 1} 2\exp\left[-\frac{2 T\log T}{t_0-t}\right] + \sum_{t = t_0+1}^{(1-c)T} 2\exp\left[-\frac{2 T\log T}{t-t_0}\right] \tag{Chernoff bound (\ref{eq:chernoff})} \\
     &\leq \sum_{t = cT}^{t_0 - 1} \frac{2}{T^2}  + \sum_{t = t_0+1}^{(1-c)T} \frac{2}{T^2} \tag{$T > |t_0-t|$} \\
     &\leq \frac{2(1-2c)}{T}
 \end{align*}
@@ -261,7 +268,7 @@ and:
 \begin{align*}
     \Pr(\mathcal{E}^c_3) &= \Pr\left(\bigcup_{t= cT}^{(1-c)T} \left\{\left|\sum_{t'=t}^T z_{t'}\right| \geq 2\sqrt{T \log T} \right\} \right) \\
     &\leq \sum_{t = cT}^{(1-c)T} \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq 2\sqrt{T \log T} \right)\tag{union bound} \\
-    &\leq \sum_{t = cT}^{(1-c)T}  2\exp\left[-\frac{2 T\log T}{T-t+1}\right] \tag{Chernoff bound} \\
+    &\leq \sum_{t = cT}^{(1-c)T}  2\exp\left[-\frac{2 T\log T}{T-t+1}\right] \tag{Chernoff bound (\ref{eq:chernoff})} \\
     &\leq \sum_{t = cT}^{(1-c)T}  \frac{2}{T^2}  \tag{$T > T-t+1$} \\
     &\leq \frac{2(1-2c)}{T}.
 \end{align*}

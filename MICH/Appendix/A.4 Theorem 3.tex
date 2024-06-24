@@ -25,7 +25,7 @@ then we will be on $\mathcal{E}$ with high probability.
 
 If we take the ratio of the posterior probabilities of the change-point location, we get:
 \begin{align*}
-    \log \frac{\Pr(\gamma = t_0  \:|\: \mathbf{y} ; \tau_0, u_0, v_0,\pmb{\pi})}{\Pr(\gamma = t  \:|\: \mathbf{y} \:; \tau_0, u_0, v_0,\pmb{\pi})} &=  \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0, u_0, v_0)\Pr(\gamma = t_0 \:; \pmb{\pi})/ p(\mathbf{y}\:;\tau_0, u_0, v_0,\pmb{\pi})}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)\Pr(\gamma = t \:;\pmb{\pi})/ p(\mathbf{y}\:;\tau_0, u_0, v_0,\pmb{\pi})} \tag{Bayes' rule} \\
+    \log \frac{\Pr(\gamma = t_0  \:|\: \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi})}{\Pr(\gamma = t  \:|\: \mathbf{y} \:; \tau_0, u_0, v_0,\boldsymbol{\pi})} &=  \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0, u_0, v_0)\Pr(\gamma = t_0 \:; \boldsymbol{\pi})/ p(\mathbf{y}\:;\tau_0, u_0, v_0,\boldsymbol{\pi})}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)\Pr(\gamma = t \:;\boldsymbol{\pi})/ p(\mathbf{y}\:;\tau_0, u_0, v_0,\boldsymbol{\pi})} \tag{Bayes' rule} \\
     &= \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0, u_0, v_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)} + \log\frac{\pi_{t_0}}{\pi_t}.
 \end{align*}
 If Assumption \ref{assumption:1} (iii) (b) holds, then for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
@@ -38,7 +38,7 @@ Therefore, if we can show there is some constant $\kappa > 0$ such that for all 
 \end{align}
 then on $\mathcal{E}$ we will have:
 \begin{align*}
-    \max_{t \;:\; |t - t_0| > \kappa \sqrt{T\log^{1+\xi} T}} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\pmb{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\pmb{\pi}).
+    \max_{t \;:\; |t - t_0| > \kappa \sqrt{T\log^{1+\xi} T}} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi}).
 \end{align*}
 Similarly, if Assumption \ref{assumption:1} (iii) (c) holds, then for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
 \begin{align}\label{eq:thm3-prior-bd-1}
@@ -50,7 +50,7 @@ and if we can show that there is some constant $\kappa > 0$ such that for all $t
 \end{align}
 for some $\delta > 0$, then on $\Omega$ we will have:
 \begin{align*}
-    \max_{t \;:\; |t - t_0| > \kappa \sqrt{T}\log^{1+\varepsilon} T} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\pmb{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\pmb{\pi}).
+    \max_{t \;:\; |t - t_0| > \kappa \sqrt{T}\log^{1+\varepsilon} T} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi}).
 \end{align*}
 We now prove that (\ref{eq:thm3-result-1}) and (\ref{eq:thm3-result-2}) respectively hold on $\mathcal{E}$ and $\Omega$.
 
@@ -72,14 +72,14 @@ where $C$ is a constant that does not depend on the value of $\gamma$. For large
 Using the same $c \in (0,1/2)$ as in Assumption \ref{assumption:1} (i), if $T-t > cT$, then $\frac{T-t+1}{2} \to \infty$ as $T \to \infty$, so using Stirling's approximation we get:
 \small
 \begin{align*}
-    \log p(\mathbf{y} \;|\; \gamma = t; \tau_0,u_0,v_0, \pmb{\pi}) &= -\frac{1}{2}\log(\tau_0 + T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  +\left(\frac{T-t}{2}\right) \log \left(u_0 + \frac{T-t+1}{2}\right) - \frac{T-t+1}{2}  \\
+    \log p(\mathbf{y} \;|\; \gamma = t; \tau_0,u_0,v_0, \boldsymbol{\pi}) &= -\frac{1}{2}\log(\tau_0 + T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  +\left(\frac{T-t}{2}\right) \log \left(u_0 + \frac{T-t+1}{2}\right) - \frac{T-t+1}{2}  \\
     &\quad\: - \left(u_0 + \frac{T - t +1}{2}\right)\log\left[v_0 +\frac{1}{2}\sum_{t'=t}^T y_{t'}^2 - \frac{1}{2(\tau_0 + T- t +1)}\left(\sum_{t'=t}^T y_{t'}\right)^2 \right] \\
     &\quad\:+ \mathcal{O}(T^{-1}) + C.
 \end{align*}
 \normalsize
 Assume that $\tau_0$, $u_0$, and $v_0$ are small\footnote{Formally, for any $\tau_0, u_0, v_0 >0$, we can show that for each $t$ we consider, $\Delta_t \sim p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)$ as $T \to \infty$ with high probability. So if we can show there is some $\delta > 0$ such that $\log \frac{\Delta_{t_0}}{\Delta_t} > \delta-2\log(1-\delta)$, then we can show: \tiny$$\log \frac{p(\mathbf{y} \:|\:\gamma = t_0 ; \tau_0, u_0, v_0)}{p(\mathbf{y} \:|\:\gamma = t ; \tau_0, u_0, v_0)} = \log\frac{p(\mathbf{y} \:|\:\gamma = t_0 ; \tau_0, u_0, v_0)}{\Delta_{t_0}} + \log \frac{\Delta_{t_0}}{\Delta_t} + \log \frac{p(\mathbf{y} \:|\:\gamma = t ; \tau_0, u_0, v_0)}{\Delta_t} > \log(1-\delta) + \delta-2\log(1-\delta) +\log(1-\delta) > 0$$ \footnotesize with high probability, which is the desired result.} so that:
 \begin{align*}
-    \log p(\mathbf{y} \;|\; \gamma = t; \tau_0,u_0,v_0, \pmb{\pi}) &\approx -\frac{1}{2}\log(T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  +\left(\frac{T-t}{2}\right) \log \left(\frac{T-t+1}{2}\right) - \frac{T-t+1}{2}  \\
+    \log p(\mathbf{y} \;|\; \gamma = t; \tau_0,u_0,v_0, \boldsymbol{\pi}) &\approx -\frac{1}{2}\log(T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  +\left(\frac{T-t}{2}\right) \log \left(\frac{T-t+1}{2}\right) - \frac{T-t+1}{2}  \\
     &\quad\: - \left(u_0 + \frac{T - t +1}{2}\right)\log\left[\frac{1}{2}\sum_{t'=t}^T y_{t'}^2 - \frac{1}{2(T- t +1)}\left(\sum_{t'=t}^T y_{t'}\right)^2 \right] \\
     &\quad\:+ \mathcal{O}(T^{-1}) +C \\
     &:= \log \Delta_t.

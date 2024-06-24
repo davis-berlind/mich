@@ -52,6 +52,10 @@
 
 \maketitle
 
+\begin{abstract}
+    We propose a novel variational Bayes procedure for detecting structural breaks in the mean and covariance of a multivariate Gaussian sequence. Our method returns credible sets around the locations of any change-points, enabling interpretable uncertainty quantification. The algorithm we use to approximate the posterior distribution of the change-points is implemented as an efficient back-fitting procedure, making it an order of magnitude faster than existing Bayesian methods. We also consider the asymptotic behavior of our method in the special case of a single change-point by characterizing the localization rate of the maximum \textit{a posteriori} estimator. Under standard assumptions, we prove this point estimate is consistent in both a fixed- and high-dimensional settings. When there is only a change in the mean of the sequence, we show that the localization rate achieved by our method is optimal. Extensive simulation studies demonstrate that our method is competitive with the state-of-the-art and in many cases it provides the narrowest credible sets without sacrificing nominal coverage guarantees. We test the method in a practical setting by applying it to the problem of detecting structural changes in the lithology of an oil well. 
+\end{abstract}
+
 \input{MICH/1. Introduction}
 
 \input{MICH/2. Single Change-Point Models}

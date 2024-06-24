@@ -15,7 +15,7 @@ Suppose further that Assumption \ref{assumption:1} (i), (ii), and (iii) (a) hold
 \end{align}
 Furthermore, because the variance of $y_t$ is assumed to be known in the SMCP model, it is without loss of generality to assume $s_0^2 = 1$, i.e. $\Var(y_t) = 1 \sforall t \in [T]$, as we can just rescale the data. If we take the ratio of the posterior probabilities of the change-point location, we get:
 \begin{align*}
-    \log \frac{\Pr(\gamma = t_0  \:|\: \mathbf{y} ; \tau_0,\pmb{\pi})}{\Pr(\gamma = t  \:|\: \mathbf{y} \:; \tau_0,\pmb{\pi})} &=  \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)\Pr(\gamma = t_0 \:; \pmb{\pi})/ p(\mathbf{y}\:;\tau_0,\pmb{\pi})}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)\Pr(\gamma = t \:;\pmb{\pi})/ p(\mathbf{y}\:;\tau_0,\pmb{\pi})} \tag{Bayes' rule} \\
+    \log \frac{\Pr(\gamma = t_0  \:|\: \mathbf{y} ; \tau_0,\boldsymbol{\pi})}{\Pr(\gamma = t  \:|\: \mathbf{y} \:; \tau_0,\boldsymbol{\pi})} &=  \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)\Pr(\gamma = t_0 \:; \boldsymbol{\pi})/ p(\mathbf{y}\:;\tau_0,\boldsymbol{\pi})}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)\Pr(\gamma = t \:;\boldsymbol{\pi})/ p(\mathbf{y}\:;\tau_0,\boldsymbol{\pi})} \tag{Bayes' rule} \\
     &= \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0)} + \log \frac{\pi_{t_0}}{\pi_t}.
 \end{align*}
 By Assumption \ref{assumption:1} (iii) (a), for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
@@ -28,7 +28,7 @@ Therefore, if we can show that there is some constant $\kappa > 0$ such that for
 \end{align}
 with probability approaching one as $T \to \infty$, then we will have:
 \begin{align*}
-    \max_{t \;:\; |t - t_0| > \kappa \log^{1+\varepsilon} T} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0,\pmb{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0,\pmb{\pi}).
+    \max_{t \;:\; |t - t_0| > \kappa \log^{1+\varepsilon} T} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0,\boldsymbol{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0,\boldsymbol{\pi}).
 \end{align*}
 with probability approaching one as $T \to \infty$. We now prove (\ref{eq:thm1-result}) holds for $\kappa = \frac{256 + 4C_\pi}{c^2\underline{b}^2}$.
 

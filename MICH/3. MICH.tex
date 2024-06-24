@@ -1,42 +1,25 @@
 \section{Multiple Independent Change-Points}
 \label{sec:mich}
 
-We now introduce the Multiple Independent CHange-point (MICH) model. By modularly combining the SMCP, SSCP, and SMSCP models of Section \ref{sec:scp}, we are able to generate multiple changes in the piece-wise constant structures of both $\pmb{\mu}$ and $\pmb{\lambda}$. First we independently generate $J$ simultaneous changes in $\pmb{\mu}$ and $\pmb{\lambda}$ according to:
+We now introduce the Multiple Independent CHange-point (MICH) model. By modularly combining the mean-cp, cov-cp, and meancov-cp models of Section \ref{sec:scp}, we are able to generate multiple changes in the piece-wise constant structures of both $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$. We independently generate $L$ additive changes to $\boldsymbol{\mu}_{1:T}$, $K$ multiplicative changes to $\boldsymbol{\Lambda}_{1:T}$, and $J$ simultaneous changes in $\boldsymbol{\mu_{1:T}}$ and $\boldsymbol{\Lambda}_{1:T}$: 
 \begin{align}
     \label{eq:mich-start}
-    \mu_{jt} &= b_j \mathbbm{1}{\{t \geq \gamma_j\}} \\
-    \lambda_{jt} &= s_j^{\mathbbm{1}\{t \geq \gamma_j\}} \\
-    b_j \:|\: s_j &\overset{\text{ind.}}{\sim} \mathcal{N}(0,(\tau_js_j)^{-1}) \\
-    s_j &\overset{\text{ind.}}{\sim} \text{Gamma}(u_j, v_j) \\
-    \gamma_j &\overset{\text{ind.}}{\sim} \text{Categorical}(\pmb{\pi}_j),\;\pmb{\pi}_j \in \mathcal{S}^T \\
-    \gamma_j &\:\indep \{b_j,s_j\},\; \sforall j \in \{1, \ldots, J\}.
+    \{\mathbf{b}_\ell, \gamma_\ell\} &\overset{\text{ind.}}{\sim} \text{mean-cp}(\mathbf{0}, \lambda_\ell\mathbf{I}_d, \boldsymbol{\pi}_{1:T,\ell}) \\
+    \{\mathbf{S}_k, \gamma_k\} &\overset{\text{ind.}}{\sim} \text{cov-cp}(u_k, v_k, \boldsymbol{\pi}_{1:T,k}) \\
+    \{\mathbf{b}_j, \mathbf{S}_j, \gamma_j\} &\overset{\text{ind.}}{\sim} \text{meancov-cp}(\mathbf{0}, \lambda_j\mathbf{I}_d, u_j, v_j, \boldsymbol{\pi}_{1:T,j}).\label{eq:mich-var-end}
 \end{align}
-Next, we independently draw $L$ additional additive changes to $\pmb{\mu}$:
+Given these components of $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$, as well as a potentially unknown intercept parameter $\boldsymbol{\mu}_0$ and initial covariance $\boldsymbol{\Lambda}_0$, we define:
 \begin{align}
-    \mu_{\ell t} &= b_\ell \mathbbm{1}{\{t \geq \gamma_\ell\}} \\
-    b_\ell &\overset{\text{ind.}}{\sim} \mathcal{N}(0,(\tau_\ell)^{-1}) \\
-    \gamma_\ell &\overset{\text{ind.}}{\sim} \text{Categorical}(\pmb{\pi}_\ell),\;\pmb{\pi}_\ell \in \mathcal{S}^T \\
-    b_\ell &\:\indep \gamma_\ell,\; \sforall \ell \in \{1, \ldots, L\}.
+    \mu_{t} &:= \boldsymbol{\mu}_0 + \sum_{j = 1}^J \boldsymbol{\mu}_{jt}  + \sum_{\ell = 1}^L \boldsymbol{\mu}_{\ell t} \label{eq:mu_t}\\
+    \lambda_t &:= \boldsymbol{\Lambda}_0\prod_{j=1}^J \boldsymbol{\Lambda}_{jt}\prod_{k=1}^K \boldsymbol{\Lambda}_{kt} \label{eq:lambda_t}
 \end{align}
-Lastly, we independently draw $K$ additional multiplicative changes to $\pmb{\lambda}$:
-\begin{align}
-    \lambda_{kt} &\:= s_k^{\mathbbm{1}\{t \geq \gamma_k\}} \\
-    s_k &\overset{\text{ind.}}{\sim} \text{Gamma}(u_k, v_k) \\
-    \gamma_k &\overset{\text{ind.}}{\sim} \text{Categorical}(\pmb{\pi}_k),\;\pmb{\pi}_k \in \mathcal{S}^T\\
-    s_k &\indep \gamma_k,\; \sforall k \in \{1, \ldots, K\}. \label{eq:mich-var-end}
-\end{align}
-Given these components of $\pmb{\mu}$ and $\pmb{\lambda}$, as well as a potentially unknown intercept parameter $\mu_0$ and initial scale parameter $\lambda_0$, we define:
-\begin{align}
-    \mu_{t} &:= \mu_0 + \sum_{j = 1}^J \mu_{jt}  + \sum_{\ell = 1}^L \mu_{\ell t} \label{eq:mu_t}\\
-    \lambda_t &:= \lambda_0\prod_{j=1}^J \lambda_{jt}\prod_{k=1}^K \lambda_{kt} \label{eq:lambda_t}
-\end{align}
-Together with (\ref{eq:dgp}), (\ref{eq:mich-start})-(\ref{eq:lambda_t}) define the MICH model. Note the slight abuse of notation in these definitions; in addition to indexing the sum and product in (\ref{eq:mu_t}) and (\ref{eq:lambda_t}), the symbols $j$, $k$, and $\ell$ index which of the SCP models generated each mean and scale component. For notational convenience, we also partition the MICH model parameters into blocks organized by which SCP model generated them: 
+where $\boldsymbol{\mu}_{\ell t}$, $\boldsymbol{\mu}_{jt}$, $\boldsymbol{\Lambda}_{kt}$, and $\boldsymbol{\Lambda}_{jt}$ are defined as in the SCP models. Together with (\ref{eq:dgp}), (\ref{eq:mich-start})-(\ref{eq:lambda_t}) define the MICH model. Note the slight abuse of notation in these definitions; in addition to indexing the sum and product in (\ref{eq:mu_t}) and (\ref{eq:lambda_t}), the symbols $j$, $k$, and $\ell$ index which of the SCP models generated each mean and scale component. For notational convenience, we also partition the MICH model parameters into blocks organized by which SCP model generated them: 
 \begin{align}
     \theta_j &:= \{b_j,s_j,\gamma_j\} \\
     \theta_\ell &:= \{b_\ell, \gamma_\ell\} \\
     \theta_k &:= \{s_k, \gamma_k\}.
 \end{align}
-A plate diagram depicting the model graphically can be seen in Figure \ref{fig:plate-diagram}. MICH is a generalization of PRISCA (\citealp{Cappello22}) as well as the CPD version of SuSiE described in \cite{Wang20}. If we set $K > 0$ and $J=L=0$, then MICH recovers the $K$ component PRISCA model with the addition of the buffer defined by $B_l$ and $B_r$. Similarly, if $L > 0$ and $J=K=0$, then MICH is just the $L$ component SuSiE model applied to the same covariate matrix $\mathbf{X}$ described in the last paragraph of Section \ref{sec:smcp}. The innovation of MICH is that it i) combines SuSiE and PRISCA's ability to detect multiple separate changes in either $\pmb{\mu}$ or $\pmb{\lambda}$, and ii) adds the new ability to detect multiple simultaneous changes in both $\pmb{\mu}$ and $\pmb{\lambda}$.
+A plate diagram depicting the model graphically can be seen in Figure \ref{fig:plate-diagram}. MICH is a generalization of PRISCA (\citealp{Cappello22}) as well as the CPD version of SuSiE described in \cite{Wang20}. If we set $K > 0$ and $J=L=0$, then MICH recovers the $K$ component PRISCA model with the addition of the buffer defined by $B_l$ and $B_r$. Similarly, if $L > 0$ and $J=K=0$, then MICH is just the $L$ component SuSiE model applied to the same covariate matrix $\mathbf{X}$ described in the last paragraph of Section \ref{sec:smcp}. The innovation of MICH is that it i) combines SuSiE and PRISCA's ability to detect multiple separate changes in either $\boldsymbol{\mu}$ or $\boldsymbol{\lambda}$, and ii) adds the new ability to detect multiple simultaneous changes in both $\boldsymbol{\mu}$ and $\boldsymbol{\lambda}$.
 
 \begin{figure}
     \centering
@@ -60,7 +43,7 @@ Note that the intercept $\mu_0$ does not appear in (\ref{eq:residual}). If we ta
 \end{align}
 The exact posterior distribution for $\theta_j$ conditional on the other MICH parameters would be the SMSCP posterior returned by:
 \begin{align}
-    \texttt{SMSCP}(\mathbf{r}_{-j}\:;\: \pmb{\lambda}_{-j}, \tau_j, u_j, v_j, \pmb{\pi}_j, B_l,B_r).
+    \texttt{SMSCP}(\mathbf{r}_{-j}\:;\: \boldsymbol{\lambda}_{-j}, \tau_j, u_j, v_j, \boldsymbol{\pi}_j, B_l,B_r).
 \end{align}
 Similarly, if we knew all of the MICH model parameters except for either $\theta_\ell$ or $\theta_k$, we could calculate the respective mean and scale partial residuals: 
 \begin{align}
@@ -69,8 +52,8 @@ Similarly, if we knew all of the MICH model parameters except for either $\theta
 \end{align}
 In each case, the posterior distributions for $\theta_\ell$ and $\theta_k$ conditional on the known model parameters would be the respective SMCP and SSCP posteriors returned by:
 \begin{gather}
-    \texttt{SMCP}(\mathbf{r}_{-\ell}\:;\: \pmb{\lambda}, \tau_\ell,\pmb{\pi}_\ell, B_l,B_r) \label{eq:smcp-call} \\
-    \texttt{SSCP}(\mathbf{r}\:;\: \pmb{\lambda}_{-k}, u_k,v_k,\pmb{\pi}_k, B_l,B_r). \label{eq:sscp-call}
+    \texttt{SMCP}(\mathbf{r}_{-\ell}\:;\: \boldsymbol{\lambda}, \tau_\ell,\boldsymbol{\pi}_\ell, B_l,B_r) \label{eq:smcp-call} \\
+    \texttt{SSCP}(\mathbf{r}\:;\: \boldsymbol{\lambda}_{-k}, u_k,v_k,\boldsymbol{\pi}_k, B_l,B_r). \label{eq:sscp-call}
 \end{gather}
 The challenge of course is that we do not have access to any of the model parameters, so none of the partial residuals defined in (\ref{eq:smscp-mean-resid}), (\ref{eq:smscp-var-resid}), (\ref{eq:smcp-resid}), or (\ref{eq:sscp-resid}) can be calculated in practice. However, if we have initial approximations to the model parameters, then we can: i) calculate the partial residuals using the approximate parameters, ii) fit the appropriate SCP model using the partial residuals iii) update the approximate parameters using the fitted models. At a high level, Algorithm \ref{alg:1} iteratively repeats these three steps until some convergence criterion is met.
 
@@ -108,7 +91,7 @@ An important difference between Algorithm \ref{alg:1} and other backfitting proc
 \begin{align}\label{eq:delta}
     \delta_t &:= \sum_{j=1}^J\left(\frac{\E_{q_j}[\lambda_{jt} \mu^2_{jt}]}{\E_{q_j}[\lambda_{jt}]} -\frac{\E_{q_j}[\lambda_{jt} \mu_{jt}]^2}{\E_{q_j}[\lambda_{jt}]^2} \right) +\sum_{\ell=1}^L  \Var_{q_\ell}\left(\mu_{\ell t} \right).
 \end{align}
-The correction term $\pmb{\delta} = \{\delta_{t}\}_{t=1-B_l}^{B_r}$ plays an important role in Algorithm \ref{alg:1} that did not previously appear in either the IBSS algorithm of \cite{Wang20} or the ProSCALE algorithm of \cite{Cappello22}. After defining the mean and scale partial residuals as in (\ref{eq:smcp-resid}) and (\ref{eq:sscp-resid}), IBSS and ProSCALE take the expectation with respect to $q$ and iteratively update the parameters of each $\theta_\ell$ and $\theta_k$ block by making a call to \texttt{SMCP} and \texttt{SSCP} with the respective expected partial residuals. In other words, they make the calls defined in (\ref{eq:smcp-call}) and (\ref{eq:sscp-call}), but with the expected analogs of $\mathbf{r}_{-\ell}$ and $\pmb{\lambda}_{-\ell}$. The procedure in Algorithm \ref{alg:1} is similar, but as we will see in Section \ref{sec:variational-bayes}, in order to maintain the validity of Algorithm \ref{alg:1} as a variational Bayes procedure, we must apply a correction to the priors on $s_j$ and $s_k$ using $\pmb{\delta}$. We then call \texttt{SMSCP} and \texttt{SSCP} with the corrected priors (see lines 9 and 29 of Algorithm \ref{alg:1} for more detail detail). 
+The correction term $\boldsymbol{\delta} = \{\delta_{t}\}_{t=1-B_l}^{B_r}$ plays an important role in Algorithm \ref{alg:1} that did not previously appear in either the IBSS algorithm of \cite{Wang20} or the ProSCALE algorithm of \cite{Cappello22}. After defining the mean and scale partial residuals as in (\ref{eq:smcp-resid}) and (\ref{eq:sscp-resid}), IBSS and ProSCALE take the expectation with respect to $q$ and iteratively update the parameters of each $\theta_\ell$ and $\theta_k$ block by making a call to \texttt{SMCP} and \texttt{SSCP} with the respective expected partial residuals. In other words, they make the calls defined in (\ref{eq:smcp-call}) and (\ref{eq:sscp-call}), but with the expected analogs of $\mathbf{r}_{-\ell}$ and $\boldsymbol{\lambda}_{-\ell}$. The procedure in Algorithm \ref{alg:1} is similar, but as we will see in Section \ref{sec:variational-bayes}, in order to maintain the validity of Algorithm \ref{alg:1} as a variational Bayes procedure, we must apply a correction to the priors on $s_j$ and $s_k$ using $\boldsymbol{\delta}$. We then call \texttt{SMSCP} and \texttt{SSCP} with the corrected priors (see lines 9 and 29 of Algorithm \ref{alg:1} for more detail detail). 
 
 Due to our choice of $q$ in (\ref{eq:q-j})-(\ref{eq:indep-blocks}), each of the expectation terms in (\ref{eq:mod-resid}) and (\ref{eq:lambda-bar}) have closed forms in terms of the parameters in (\ref{eq:q-j})-(\ref{eq:q-k}) (see Appendix \ref{app:prop1-proof} for details). The availability of these closed form solutions in addition to the backfitting procedure make Algorithm \ref{alg:1} computationally simple. During the backfitting steps, each call of $\texttt{SMCP}$, $\texttt{SSCP}$, and $\texttt{SMSCP}$  requires the calculation of a cumulative sum with $T$ terms, which is an order $\mathcal{O}(T)$ operation. Thus, each iteration of Algorithm \ref{alg:1} is order $\mathcal{O}((J+K+L)T)$. The number of iterations is itself indeterminate and will depend on the convergence criterion unless a maximum number of iterations is specified. We discuss the choice of stopping rule in greater detail in Appendix \ref{app:convergence}.  
 
@@ -120,13 +103,13 @@ Upon convergence, Algorithm \ref{alg:1} returns estimates for the posterior prob
 \end{align}
 We can also construct $\alpha$-level credible sets around each $\hat{t}_{\text{MAP}, i}$ as in (\ref{eq:cs}):
 \begin{align}\label{eq:multi-cs}
-    \mathcal{CS}(\alpha, \overline{\pmb{\pi}}_i) := \argmin{S \subset \{1,\ldots,T\}} |S| \quad\text{ s.t. } \sum_{t \in S} \overline{\pi}_{it} \geq \alpha, \quad i \in \{j, \ell, k\}.
+    \mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_i) := \argmin{S \subset \{1,\ldots,T\}} |S| \quad\text{ s.t. } \sum_{t \in S} \overline{\pi}_{it} \geq \alpha, \quad i \in \{j, \ell, k\}.
 \end{align}
-The MAP estimator in (\ref{eq:multi-map}) and credible set in (\ref{eq:multi-cs}) will still be well-defined even if the index $i$ does not correspond to a true change-point. This will be the case for some $i$ if we fit MICH with $J$, $L$, or $K$ set greater than the corresponding true number of change-points. However, as was the case with a single-change point in Section \ref{sec:localization}, the elements of $\overline{\pmb{\pi}}_i$ tend to be diffuse when the index $i$ does not capture a true change-point. This motivates a generalization  of the heuristic detection rule from \cite{Cappello22}, whereby we only detect a change-point if its associated credible set contains $T/2$ or fewer locations. Adopting this detection rule also gives the following estimators for the numbers of each kind of change-point:
+The MAP estimator in (\ref{eq:multi-map}) and credible set in (\ref{eq:multi-cs}) will still be well-defined even if the index $i$ does not correspond to a true change-point. This will be the case for some $i$ if we fit MICH with $J$, $L$, or $K$ set greater than the corresponding true number of change-points. However, as was the case with a single-change point in Section \ref{sec:localization}, the elements of $\overline{\boldsymbol{\pi}}_i$ tend to be diffuse when the index $i$ does not capture a true change-point. This motivates a generalization  of the heuristic detection rule from \cite{Cappello22}, whereby we only detect a change-point if its associated credible set contains $T/2$ or fewer locations. Adopting this detection rule also gives the following estimators for the numbers of each kind of change-point:
 \begin{align}
-    \hat{J} &:= |\{j \;:\; j \in \{1,\ldots,J\}, \;\;|\mathcal{CS}(\alpha, \overline{\pmb{\pi}}_j)| \leq T/2\}| \label{eq:J-estimator}\\
-    \hat{L} &:= |\{\ell \;:\; \ell \in \{1,\ldots,L\},\;\;\: |\mathcal{CS}(\alpha, \overline{\pmb{\pi}}_\ell)| \leq T/2\}| \label{eq:L-estimator}\\
-    \hat{K} &:= |\{k \;:\; k \in \{1,\ldots,K\},\; |\mathcal{CS}(\alpha, \overline{\pmb{\pi}}_k)| \leq T/2\}|. \label{eq:K-estimator}
+    \hat{J} &:= |\{j \;:\; j \in \{1,\ldots,J\}, \;\;|\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_j)| \leq T/2\}| \label{eq:J-estimator}\\
+    \hat{L} &:= |\{\ell \;:\; \ell \in \{1,\ldots,L\},\;\;\: |\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_\ell)| \leq T/2\}| \label{eq:L-estimator}\\
+    \hat{K} &:= |\{k \;:\; k \in \{1,\ldots,K\},\; |\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_k)| \leq T/2\}|. \label{eq:K-estimator}
 \end{align}
 
 \subsection{MICH as a Mean-Field Variational Approximation}
@@ -203,7 +186,7 @@ Let $p(\theta\:|\: \mathbf{y};\eta)$ be the posterior of the MICH model and defi
     where 
     \begin{align*}
         \normalfont
-        \{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{t=1}^T = \texttt{SMSCP}(\tilde{\mathbf{r}}_{-j} \:;\:\overline{\pmb{\lambda}}_{-j}, \tau_j, u_j, \tilde{\mathbf{v}}_j, \tilde{\pmb{\pi}}_j, B_l,B_r).
+        \{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{t=1}^T = \texttt{SMSCP}(\tilde{\mathbf{r}}_{-j} \:;\:\overline{\boldsymbol{\lambda}}_{-j}, \tau_j, u_j, \tilde{\mathbf{v}}_j, \tilde{\boldsymbol{\pi}}_j, B_l,B_r).
     \end{align*}
 
     \item Let $q_{-\ell}(\theta_{-\ell})$ be a known distribution. For all $t$, define define $\tilde{r}_{-\ell t}$ as in (\ref{eq:smcp-e-resid}). Then the maximization problem:
@@ -219,7 +202,7 @@ Let $p(\theta\:|\: \mathbf{y};\eta)$ be the posterior of the MICH model and defi
     where 
     \begin{align*}
         \normalfont
-        \{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{t=1}^T= \texttt{SMCP}(\tilde{\mathbf{r}}_{-\ell t} \:;\: \overline{\pmb{\lambda}}_t, \tau_{\ell}, \pmb{\pi}_{\ell}, B_l,B_r).
+        \{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{t=1}^T= \texttt{SMCP}(\tilde{\mathbf{r}}_{-\ell t} \:;\: \overline{\boldsymbol{\lambda}}_t, \tau_{\ell}, \boldsymbol{\pi}_{\ell}, B_l,B_r).
     \end{align*}
 
     \item Let $q_{-k}(\theta_{-k})$ be a known distribution. For all $t$, define $\overline{\lambda}_{-kt}$ as in (\ref{eq:sscp-e-resid}). If we define a corrected prior rate parameter for $s_k$ and a corrected prior probability for the $k^{\text{th}}$ change-point location as:
@@ -240,7 +223,7 @@ Let $p(\theta\:|\: \mathbf{y};\eta)$ be the posterior of the MICH model and defi
     where 
     \begin{align*}
         \normalfont
-        \{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{t=1}^T = \texttt{SSCP}(\tilde{\mathbf{r}}_{t} \:;\: \overline{\pmb{\lambda}}_{-kt}, u_k, \tilde{\mathbf{v}}_{kt}, \tilde{\pmb{\pi}}_{kt}, B_l,B_r).
+        \{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{t=1}^T = \texttt{SSCP}(\tilde{\mathbf{r}}_{t} \:;\: \overline{\boldsymbol{\lambda}}_{-kt}, u_k, \tilde{\mathbf{v}}_{kt}, \tilde{\boldsymbol{\pi}}_{kt}, B_l,B_r).
     \end{align*}
 \end{enumerate}
 \end{proposition}
