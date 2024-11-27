@@ -1,0 +1,238 @@
+\subsection{Proof of Theorem \ref{theorem:alpha-mixing}}
+\label{app:alpha-mixing}
+
+For brevity, we have only included the complete proof that the localization rate for the meanvar-scp model of Section \ref{sec:smscp} is of order $\mathcal{O}(\log^{2+\delta}T)$ for some small $\delta > 0$ under the conditions of Theorem \ref{theorem:alpha-mixing}. Proving that Theorem \ref{theorem:alpha-mixing} holds for the mean-scp and var-scp models of Sections \ref{sec:smcp} and \ref{sec:sscp} respectively is a straightforward extension since the form of the log-evidence for the meanvar-scp model is essentially a combination of the log-evidence for the mean-scp and var-scp models. 
+
+As we did for the proof of Theorem \ref{theorem:smscp} in Appendix \ref{app:localization-smscp}, for some $\kappa > 0$, the $\varepsilon>0$ from minimum spacing condition in Theorem \ref{theorem:alpha-mixing}, and any $\delta \in (0,\varepsilon/2)$, we use the functions $f_1$ and $f_2$ from (\ref{eq:f1-signal-fn}) and (\ref{eq:f1-signal-fn}) to define the set:
+\begin{align*}
+    \mathcal{T}_{\kappa,\delta}:= \left\{1\leq t \leq T - \lfloor \log^{2 + \delta} T \rfloor\::\: |t_0 - t| > \frac{\kappa\log^{2 + \delta} T}{b^2_0 + \min\{f_1(s_0^2),f_2(s_0^2)\}} \right\}.
+\end{align*}
+We also assumed in Theorem \ref{theorem:alpha-mixing} that for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
+\begin{align}
+    \left|\log \frac{\pi_{t_0}}{\pi_t}\right| \leq C_\pi \log^2 T.
+\end{align}
+Therefore, by the same argument we used in the proof of Theorem \ref{theorem:smscp}, if we let $p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 \:; \lambda_0, u_0, v_0)$ be the marginal likelihood for the meanvar-scp model and we show that for any choice of $\delta$, under the conditions of Theorem \ref{theorem:alpha-mixing} there is some constant $\kappa > 0$ such that:
+\begin{align}
+    \lim_{T\to\infty}\Pr\left(\bigcap_{t\in\mathcal{T}_{\kappa,\delta}}\left\{ \log \frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 \:; \lambda_0, u_0, v_0)}{p(\mathbf{y}_{1:T} \:|\:\gamma = t \:; \lambda_0, u_0, v_0)} > C_\pi \log^2 T\right\}\right) = 1 \label{eq:thm4-result}
+\end{align}
+then we will have proven the desired result.  We now prove that there exists a $\kappa > 0$ such that the event in (\ref{eq:thm4-result}) holds on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm4-event-bound}.
+
+\begin{proof}
+
+We begin by noting that under the conditions of Theorem \ref{theorem:alpha-mixing}, for any given $\delta \in (0,\varepsilon/2)$, the conditions of Lemma \ref{lemma:thm4-event-bound} are satisfied so we will be on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm4-event-bound} with high probability as $T \to \infty$. Define $\Delta_t$ as in (\ref{eq:thm3-delta_t}). As in the proof of Theorem \ref{theorem:smscp}, it is sufficient to show that $\log \frac{\Delta_{t_0}}{\Delta_t} > C_\pi \log^2 T$ for large $T$ on the event $\mathcal{E}$. To show this we again consider two cases:
+
+\subsubsection*{Case 1: $t > t_0$, and $t \in \mathcal{T}_{\kappa,\delta}$.}
+
+Using the identical argument we used to get (\ref{eq:thm3-cs1-bd2}) in the proof of Theorem \ref{theorem:smscp} in Appendix \ref{app:localization-smscp} we can begin from:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq \left(\frac{t-t_0}{4}\right)\left[b_0^2 + f_1(s_0^2)\right]  + \frac{(s_0^2-1)}{2} \sum_{t' = t_0}^{t - 1} (z_{t'}^2-1) + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} \notag \\
+    &\quad\:  - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{2(T-t+1)} - \frac{\frac{(T-t+1)}{2}\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2}{1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 } + \mathcal{O}(1). \label{eq:thm4-cs1-bd1}
+\end{align}
+For fixed $\delta$, on the event $\mathcal{E}_1\cap\mathcal{E}_2 \subseteq\mathcal{E}$ defined in Lemma \ref{lemma:thm4-event-bound}, there is a universal constant $C > 0$ such that:
+\begin{align*}
+    \max\left\{\left|\sum_{t' = t_0}^{t - 1} z_{t'}\right|,\left|\sum_{t' = t_0}^{t - 1} (z^2_{t'}-1)\right|\;\right\} &< C \sqrt{t-t_0}\log^{1 + \frac{\delta}{4}} T
+\end{align*}
+and by Assumptions \ref{assumption:mean} and \ref{assumption:scale} there are constants $\underline{b}, \overline{b},\underline{s}, \overline{s} > 0$ such that $\overline{b} < |b_0| < \overline{b}$ and $\overline{s}^2 < s_0^2 < \overline{s}^2$. Therefore, we can write:
+\small
+\begin{align*}
+    \frac{(s_0^2-1)}{2} \sum_{t' = t_0}^{t - 1} (z_{t'}^2-1) + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} &\geq  -\frac{\overline{s}^2+1}{2} \left|\sum_{t' = t_0}^{t - 1} (z_{t'}^2-1)\right| - \overline{b} \overline{s} \left|\sum_{t' = t_0}^{t - 1} z_{t'}\right| \\
+    &> -C \left(\frac{\overline{s}^2+1}{2} + \overline{b} \overline{s}\right) \sqrt{t-t_0}\log^{1 + \frac{\delta}{4}} T \\
+    &= -(t-t_0)C \left(\frac{\overline{s}^2+1}{2} + \overline{b} \overline{s}\right) \frac{\log^{1 + \frac{\delta}{4}} T}{\sqrt{t-t_0}}. 
+\end{align*}
+\normalsize
+Since $t \in \mathcal{T}_{\kappa,\delta}$, we have: 
+\begin{align*}
+    \frac{\log^{1 + \frac{\delta}{4}} T}{\sqrt{t-t_0}} < \sqrt{\frac{b^2_0 + f_1(s_0^2)}{\kappa \log^{\frac{\delta}{2}}T}}
+\end{align*}
+so for any fixed $\kappa$, we can pick $T$ large enough so that:
+\begin{align*}
+    \frac{C \left(\frac{\overline{s}^2+1}{2} + \overline{b} \overline{s}\right)}{\sqrt{\kappa \log^{\frac{\delta}{2}}T}} < \frac{\sqrt{\underline{b}^2_0 + \min\{f_1(\overline{s}_2^2), f_1(\underline{s}_2^2)\}}}{8} < \frac{\sqrt{b^2_0 + f_1(s_0^2)}}{8}. \tag{$\overline{s}_1^2$ from (\ref{eq:thm3-s_0-I-1-bd}) and $\underline{s}_2^2$ from (\ref{eq:thm3-s_0-I-2-bd})}
+\end{align*}
+Then:
+\begin{align*}
+    \frac{(s_0^2-1)}{2} \sum_{t' = t_0}^{t - 1} (z_{t'}^2-1) + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} &\geq -\left(\frac{t-t_0}{8}\right)\left[b_0^2 + f_1(s_0^2)\right]. 
+\end{align*}
+and returning to (\ref{eq:thm4-cs1-bd1}), on $\mathcal{E}$ we will have:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq \left(\frac{t-t_0}{8}\right)\left[b_0^2 + f_1(s_0^2)\right] - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{2(T-t+1)} - \frac{\frac{(T-t+1)}{2}\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2}{1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 } + \mathcal{O}(1). \label{eq:thm4-cs1-bd2} 
+\end{align}
+Next, on the event $\mathcal{E}_3\cap\mathcal{E}_4 \subseteq\mathcal{E}$ defined in Lemma \ref{lemma:thm4-event-bound}, for the same universal constant $C > 0$ we have:
+\begin{align*}
+    \max\left\{\left|\sum_{t' = t}^{T} z_{t'}\right|,\left|\sum_{t' = t}^{T} (z^2_{t'}-1)\right|\;\right\} &< C \sqrt{T-t+1}\log^{1 + \frac{\delta}{4}} T 
+\end{align*}
+and thus:
+\begin{align*}
+    -\frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{2(T-t+1)} > - \frac{C^2}{2}\log^{2+\frac{\delta}{2}} T
+\end{align*}
+and:
+\begin{align*}
+     \left|\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2\right| &< \frac{C\log^{1 + \frac{\delta}{4}} T}{\sqrt{T-t+1}} + \frac{C^2 \log^{2 + \frac{\delta}{2}} T}{T-t+1} \\
+     &< \frac{C}{\log^{\frac{\delta}{4}}T} + \frac{C^2}{\sqrt{\log^\delta T} }. \tag{$t> t_0$ and $t \in \mathcal{T}_{\kappa,\delta} \implies T-t+1 > \log^{2 + \delta} T$}
+\end{align*}
+So for $T$ large enough that the last line above is bounded by $1/2$, we can write:
+\begin{align*}
+    \frac{\frac{(T-t+1)}{2}\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2}{1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 } &< \left[C\log^{1 + \frac{\delta}{4}} T + \frac{C^2 \log^{2 + \frac{\delta}{2}} T}{\sqrt{T-t+1}} \right]^2 \\
+    &< \left[C\log^{1 + \frac{\delta}{4}} T + C^2 \log T \right]^2. \tag{$t> t_0$ and $t \in \mathcal{T}_{\kappa,\delta} \implies T-t+1 > \log^{2 + \delta} T$}
+\end{align*}
+Since $C> 1$ without loss of generality, for large enough $T$ the last line above is bounded by $4C^2 \log^{2+\frac{\delta}{2} }T$. Combining these results, for large $T$ on $\mathcal{E}$, we can rewrite (\ref{eq:thm4-cs1-bd2}) as:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq \left(\frac{t-t_0}{8}\right)\left[b_0^2 + f_1(s_0^2)\right]- \frac{9C^2}{2} \log^{2+\frac{\delta}{2} }T \\
+    &\geq \frac{\kappa}{8}\log^{2+\delta} T - \frac{9C^2}{2} \log^{2+\frac{\delta}{2}} T \tag{$t\in \mathcal{T}_{\kappa,\delta}$}
+\end{align*}
+so for $\kappa > 8\left(C_\pi + \frac{9C^2}{2}\right)$, we have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} \geq C_\pi \log^{2+\delta} T
+\end{align*}
+which proves (\ref{eq:thm4-result}) for this case.
+
+\subsubsection*{Case 2: $t < t_0$, and $t \in \mathcal{T}_{\kappa,\delta}$.}
+
+We begin by defining the error terms $\epsilon_{t:t_0}$ and $\epsilon_{t:T}$ as in (\ref{eq:thm-3-error-t:t0}) and (\ref{eq:thm-3-error-t:T}) respectively. As in the proof of Theorem \ref{theorem:smscp}, we separately consider the cases where i) Assumption \ref{assumption:scale} holds and ii) Assumption \ref{assumption:mean} holds and $s_0^2 =1$:
+
+\subsubsection*{Case 2.a: Assumption \ref{assumption:scale} holds.}
+
+Using the identical argument we used to get (\ref{eq:thm3-cs2-bd2}) in the proof of Theorem \ref{theorem:smscp} in Appendix \ref{app:localization-smscp} we can begin from:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) + \frac{(t_0-t)}{2}\log s_0^2 \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1) + \epsilon_{t:t_0} + s_0^{2}\epsilon_{t_0:T} }\right] \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T} }{T-t+1}\right] - \frac{\epsilon_{t_0:T}}{2} \notag \\
+    &\quad\: + \mathcal{O}(1). \label{eq:thm4-cs2-bd1}
+\end{align}
+Once again there is some $C>0$ so that on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm4-event-bound} we have:
+\begin{align*}
+    \max\left\{\left|\sum_{t'=t}^{t_0-1 } z_{t'}\right|,\;\left|\sum_{t'=t}^{t_0-1 } (z^2_{t'}-1)\right|\right\} &< C\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T \tag{on $\mathcal{E}_1\cap\mathcal{E}_2\subseteq\mathcal{E}$}\\
+    \max\left\{\left|\sum_{t'=t_0}^{T} z_{t'} \right|,\;\left|\sum_{t'=t_0}^{T} (z^2_{t'}-1)\right|\right\} &< C\sqrt{T-t_0+1}\log^{1+\frac{\delta}{4}} T \tag{on $\mathcal{E}_3\cap \mathcal{E}_4\subseteq\mathcal{E}$}.
+\end{align*}
+Therefore, on $\mathcal{E}$ we have:
+\small
+\begin{align*}
+    \frac{|s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T}|}{T-t+1} &\leq \frac{s_0^{-2}\left(\left|\sum_{t'=t}^{t_0-1 } (z^2_{t'}-1)\right| + \frac{\left(\sum_{t'=t}^{t_0-1 } z_{t'}\right)^2}{t_0-t}\right) + \left|\sum_{t'=t_0}^{T} (z^2_{t'}-1)\right| + \frac{\left(\sum_{t'=t_0}^{T} z_{t'} \right)^2}{T-t_0+1}}{T-t+1} \\
+    &\leq \frac{s_0^{-2}C\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T + C\sqrt{T-t_0+1}\log^{1+\frac{\delta}{4}} T + 2C^2\log^{2+\frac{\delta}{2}} T}{T-t+1} \\
+    &\leq \frac{2C\log^{1+\frac{\delta}{4}} T}{\underline{s}^{2}\sqrt{T-t+1}} + \frac{2C^2\log^{2+\frac{\delta}{2}} T}{T-t+1} \tag{by (\ref{eq:thm3-s_0-I-1-bd}) and $T-t+1 > \max\{t_0 - t, T-t_0+1\}$} \\
+    &\leq \frac{2C}{\underline{s}^{2}\sqrt{\log^{\varepsilon - \frac{\delta}{2}}T}} + \frac{2C^2}{\log^{\varepsilon-\frac{\delta}{2}} T}. \tag{$T-t+1 > T-t_0+1 > \log^{2+\varepsilon} T$}
+\end{align*}
+\normalsize
+Since $\delta < \frac{\varepsilon}{2}$, the last line vanishes as $T \to \infty$, we can use a first order Taylor approximation of $\log(1+x)$ around zero and the third bound above to write: 
+\begin{align*}
+    \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T} }{T-t+1}\right] &= \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{2} + \mathcal{O}\left(\frac{[s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T}]^2 }{T-t+1}\right) \\
+    &= \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{2} + \mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right)
+\end{align*}
+Returning to (\ref{eq:thm4-cs2-bd1}), on $\mathcal{E}$ we now have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{(1-s_0^{-2})}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) - \frac{\left(\sum_{t'=t}^{t_0-1 } z_{t'}\right)^2}{2s_0^2(t_0-t)} + \frac{(t_0-t)}{2}\log s_0^2  \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1) + \epsilon_{t:t_0} + s_0^{2}\epsilon_{t_0:T} }\right]  \\
+    &\quad\: +\mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right). 
+\end{align*}
+Once again, on $\mathcal{E}_1 \subseteq\mathcal{E}$ we have:
+\begin{align*}
+    - \frac{\left(\sum_{t'=t}^{t_0-1 } z_{t'}\right)^2}{2s_0^2(t_0-t)} > - \frac{C^2}{2s_0^2} \log^{2+\frac{\delta}{2}} T > - \frac{C^2}{2\underline{s}^2}\log^{2+\frac{\delta}{2}} T \tag{by (\ref{eq:thm3-s_0-I-1-bd})}
+\end{align*}
+and on $\mathcal{E}_2 \subseteq\mathcal{E}$ we have: 
+\begin{align*}
+    - \frac{(1-s_0^{-2})}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) \geq - \frac{|1-s_0^{-2}|}{2} \left|\sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1)\right| \geq - \frac{(1  +\overline{s}^2)C}{2}\sqrt{t_0-t}\log^{1+\frac{\delta}{4}}T \tag{by (\ref{eq:thm3-s_0-I-2-bd})}
+\end{align*}
+so we have the further simplification:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\log s_0^2  - \frac{(1  +\overline{s}^2)C}{2}\sqrt{t_0-t}\log^{1+\frac{\delta}{4}}T  \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1) + \epsilon_{t:t_0} + s_0^{2}\epsilon_{t_0:T} }\right]  \\
+    &\quad\: + \mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right). 
+\end{align*}
+Next, we can rewrite:
+\begin{align*}
+    \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1) + \epsilon_{t:t_0} + s_0^{2}\epsilon_{t_0:T}} &= \left(1 - \frac{\frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}{1 + \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}\right)\frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}
+\end{align*}
+and thus:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\log s_0^2 - \frac{(1  +\overline{s}^2)C}{2}\sqrt{t_0-t}\log^{1+\frac{\delta}{4}}T \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}\right] \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 - \left(\frac{\frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}{1 + \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}\right)\frac{\frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}{1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}\right]  \notag \\
+    &\quad\: + \mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right). \label{eq:thm4-cs2-bd3}
+\end{align}
+We have already shown that on $\mathcal{E}$: 
+\begin{align*}
+    \frac{|s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T}|}{T-t+1} \leq  \frac{2C\log^{1+\frac{\delta}{4}} T}{\underline{s}^{2}\sqrt{T-t+1}} + \frac{2C^2\log^{2+\frac{\delta}{2}} T}{T-t+1} \leq \frac{2C}{\underline{s}^{2}\sqrt{\log^{\varepsilon - \frac{\delta}{2}}T}} + \frac{2C^2}{\log^{\varepsilon-\frac{\delta}{2}} T} 
+\end{align*}
+which is vanishing as $T\to \infty$, so an identical argument as in the proof of Theorem \ref{theorem:smscp} gives:
+\small
+\begin{align*}
+    \left(\frac{T - t +1}{2}\right)\log\left[1 - \left(\frac{\frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}{1 + \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}\right)\frac{\frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}{1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}\right] &= \mathcal{O}\left(\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T\right) + \mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right).
+\end{align*}
+\normalsize
+Using the last result in combination with (\ref{eq:thm4-cs2-bd3}), there exist some $T$ large enough and some universal constant $C_1 > 0$ so that on $\mathcal{E}$: 
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\log s_0^2 + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}\right] - C_1\sqrt{t_0 -t} \log^{1+\frac{\delta}{4}} T + \mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right).
+\end{align*}
+An identical argument as in the proof of Theorem \ref{theorem:smscp} shows that the bound above is non-decreasing as a function of $t$ and that we can pick $\kappa > 0$ large enough so that for large $T$ on $\mathcal{E}$ we have $ \log \frac{\Delta_{t_0}}{\Delta_t} > C_\pi\log^{2} T $ and therefore the event (\ref{eq:thm4-result}) holds for this case.
+
+\subsubsection*{Case 2.b: Assumption \ref{assumption:mean} holds and $s_0^2 =1$.}
+
+By the identical argument we used to show (\ref{eq:thm3-cs2-bd5}) in the proof of Theorem \ref{theorem:smscp} we can begin from:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) \notag\\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 +\frac{\frac{(T-t_0+1)(t_0-t)b_0^2}{(T-t+1)^2} + \frac{2b_0\left[(t_0-t)\sum_{t'=t_0}^{T} z_{t'} - (T-t_0+1)\sum_{t'=t}^{t_0-1} z_{t'}\right]}{(T-t+1)^2}}{1 + \frac{\epsilon_{t:T}}{T-t+1}} \right]\notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log \left[1 + \frac{\epsilon_{t:T}}{T-t+1}\right]-\frac{\epsilon_{t_0:T}}{2} \notag\\
+    &\quad\: + \mathcal{O}(1).\label{eq:thm4-cs2-bd4}
+\end{align}
+Once again, there is some $C>0$ so that on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm4-event-bound}, we have:
+\begin{align*}
+    \max\left\{\left|\sum_{t'=t}^{T} z_{t'} \right|,\; \left|\sum_{t'=t}^{T} (z^2_{t'}-1)\right|\right\}&< C\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T. \tag{on $\mathcal{E}_3\cap\mathcal{E}_4 \subseteq\mathcal{E}$}
+\end{align*}
+We therefore have:
+\begin{align*}
+    - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1} > - C^2\log^{2 + \frac{\delta}{2}} T
+\end{align*}
+and: 
+\begin{align*}
+    \frac{|\epsilon_{t:T}|}{T-t+1} &\leq \frac{\left|\sum_{t'=t}^{T} (z^2_{t'}-1)\right|}{T-t+1} + \left(\frac{\sum_{t'=t}^{T} z_{t'}}{T-t+1} \right)^2 \\
+    &<\frac{C\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T + C^2\log^{2 + \frac{\delta}{2}} T}{T-t+1} \\
+    &< \frac{C}{\sqrt{\log^{\varepsilon-\frac{\delta}{2}}}T} + \frac{C^2}{\log^{\varepsilon - \frac{\delta}{2}}T}. \tag{$T-1+1 > \log^{2+\varepsilon} T$}
+\end{align*}
+Since $\delta < \frac{\varepsilon}{2}$, then $\frac{|\epsilon_{t:T}|}{T-t+1}$ vanishes on $\mathcal{E}$ as $T\to\infty$. Therefore, we can use a first order Taylor approximation of $\log(1+x)$ around zero to get: 
+\begin{align*}
+    \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{\epsilon_{t:T}}{T-t+1}\right] = \frac{\epsilon_{t:T}}{2} + \mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right)
+\end{align*}
+and since:
+\begin{align*}
+    \epsilon_{t:T} - \epsilon_{t_0:T} \geq \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1}
+\end{align*}
+then returning to the bound (\ref{eq:thm4-cs2-bd4}), we can now write:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1 +\frac{\frac{(T-t_0+1)(t_0-t)b_0^2}{(T-t+1)^2} + \frac{2b_0\left[(t_0-t)\sum_{t'=t_0}^{T} z_{t'} - (T-t_0+1)\sum_{t'=t}^{t_0-1} z_{t'}\right]}{(T-t+1)^2}}{1 + \frac{\epsilon_{t:T}}{T-t+1}} \right] + \mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right). \label{eq:thm4-cs2-bd5}
+\end{align}
+Again, since $t\in\mathcal{T}_\kappa$, there is some $C>0$ so that on $\mathcal{E}$ we have:
+\begin{align*}
+    \left|\sum_{t'=t}^{t_0-1} z_{t'}\right| &< C\sqrt{t_0-t} \log^{1+\frac{\delta}{4}} T\tag{on $\mathcal{E}_1 \subseteq\mathcal{E}$} \\
+    \left|\sum_{t'=t}^{T} z_{t'} \right|&< C\sqrt{T-t+1} \log^{1+\frac{\delta}{4}} T \tag{on $\mathcal{E}_3 \subseteq\mathcal{E}$}
+\end{align*}
+and thus:
+\begin{align*}
+    (t_0-t)\sum_{t'=t_0}^{T} z_{t'} - (T-t_0+1)\sum_{t'=t}^{t_0-1} z_{t'} &\leq C(t_0-t)\sqrt{T-t_0+1}\log^{1+\frac{\delta}{4}} T + C(T-t_0+1)\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T.
+\end{align*}
+Since $T-t_0+1 > \log^{2+\varepsilon} T$, $\delta < \frac{\varepsilon}{2}$, and Assumption \ref{assumption:mean} implies $|b_0| > \underline{b}$ for some $\underline{b} > 0$, then for $T$ large enough so that:
+\begin{align*}
+    \sqrt{\frac{\log^{2+\frac{\delta}{2}} T}{T-t_0+1}} < \frac{1}{\sqrt{\log^{\varepsilon - \frac{\delta}{2}} T}} < \frac{\underline{b}}{8\sqrt{C}} < \frac{|b_0|}{8 \sqrt{C}}
+\end{align*}
+we have:
+\begin{align*}
+    C(t_0-t)\sqrt{T-t_0+1}\log^{1+\frac{\delta}{4}} T < \frac{|b_0|(t_0 - t)(T-t_0+1)}{8}.
+\end{align*}
+Next, since $s_0^2 = 1$ and $t \in \mathcal{T}_\kappa$ imply that $t_0 - t > \frac{\kappa\log^{2+\delta} T}{b_0^2}$, then we have:
+\begin{align*}
+    C(T-t_0+1)\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T < \frac{C|b_0|(T-t_0+1)(t_0 -t)}{\sqrt{\kappa}}
+\end{align*}
+so for $\kappa > 8C^2$ we have: 
+\begin{align*}
+    2b_0\left[(t_0-t)\sum_{t'=t_0}^{T} z_{t'} - (T-t_0+1)\sum_{t'=t}^{t_0-1} z_{t'}\right] &\geq - 2|b_0|(t_0-t)\left|\sum_{t'=t_0}^{T} z_{t'}\right| + (T-t_0+1)\left|\sum_{t'=t}^{t_0-1} z_{t'}\right| \\
+    &> - \frac{(T-t_0+1)(t_0-t)b_0^2}{2}.
+\end{align*}
+Returning to the bound (\ref{eq:thm3-cs2-bd6}), we can now write::
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1 +\frac{\frac{(T-t_0+1)(t_0-t)b_0^2}{2(T-t+1)^2}}{1 + \frac{\epsilon_{t:T}}{T-t+1}} \right] + \mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right).
+\end{align*}
+We showed above that $\frac{|\epsilon_{t:T}|}{T-t+1}$ vanishes on $\mathcal{E}$ so for $T$ large enough that $\frac{|\epsilon_{t:T}|}{T-t+1} < \frac{1}{2}$ we have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1 +\frac{(T-t_0+1)(t_0-t)b_0^2}{4(T-t+1)^2} \right] +\mathcal{O}\left(\log^{2+\frac{\delta}{2}} T\right).
+\end{align*}
+An identical argument as in the proof of Theorem \ref{theorem:smscp} shows that the bound above is non-decreasing as a function of $t$ and that we can pick $\kappa > 0$ large enough so that for large $T$ on $\mathcal{E}$ we have $ \log \frac{\Delta_{t_0}}{\Delta_t} > C_\pi\log^{2} T $ and therefore the event (\ref{eq:thm4-result}) holds for this case as well.
+
+\end{proof}

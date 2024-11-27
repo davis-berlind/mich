@@ -1,1 +1,8 @@
 This is a common assumption in the CPD literature (see e.g. \citealp{Csörgö97, Bai10}), and has appeared in other Bayesian approaches to CPD (\citealp{Cappello21, Cappello22}); however, it is notably stronger than other minimum spacing conditions in the literature, e.g. \cite{Wang2020_localization} show that if the minimum spacing condition is known and is of order $\log^{1+\varepsilon} T$ for some $\varepsilon > 0$, then both their $\ell_0$-penalty and WBS methods remain consistent.
+
+Before stating the result, we define a restricted MAP estimator for some $\alpha \in (0,1/2)$:
+\begin{align}
+    \label{eq:restricted-map}
+        \hat{t}_{\alpha} := \argmax{t \::\: \min\{t, T-t\} \geq \alpha T} \; \overline{\pi}_t.
+\end{align}
+Such an estimator is reasonable in practice if we can confidently pick an $\alpha$ smaller than $c$ from Assumption \ref{assumption:1} (i). 

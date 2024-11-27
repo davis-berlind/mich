@@ -1,43 +1,33 @@
-\begin{algorithm}[!h]
+\begin{algorithm}
 \label{alg:1}
-\small
+\caption{Variational Bayes Approximation to MICH Posterior.}
+
+\footnotesize
 \SetAlgoLined
-  Inputs: $J;\:K;\:L;\:B_l;\:B_r;\:\{\tau_j,u_j,v_j,\pi_j\}_{j=1}^J;\:\{\tau_\ell,\pi_\ell\}_{\ell=1}^L;\:\{u_k,v_k,\pi_k\}_{k=1}^K$; \\
-  Initialize: $\tilde{\mathbf{r}} := \mathbf{y}$; $\overline{\pmb{\lambda}}:= \mathbf{1}$; $\pmb{\delta}:=\mathbf{0}$; $\{\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{t=1}^T\}_{j=1}^J$; $\{\{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \{\overline{\pi}_{\ell t}\}_{t=1}^T\}_{\ell=1}^L$; $\{\{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{t=1}^T\}_{k=1}^K$;\\
+  Inputs: $L,\:K,\:J,\:\{\tau_\ell,\pi_\ell\}_{\ell=1}^L,\:\{u_k,v_k,\pi_k\}_{k=1}^K,\:\{\tau_j,u_j,v_j,\pi_j\}_{j=1}^J;$ \\
+  Initialize: $\overline{\boldsymbol{\Theta}} := \{\{\overline{\boldsymbol{\theta}}_\ell\}_{\ell=1}^L$, $\{\overline{\boldsymbol{\theta}}_k\}_{k=1}^K$, $\{\overline{\boldsymbol{\theta}}_j\}_{j=1}^J\}$;
   
   \Repeat {Convergence} {
-    $j:=1;\;\ell:=1;\;k:=1;$ \\
-    \While{$j \leq J$} {
-      $\tilde{r}_t := \tilde{r}_t + \E_q[\lambda_{jt}]^{-1}\E_q[\lambda_{jt} \mu_{jt}],\; \sforall t$; \texttt{// calculate partial residuals} \\
-      $\overline{\lambda}_t := \E_q[\lambda_{jt}]^{-1}\overline{\lambda}_t, \; \sforall t$; \\
-      $\delta_t := \delta_t - \E_q[\lambda_{jt}]^{-1}\E_q[\lambda_{jt} \mu^2_{jt}] + (\E_q[\lambda_{jt}]^{-1}\E_q[\lambda_{jt} \mu_{jt}])^2,\; \sforall t;$ \\
-      Calculate: $\tilde{v}_{jt}$ and $\tilde{\pi}_{jt}$ by (\ref{eq:mod-v_j}) and (\ref{eq:mod-pi_j}), $\sforall t$; \texttt{// calculate corrected priors} \\
-      $\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{t=1}^T := \texttt{SMSCP}(\tilde{\mathbf{r}} \:;\:\overline{\pmb{\lambda}}, \tau_j, u_j, \{\tilde{v}_{jt}\}_{t=1}^T, \tilde{\pmb{\pi}}_j, B_l,B_r);$ \texttt{// fit model}\\
-      Calculate: $\E_q[\lambda_{jt}]$, $\E_q[\lambda_{jt} \mu_{jt}]$, and $\E_q[\lambda_{jt} \mu^2_{jt}]$; \texttt{// update residuals}\\
-      $\tilde{r}_t := \tilde{r}_t - \E_q[\lambda_{jt}]^{-1}\E_q[\lambda_{jt} \mu_{jt}],\; \sforall t$; \\
-      $\overline{\lambda}_t := \E_q[\lambda_{jt}]\overline{\lambda}_t, \; \sforall t$; \\
-      $\delta_t := \delta_t + \E_q[\lambda_{jt}]^{-1}\E_q[\lambda_{jt} \mu^2_{jt}] - (\E_q[\lambda_{jt}]^{-1}\E_q[\lambda_{jt} \mu_{jt}])^2,\; \sforall t;$ \\
-      $j := j + 1$; \\
+    \For{$\ell=1$ \KwTo $L$} {
+      $\tilde{r}_{-\ell t} := y_t - \sum_{\ell' \neq \ell}^L \E[\mu_{\ell' t}] - \sum_{j =1}^J \E[\lambda_{jt} \mu_{jt}] / \E[\lambda_{jt}]$ \tcp*{l\textsuperscript{th} partial mean residual}
+      $\overline{\lambda}_{t} := \prod_{k=1}^K \E[\lambda_{kt}]\prod_{j=1}\E[\lambda_{jt}]$ \tcp*{precision of residual} 
+      $\overline{\boldsymbol{\theta}}_\ell := \texttt{mean-scp}(\tilde{\mathbf{r}}_{-\ell} \:;\: \overline{\boldsymbol{\lambda}}_{1:T}, \tau_{\ell}, \boldsymbol{\pi}_{\ell})$ \tcp*{update mean parameters}
     }
-    \While{$\ell \leq L$} {
-      $\tilde{r}_t := \tilde{r}_t + \E_q[\mu_{\ell t}],\; \sforall t$; \texttt{// calculate partial residuals} \\
-      $\delta_t := \delta_t -  \Var_q(\mu_{\ell t}),\; \sforall t;$ \\
-      $\{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{t=1}^T := \texttt{SMCP}(\tilde{\mathbf{r}} \:;\: \overline{\pmb{\lambda}}, \tau_{\ell}, \pmb{\pi}_{\ell}, B_l,B_r);$ \texttt{// fit model} \\
-      Calculate: $\E_q[\mu_{\ell t}]$ and $\Var_q(\mu_{\ell t})$; \texttt{// update residuals} \\
-      $\tilde{r}_t := \tilde{r}_t - \E_q[\mu_{\ell t}],\; \sforall t$; \\
-      $\delta_t := \delta_t + \Var_q(\mu_{\ell t}),\; \sforall t;$ \\
-      $\ell := \ell + 1$; \\
+    \For{$k=1$ \KwTo $K$} {
+      $\tilde{r}_{t} := y_t - \sum_{\ell = 1}^L \E[\mu_{\ell t}] - \sum_{j=1}^J \E[\lambda_{jt} \mu_{jt}] / \E[\lambda_{jt}]$ \tcp*{mean residual} 
+      $\overline{\lambda}_{-kt} := \prod_{k' \neq k} \E[\lambda_{k't}]\prod_{j=1}^J\E[\lambda_{jt}] $ \tcp*{k\textsuperscript{th} partial scale residual} 
+      %% $\delta_{t} := \sum_{\ell=1}^L  \Var(\mu_{\ell t} ) + \sum_{j=1}^J[\E[\lambda_{jt} \mu^2_{jt}] / \E[\lambda_{jt}] - (\E[\lambda_{jt} \mu_{jt}] / \E[\lambda_{jt}])^2 ];$ \tcp*{variance correction term}\\
+      Compute $\boldsymbol{\delta}_{1:T}$, $\tilde{\mathbf{v}}_{k}$, and $\tilde{\boldsymbol{\pi}}_{k}$ by (\ref{eq:delta}), (\ref{eq:mod-v_k}), and (\ref{eq:mod-pi_k}) \tcp*{variance corrected priors} 
+      $\overline{\boldsymbol{\theta}}_k := \texttt{var-scp}(\tilde{\mathbf{r}}_{1:T} 
+      \:;\:\overline{\boldsymbol{\lambda}}_{-k}, u_k, \tilde{\mathbf{v}}_{k}, \tilde{\boldsymbol{\pi}}_k)$ \tcp*{update var parameters}
     }
-    \While{$k \leq K$} {
-      $\overline{\lambda}_t := \E_q[\lambda_{k t}]^{-1}\overline{\lambda}_t, \; \sforall t$; \texttt{// calculate partial residuals}\\
-      Calculate: $\tilde{v}_{kt}$ and $\tilde{\pi}_{kt}$ by (\ref{eq:mod-v_k}) and (\ref{eq:mod-pi_k}), $\sforall t$; \texttt{// calculate corrected priors} \\
-      $\{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{t=1}^T := \texttt{SSCP}(\tilde{\mathbf{r}} 
-      \:;\:\overline{\pmb{\lambda}}, u_k, \{\tilde{v}_{kt}\}_{t=1}^T, \tilde{\pmb{\pi}}_k, B_l,B_r)$; \texttt{// fit model} \\
-      Calculate: $\E_q[\lambda_{k t}]$; \texttt{// update residuals} \\
-      $\overline{\lambda}_t := \E_q[\lambda_{kt}]\overline{\lambda}_t, \; \sforall t$; \\
-      $k := k + 1$; \\
+    \For{$j=1$ \KwTo $J$} {
+      $\tilde{r}_{-jt} := y_t - \sum_{\ell = 1}^L \E[\mu_{\ell t}] - \sum_{j' \neq j} \E[\lambda_{j't} \mu_{j't}] / \E[\lambda_{j't}]$ \tcp*{j\textsuperscript{th} partial mean residual} 
+      $\overline{\lambda}_{-jt} := \prod_{k=1}^K \E[\lambda_{kt}]\prod_{j' \neq j}\E[\lambda_{j't}] $ \tcp*{j\textsuperscript{th} partial scale residual}
+      %%$\delta_{-jt} := \sum_{\ell=1}^L  \Var(\mu_{\ell t} ) + \sum_{j' \neq j}[\E[\lambda_{j't} \mu^2_{j't}] / \E[\lambda_{j't}] - (\E[\lambda_{j't} \mu_{j't}] / \E[\lambda_{j't}])^2 ]$ \tcp*{j\textsuperscript{th} variance correction term} 
+      Compute $\boldsymbol{\delta}_{-j}$, $\tilde{\mathbf{v}}_{j}$, and $\tilde{\boldsymbol{\pi}}_{j}$ by (\ref{eq:delta_j}), (\ref{eq:mod-v_j}), and (\ref{eq:mod-pi_j}) \tcp*{variance corrected priors} 
+      $\overline{\boldsymbol{\theta}}_j := \texttt{meanvar-scp}(\tilde{\mathbf{r}}_{-j} \:;\:\overline{\boldsymbol{\lambda}}_{-j}, \tau_j, u_j, \tilde{\mathbf{v}}_{j}, \tilde{\boldsymbol{\pi}}_j)$ \tcp*{update meanvar parameters}
     }
   }
-  \Return{Posterior Parameters: $\{\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{j=1}^J, \{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{\ell=1}^L, \{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{k=1}^K\}_{t=1}^T$}.
-  \caption{Variational Bayes Approximation to MICH Posterior.}
+  \Return{Posterior Parameters: $\overline{\boldsymbol{\Theta}}$}.
 \end{algorithm}

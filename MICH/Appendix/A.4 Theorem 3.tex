@@ -1,101 +1,91 @@
-\subsection{Proof of Theorem \ref{theorem:smscp}}
+\subsection{Proof of Theorems \ref{theorem:sscp} and \ref{theorem:smscp}}
 \label{app:localization-smscp}
 
-Let $\varepsilon > 0$ be given and consider the SMSCP model described in (\ref{eq:smscp-start})-(\ref{eq:smscp-end}). Suppose that Assumption \ref{assumption:1} (i) and (ii) hold so that $t_0$ is the true location of the change-point in either the mean or variance of $\mathbf{y}$ and:
-\begin{align*}
-    \E[y_t], \text{\normalfont Var}(y_t) &= 
-    \begin{cases}
-        (0,1), & \text{if } t < t_0, \\
-        (b_0,s_0^2), & \text{if } t \geq t_0.
-    \end{cases} 
-\end{align*}
-Note that within the SMSCP model, this implies $\tau_t = 1 \sforall t \in [T]$, but this assumption is without loss of generality as each $\tau_t$ is known, so we can always normalize $\mathbf{y}$. Let $\xi \in [0,\varepsilon)$ be the constant from the statement of Theorem \ref{theorem:smscp}, i.e. when Assumption \ref{assumption:mean} holds we have:
-\begin{align}\label{eq:thm3-b_0-bd}
-     \frac{\underline{b}^2}{\log^{\xi/2} T} \leq b^2_0 \leq \overline{b}^2.
-\end{align}
-for some $\overline{b} > \underline{b} > 0$. If Assumption \ref{assumption:mean} does not hold, then we can let $\xi = 0$. By the assumptions of Theorem \ref{theorem:smscp}, the conditions of Lemma \ref{lemma:thm3-event-bound} are met, so if we take $\varphi \in (0,\varepsilon - \xi)$, then under assumptions (i)-(iii) from Theorem \ref{theorem:smscp}, we will be on the event $\Omega$ with high probability for this $\varphi$. On the other hand if $\mathbf{y}$ is generated so that:
-\begin{align*}
-    y_t \overset{\text{ind.}}{\sim}
-    \begin{cases}
-        \mathcal{N}(0,1), &\text{if } 1 \leq t < t_0, \\
-        \mathcal{N}(b_0,s_0^2), &\text{if } t_0 \leq t \leq T. \\
-    \end{cases}
-\end{align*}
-then we will be on $\mathcal{E}$ with high probability.
+\cite{Cappello22} proved Theorem \ref{theorem:sscp} under the stronger assumption of Gaussian data and the minimum spacing condition $\min \{t_0, T-t_0\} > cT$ for some $c \in (0,1/2)$. The generalization of Theorem \ref{theorem:sscp} to sub-Gaussian data and the minimum spacing condition in Assumption \ref{assumption:1} follows the same argument we use in proving Theorem \ref{theorem:smscp} and is therefore omitted.
 
-If we take the ratio of the posterior probabilities of the change-point location, we get:
+If we take the ratio of the posterior probabilities of the change-point location from the meanvar-scp model, we get:
 \begin{align*}
     \log \frac{\Pr(\gamma = t_0  \:|\: \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi})}{\Pr(\gamma = t  \:|\: \mathbf{y} \:; \tau_0, u_0, v_0,\boldsymbol{\pi})} &=  \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0, u_0, v_0)\Pr(\gamma = t_0 \:; \boldsymbol{\pi})/ p(\mathbf{y}\:;\tau_0, u_0, v_0,\boldsymbol{\pi})}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)\Pr(\gamma = t \:;\boldsymbol{\pi})/ p(\mathbf{y}\:;\tau_0, u_0, v_0,\boldsymbol{\pi})} \tag{Bayes' rule} \\
     &= \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0, u_0, v_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)} + \log\frac{\pi_{t_0}}{\pi_t}.
 \end{align*}
-If Assumption \ref{assumption:1} (iii) (b) holds, then for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
-\begin{align}\label{eq:thm3-prior-bd-1}
-    \left|\log \frac{\pi_{t_0}}{\pi_t}\right| \leq C_\pi \sqrt{T \log T}.
-\end{align}
-Therefore, if we can show there is some constant $\kappa > 0$ such that for all $t$ that satisfy $|t - t_0| > \kappa \sqrt{T \log^{1+\xi}T}$ on $\mathcal{E}$ we have:
-\begin{align}
-    \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0, u_0, v_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)} > C_\pi \sqrt{T \log T} + o\left(\sqrt{T \log T}\right) \label{eq:thm3-result-1}
-\end{align}
-then on $\mathcal{E}$ we will have:
+For some $\kappa > 0$ and the $\varepsilon>0$ from Assumption \ref{assumption:1}, we can use the functions $f_1$ and $f_2$ in (\ref{eq:f1-signal-fn}) and (\ref{eq:f1-signal-fn}) to define the set:
 \begin{align*}
-    \max_{t \;:\; |t - t_0| > \kappa \sqrt{T\log^{1+\xi} T}} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi}).
+    \mathcal{T}_{\kappa}:= \left\{1\leq t \leq T - \lfloor\log^{\varepsilon} T\rfloor\::\: |t_0 - t| > \frac{\kappa\log T}{b^2_0 + \min\{f_1(s_0^2),f_2(s_0^2)\}} \right\}.
 \end{align*}
-Similarly, if Assumption \ref{assumption:1} (iii) (c) holds, then for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
-\begin{align}\label{eq:thm3-prior-bd-1}
-    \left|\log \frac{\pi_{t_0}}{\pi_t}\right| \leq C_\pi \sqrt{T}\log T
-\end{align}
-and if we can show that there is some constant $\kappa > 0$ such that for all $t$ that satisfy $|t - t_0| > \kappa\sqrt{T}\log^{1+\varepsilon} T$ on $\Omega$ we have:
+Since $f_1$ and $f_2$ are non-negative functions on $\mathbb{R}_+$ with unique minima at $f_1(1) = f_2(1) = 0$, as long either Assumption \ref{assumption:mean} or \ref{assumption:scale} holds, then we will have $b^2_0 + \min\{f_2(s_0^2),f_1(s_0^2)\}> 0$. Therefore, $\mathcal{T}_{\kappa}$ will be non-empty for large $T$. By Assumption \ref{assumption:1} (iii), for large $T$ there is some constant $C_\pi > 0$ such that for all $t \in [T]$: 
 \begin{align}
-    \log \frac{p(\mathbf{y} \:|\:\gamma = t_0 \:; \tau_0, u_0, v_0)}{p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)}\gtrsim \sqrt{T}\log^{1+\delta} T \label{eq:thm3-result-2}
+    \left|\log \frac{\pi_{t_0}}{\pi_t}\right| \leq C_\pi \log T.
 \end{align}
-for some $\delta > 0$, then on $\Omega$ we will have:
+Therefore, if we can show that there is some constant $\kappa > 0$ such that:
+\begin{align}
+    \lim_{T\to\infty}\Pr\left(\bigcap_{t\in\mathcal{T}_{\kappa}}\left\{ \log \frac{p(\mathbf{y}_{1:T} \:|\:\gamma = t_0 \:; \tau_0, u_0, v_0)}{p(\mathbf{y}_{1:T} \:|\:\gamma = t \:; \tau_0, u_0, v_0)} > C_\pi \log T\right\}\right) = 1 \label{eq:thm3-result}
+\end{align}
+then with probability approaching one as $T \to \infty$ we will have:
 \begin{align*}
-    \max_{t \;:\; |t - t_0| > \kappa \sqrt{T}\log^{1+\varepsilon} T} \; \Pr(\gamma = t  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi}) < \Pr(\gamma = t_0  \;|\; \mathbf{y} ; \tau_0, u_0, v_0,\boldsymbol{\pi}).
+    \max_{t\in\mathcal{T}_{\kappa}} \; \Pr(\gamma = t  \;|\; \mathbf{y}_{1:T} ; \tau_0, u_0, v_0,\boldsymbol{\pi}_{1:T}) < \Pr(\gamma = t_0  \;|\; \mathbf{y}_{1:T} ; \tau_0, u_0, v_0,\boldsymbol{\pi}_{1:T}).
 \end{align*}
-We now prove that (\ref{eq:thm3-result-1}) and (\ref{eq:thm3-result-2}) respectively hold on $\mathcal{E}$ and $\Omega$.
+We now prove that there exists a $\kappa > 0$ such that the event in (\ref{eq:thm3-result}) holds on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound}.
 
 \begin{proof} 
-We begin by directly calculating the log-marginal density of $\mathbf{y}$: 
+We begin by directly calculating the marginal evidence of $\mathbf{y}_{1:T}$: 
 \begin{align*}
-    \log p(\mathbf{y} \;|\; \gamma = t; \tau_0,u_0,v_0) &= \log \int \Pr(\mathbf{y} \:|\:b,s,\gamma = t) \:\; d\Pr(b,s;\tau_0, u_0, v_0) \\
-    &= \log \int_{0}^\infty\int_{-\infty}^\infty (2\pi)^{-T/2} s^{(T-t+1)/2} \exp\left[-\frac{\sum_{t'=1}^{t-1} y_{t'}^2 + \sum_{t'=t}^{T} s(y_{t'} - b)^2}{2}\right]  \\
-    &\quad\quad\quad\quad\quad\quad\quad  \times (2\pi s\tau_0)^{1/2}\exp\left[-\frac{\tau_0 s b^2}{2}\right] \\
-    &\quad\quad\quad\quad\quad\quad\quad  \times\frac{v_0^{u_0}}{\Gamma(u_0)}s^{u_0- 1}\exp(-v_0 s) \; db\; ds \tag{(\ref{eq:dgp}) and (\ref{eq:smscp-start})-(\ref{eq:smscp-end})} \\
-    &= -\frac{1}{2}\log(\tau_0 + T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2 + \log \Gamma\left(u_0 + \frac{T - t +1}{2}\right) \\
-    &\quad\: - \left(u_0 + \frac{T - t +1}{2}\right)\log\left[v_0 +\frac{1}{2}\sum_{t'=t}^T y_{t'}^2 - \frac{1}{2(\tau + T- t +1)}\left(\sum_{t'=t}^T y_{t'}\right)^2 \right] \\
+    p(\mathbf{y}_{1:T} \;|\; \gamma = t; \tau_0,u_0,v_0) &= \int_{\mathbb{R}^2} \mathbb{P}(\mathbf{y}_{1:T} \:|\:b,s,\gamma = t) \:\; d\mathbb{P}(b,s;\tau_0, u_0, v_0) \\
+    &= \int_{\mathbb{R}^2}  \prod_{t=1}^Tp(y_t \;|\; b, s, \gamma =t) p(b|s;\tau_0)p(s;u_0,v_0)\;db\;ds\\
+    &= \int_{0}^\infty\int_{-\infty}^\infty (2\pi)^{-T/2} s^{(T-t+1)/2} \exp\left[-\frac{\sum_{t'=1}^{t-1} y_{t'}^2 + \sum_{t'=t}^{T} s(y_{t'} - b)^2}{2}\right]  \\
+    &\quad\quad\quad\quad\quad\quad\quad  \times (2\pi s\tau_0)^{\frac{1}{2}}\exp\left[-\frac{\tau_0 s b^2}{2}\right] \\
+    &\quad\quad\quad\quad\quad\quad\quad  \times\frac{v_0^{u_0}}{\Gamma(u_0)}s^{u_0- 1}\exp(-v_0 s) \; db\; ds \\
+    &\propto \exp\left[-\frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2\right] \int_{0}^\infty\int_{-\infty}^\infty s^{\frac{1}{2}}\exp\left[-\frac{s}{2}\left((\tau_0 + T-t+1)b^2 - 2b\sum_{t'=t}^{T}y_{t'}\right)\right] \\
+    &\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad   \times s^{u_0 + \frac{T-t+1}{2} - 1}\exp\left[-s \left(v_0 + \frac{1}{2}\sum_{t=t'}^Ty_{t'}^2\right)\right] \; db\; ds \\
+    &= \exp\left[-\frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2\right] \int_{0}^\infty\int_{-\infty}^\infty s^{\frac{1}{2}}\exp\left[-\frac{s\overline{\tau}_t}{2}\left(b - \overline{b}_{t}\right)^2\right] s^{\overline{u}_t  - 1}\exp\left[-s \overline{v}_t\right] \; db\; ds \tag{$\overline{\tau}_t = \tau_0 + T - t+1, \; \overline{b}_t = \overline{\tau}_t^{-1}\sum_{t'=t}^T y_{t'}, \;\overline{u}_t = u_0 + \frac{T-t+1}{2}, \;\overline{v}_t = v_0 +\frac{1}{2} \sum_{t'=t}^T y_{t'}^2 - \frac{\overline{\tau}_t\overline{b}_t^2}{2}$} \\ 
+    &\propto \exp\left[-\frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2\right] \overline{\tau}_t^{-\frac{1}{2}} \frac{\Gamma(\overline{u}_t)}{\overline{v}_t^{\overline{u}_T}} \int_{0}^\infty\int_{-\infty}^\infty p(b|s;\overline{b}_t,\overline{\tau}_t)p(s;\overline{u}_t,\overline{v}_t)\;db\;ds \\
+    &= \exp\left[-\frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2\right] \overline{\tau}_t^{-\frac{1}{2}} \frac{\Gamma(\overline{u}_t)}{\overline{v}_t^{\overline{u}_T}}. 
+\end{align*}
+Taking the log of the expression above we get:
+\begin{align*}
+    \log p(\mathbf{y}_{1:T} \;|\; \gamma = t; \tau_0,u_0,v_0) &= -\frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2 - \frac{1}{2} \log \overline{\tau}_t + \log \Gamma(\overline{u}_t) - \overline{u}_t\log \overline{v}_t \\
+    &= -\frac{1}{2}\log(\tau_0 + T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2 + \log \Gamma\left(u_0 + \frac{T - t +1}{2}\right)  \\
+    &\quad\: - \left(u_0 + \frac{T - t +1}{2}\right)\log\left[v_0 +\frac{1}{2}\left(\sum_{t'=t}^T y_{t'}^2 - \frac{\left(\sum_{t'=t}^T y_{t'}\right)^2 }{\tau_0 + T- t +1}\right)\right] \\
     &\quad\: + C
 \end{align*}
-where $C$ is a constant that does not depend on the value of $\gamma$. For large $T$, Stirling's approximation of the Gamma function (see e.g. \citealp{abramowitz68}) gives: 
+where $C$ is a constant that does not depend on the value of $\gamma$. Recall Binet's first formula for the log gamma function for $x > 0$ (see e.g. p. 249 of \citealp{Whittaker96}): 
 \begin{align*}
-    \log \Gamma(T) = \left(T - \frac{1}{2}\right) \log T - T + \frac{1}{2} \log 2 \pi + \mathcal{O}(T^{-1}).
+    \log \Gamma(x) = \left(x - \frac{1}{2}\right) \log x - x + \frac{1}{2} \log 2 \pi + \int_{0}^\infty\left(\frac{1}{2} - \frac{1}{t} + \frac{1}{e^t - 1} \right)\frac{e^{-tx}}{t} \;dt.
 \end{align*}
-Using the same $c \in (0,1/2)$ as in Assumption \ref{assumption:1} (i), if $T-t > cT$, then $\frac{T-t+1}{2} \to \infty$ as $T \to \infty$, so using Stirling's approximation we get:
+For $x \geq 1/2$ we have:
+\begin{align*}
+    \int_{0}^\infty\left(\frac{1}{2} - \frac{1}{t} + \frac{1}{e^t - 1} \right)\frac{e^{-tx}}{t} \;dt \leq \int_{0}^\infty\left(\frac{1}{2} - \frac{1}{t} + \frac{1}{e^t - 1} \right)\frac{e^{-t/2}}{t} \;dt \approx 0.153
+\end{align*}
+and since $\frac{T-t+1}{2} \geq \frac{1}{2}$, we can write:
+\begin{align*}
+    \log \Gamma\left(u_0 + \frac{T - t +1}{2}\right) = \left(u_0 + \frac{T - t}{2}\right) \log\left(u_0 + \frac{T - t +1}{2}\right) - \frac{T - t +1}{2} +\mathcal{O}(1)
+\end{align*}
+and thus:
 \small
 \begin{align*}
-    \log p(\mathbf{y} \;|\; \gamma = t; \tau_0,u_0,v_0, \boldsymbol{\pi}) &= -\frac{1}{2}\log(\tau_0 + T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  +\left(\frac{T-t}{2}\right) \log \left(u_0 + \frac{T-t+1}{2}\right) - \frac{T-t+1}{2}  \\
-    &\quad\: - \left(u_0 + \frac{T - t +1}{2}\right)\log\left[v_0 +\frac{1}{2}\sum_{t'=t}^T y_{t'}^2 - \frac{1}{2(\tau_0 + T- t +1)}\left(\sum_{t'=t}^T y_{t'}\right)^2 \right] \\
-    &\quad\:+ \mathcal{O}(T^{-1}) + C.
+    \log p(\mathbf{y}_{1:T} \;|\; \gamma = t; \tau_0,u_0,v_0) &= -\frac{1}{2}\log(\tau_0 + T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  \\
+    &\quad\: +\left(u_0 + \frac{T-t}{2}\right) \log \left(u_0 + \frac{T-t+1}{2}\right) - \frac{(T-t+1)}{2}  \\
+    &\quad\: - \left(u_0 + \frac{T - t +1}{2}\right)\log\left[v_0 +\frac{1}{2}\left(\sum_{t'=t}^T y_{t'}^2 - \frac{\left(\sum_{t'=t}^T y_{t'}\right)^2}{\tau_0 + T- t +1}\right) \right] \\
+    &\quad\:+ \mathcal{O}(1).
 \end{align*}
 \normalsize
-Assume that $\tau_0$, $u_0$, and $v_0$ are small\footnote{Formally, for any $\tau_0, u_0, v_0 >0$, we can show that for each $t$ we consider, $\Delta_t \sim p(\mathbf{y} \:|\:\gamma = t \:; \tau_0, u_0, v_0)$ as $T \to \infty$ with high probability. So if we can show there is some $\delta > 0$ such that $\log \frac{\Delta_{t_0}}{\Delta_t} > \delta-2\log(1-\delta)$, then we can show: \tiny$$\log \frac{p(\mathbf{y} \:|\:\gamma = t_0 ; \tau_0, u_0, v_0)}{p(\mathbf{y} \:|\:\gamma = t ; \tau_0, u_0, v_0)} = \log\frac{p(\mathbf{y} \:|\:\gamma = t_0 ; \tau_0, u_0, v_0)}{\Delta_{t_0}} + \log \frac{\Delta_{t_0}}{\Delta_t} + \log \frac{p(\mathbf{y} \:|\:\gamma = t ; \tau_0, u_0, v_0)}{\Delta_t} > \log(1-\delta) + \delta-2\log(1-\delta) +\log(1-\delta) > 0$$ \footnotesize with high probability, which is the desired result.} so that:
-\begin{align*}
-    \log p(\mathbf{y} \;|\; \gamma = t; \tau_0,u_0,v_0, \boldsymbol{\pi}) &\approx -\frac{1}{2}\log(T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  +\left(\frac{T-t}{2}\right) \log \left(\frac{T-t+1}{2}\right) - \frac{T-t+1}{2}  \\
-    &\quad\: - \left(u_0 + \frac{T - t +1}{2}\right)\log\left[\frac{1}{2}\sum_{t'=t}^T y_{t'}^2 - \frac{1}{2(T- t +1)}\left(\sum_{t'=t}^T y_{t'}\right)^2 \right] \\
-    &\quad\:+ \mathcal{O}(T^{-1}) +C \\
-    &:= \log \Delta_t.
-\end{align*}
-Furthermore, if we define:
-\begin{align*}
-    \overline{y}_{t:T} := \frac{1}{T-t+1}\sum_{t'=t}^T y_{t'}
-\end{align*}
-then we have:
+Letting $\{\tau_0,u_0, v_0\} \to \mathbf{0}$, we have:
+\small
 \begin{align}
-    \log \Delta_t &= -\frac{1}{2}\log(T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  +\left(\frac{T-t}{2}\right) \log \left(\frac{T-t+1}{2}\right) - \frac{T-t+1}{2} \notag \\
-    &\quad\: - \left(u_0 + \frac{T - t +1}{2}\right)\log\left[\frac{1}{2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2\right] 
-    \notag \\
-    &\quad\:+ \mathcal{O}(T^{-1}) +C. \label{eq:thm3-delta_t}
+    \lim_{\tau_0,u_0, v_0 \to \mathbf{0}}\log p(\mathbf{y}_{1:T} \;|\; \gamma = t; \tau_0,u_0,v_0) &= -\frac{1}{2}\log(T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  \notag \\
+    &\quad\: + \left(\frac{T-t}{2}\right) \log \left(\frac{T-t+1}{2}\right) - \frac{(T-t+1)}{2}  \notag\\
+    &\quad\: - \left(\frac{T - t +1}{2}\right)\log\left[\frac{1}{2}\left(\sum_{t'=t}^T y_{t'}^2 - \frac{\left(\sum_{t'=t}^T y_{t'}\right)^2}{T- t +1}\right) \right] \notag \\
+    &\quad\:+ \mathcal{O}(1)\notag \\
+    &= -\log(T - t + 1) - \frac{1}{2}\sum_{t'=1}^{t-1} y_{t'}^2  - \frac{(T-t+1)}{2}  \notag\\
+    &\quad\: - \left(\frac{T - t +1}{2}\right)\log\left[\frac{\sum_{t'=t}^T y_{t'}^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T y_{t'}}{T-t+1}\right)^2 \right] \notag \\
+    &\quad\:+ \mathcal{O}(1)\notag \\
+    &:= \log \Delta_t. \label{eq:thm3-delta_t}
 \end{align}
-We can also define the standardized terms:
+\normalsize
+Note that when $t = T$, then:
+\begin{align*}
+    \frac{\sum_{t'=t}^T y_{t'}^2}{T-t+1} = \left(\frac{\sum_{t'=t}^T y_{t'}}{T-t+1}\right)^2  
+\end{align*}
+but when $T \geq 3$, then $\log^\varepsilon T > 1$ and $T \not\in \mathcal{T}_\kappa$, so $\Delta_t$ is still well-defined for each $t\in\mathcal{T}_\kappa$. As in the proof of Theorem \ref{theorem:smcp}, we can use $\Delta_t$ to approximate the log-evidence for small values of $\tau_0$, $u_0$, and $v_0$ (see Footnote \ref{fn:approx}). Throughout the following proof we assume $\kappa,C >0$ are constants chosen large enough so that under the conditions of Theorem \ref{theorem:smscp}, the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound} occurs with probability approaching one as $T\to\infty$. We now show that the event in (\ref{eq:thm3-result}) holds on $\mathcal{E}$. To do so, we define the standardized terms: 
 \begin{align*}
     z_t = 
     \begin{cases}
@@ -103,700 +93,546 @@ We can also define the standardized terms:
         \frac{y_t - b_0}{s_0},& \text{if } t \geq t_0.
     \end{cases}
 \end{align*}
-and the partial averages:
-\begin{align*}
-    \overline{z}_{t_0:T} &= \frac{1}{T-t_0+1} \sum_{t'=t_0}^T z_{t'} \\
-    \overline{z}_{t:T} &= \frac{1}{T-t+1} \sum_{t'=t}^T z_{t'}.
-\end{align*}
-When Assumption \ref{assumption:scale} holds, we can also use the intervals $I_1$ and $I_2$ to define the bounds:
-\begin{align} \label{eq:thm3-s_0-I-1-bd}
-    \underline{s}^2 &= \inf \;I_1, \quad \overline{s}_1^2 = \sup \;I_1 
+When Assumption \ref{assumption:scale} holds, we will also use the intervals $I_1$ and $I_2$ to define the bounds:
+\begin{align} 
+    \underline{s}^2 &= \inf \;I_1, \quad \overline{s}_1^2 = \sup \;I_1 \label{eq:thm3-s_0-I-1-bd}, \\
+    \overline{s}^2 &= \sup \;I_2, \quad \underline{s}_2^2 = \inf \;I_2. \label{eq:thm3-s_0-I-2-bd}
 \end{align}
-and:
-\begin{align} \label{eq:thm3-s_0-I-2-bd}
-    \overline{s}^2 &= \sup \;I_2, \quad \underline{s}_2^2 = \inf \;I_1. 
-\end{align}
-There are two cases to consider: 
+If Assumption \ref{assumption:scale} doesn't hold, we can simply set $\underline{s}^2 = \overline{s}^2 = 1$. There are two cases to consider: 
 
-\subsubsection*{Case 1: $t > t_0$ and $\min\{t, T-t\} > cT$.}
+\subsubsection*{Case 1: $t > t_0$, and $t \in \mathcal{T}_{\kappa}$.}
 
 From (\ref{eq:thm3-delta_t}) we have:
 \begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &= \log \left(\frac{T - t + 1}{T - t_0 +1} \right) + \frac{1}{2} \sum_{t' = t_0}^{t - 1} y_{t'}^2 \\
-    &\quad\: + \left(\frac{T - t_0 + 1}{2}\right) \log\left(\frac{T-t_0+1}{2}\right) - \left(\frac{T - t + 1}{2}\right) \log\left(\frac{T-t+1}{2}\right) - \frac{t-t_0}{2} \\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \right]  - \left(u_0 + \frac{T - t_0 +1}{2}\right)\log\left[\frac{1}{2}\sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t_0:T})^2 \right] \\
-    &\quad\: + \mathcal{O}(T^{-1}) .
+    \log \frac{\Delta_{t_0}}{\Delta_t} &= \log \left(\frac{T - t + 1}{T - t_0 +1} \right) + \frac{1}{2} \sum_{t' = t_0}^{t - 1} y_{t'}^2 - \frac{(t-t_0)}{2} \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[\frac{\sum_{t'=t}^T y_{t'}^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T y_{t'}}{T-t+1}\right)^2 \right] \\
+    &\quad\: -\left(\frac{T - t_0 +1}{2}\right)\log\left[\frac{\sum_{t'=t_0}^T y_{t'}^2}{T-t_0+1} - \left(\frac{\sum_{t'=t_0}^T y_{t'}}{T-t_0+1}\right)^2 \right] \\
+    &\quad\: + \mathcal{O}(1).
 \end{align*}
 Since $t > t_0$, we can standardize each term in the sums to get:
 \begin{align*}
     \sum_{t' = t_0}^{t - 1} y_{t'}^2 &= \sum_{t' = t_0}^{t - 1} (s_0z_{t'} + b_0)^2 \\
-    &= s_0^2 \sum_{t' = t_0}^{t - 1} z_{t'}^2 + 2 b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} + (t-t_0)b_0^2
+    &= s_0^2 \sum_{t' = t_0}^{t - 1} (z_{t'}^2 -1) + 2 b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} + (t-t_0)(b_0^2 +s_0^2)
 \end{align*}
 and:
 \begin{align*}
-    \sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 &= s_0^2\sum_{t'=t}^T \left(\frac{y_{t'} - b_0 + b_0 - \overline{y}_{t:T}
-    }{s_0}\right)^2 \\
-    &= s_0^2\sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 
+    \frac{\sum_{t'=t}^T y_{t'}^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T y_{t'}}{T-t+1}\right)^2 &= \frac{\sum_{t'=t}^T (s_0z_{t'} + b_0)^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T (s_0z_{t'} + b_0)}{T-t+1}\right)^2 \\
+    &= s_0^2 \left[\frac{\sum_{t'=t}^T z_{t'}^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2\right]
 \end{align*}
-so we now have:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &= \log \left(\frac{T - t + 1}{T - t_0 +1} \right) + \frac{s_0^2}{2} \sum_{t' = t_0}^{t - 1} z_{t'}^2 + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} + \left(\frac{t-t_0}{2}\right)b_0^2 \\
-    &\quad\: + \left(\frac{T - t_0 + 1}{2}\right) \log\left(\frac{T-t_0+1}{2}\right) - \left(\frac{T - t + 1}{2}\right) \log\left(\frac{T-t+1}{2}\right) - \frac{t-t_0}{2} \\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{s_0^2}{2}\sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 \right]  - \left(u_0 + \frac{T - t_0 +1}{2}\right)\log\left[\frac{s_0^2}{2}\sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 \right] \\
-    &\quad\: + \mathcal{O}(T^{-1}).
-\end{align*}
-Next, we can collect the terms multiplied by the $(t-t_0)$ factor, and note that $T-t+1 > cT$ and $T-t_0+1 < T$ implies:
-\begin{align*}
-    \log \left(\frac{T - t_0 + 1}{T - t+1} \right) < -\log c
-\end{align*}
-to get: 
+so using the function $f_1$ defined in (\ref{eq:f1-signal-fn}), we now have:
 \begin{align}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \log c + \frac{s_0^2}{2} \sum_{t' = t_0}^{t - 1} z_{t'}^2 + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} + \left(\frac{t-t_0}{2}\right)\left(b_0^2 - \log s_0^2 - 1\right) \notag \\
-    &\quad\: + \left(\frac{T - t_0+1}{2}\right) \log\left(\frac{T-t_0+1}{2}\right) - \left(\frac{T - t+1}{2}\right) \log\left(\frac{T-t+1}{2}\right) \notag\\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2}\sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 \right]  - \left(u_0 + \frac{T - t_0 +1}{2}\right)\log\left[\frac{1}{2}\sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 \right] \notag\\
-    &\quad\: + \mathcal{O}(T^{-1}). \label{eq:thm3-cs1-bd1}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &= \log \left(\frac{T - t + 1}{T - t_0 +1} \right) + \frac{s_0^2}{2} \sum_{t' = t_0}^{t - 1} (z_{t'}^2-1) + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} + \left(\frac{t-t_0}{2}\right)[b_0^2+ f_1(s_0^2)] \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[\frac{\sum_{t'=t}^T z_{t'}^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2\right] \notag \\
+    &\quad\: -\left(\frac{T - t_0 +1}{2}\right)\log\left[\frac{\sum_{t'=t_0}^T z_{t'}^2}{T-t_0+1} - \left(\frac{\sum_{t'=t_0}^T z_{t'}}{T-t_0+1}\right)^2\right] \notag \\
+    &\quad\: + \mathcal{O}(1). \label{eq:thm3-cs1-bd0}
 \end{align}
-Now, suppose that we are on one of the events $\Omega$ or $\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound}, then since $T > t - t_0$, we have:
-\begin{align}
-    \sum_{t' = t_0}^{t - 1} z_{t'} &> 
-    \begin{cases}
-        - C_1 \sqrt{T}\log^{1+\varphi} T, & \text{ on } \Omega, \\ 
-        - 2 \sqrt{T\log T}, &\text{ on } \mathcal{E}.
-    \end{cases} \notag \\
-    &:= -B_{1,T} \label{eq:thm3-cs1-bd2}
-\end{align}
-and:
-\begin{align}
-    \sum_{t' = t_0}^{t - 1} z_{t'}^2 &= (t-t_0) + \sum_{t' = t_0}^{t - 1} z_{t'}^2 - (t-t_0) \\
-    &>
-    \begin{cases}
-        (t-t_0) - C_1 \sqrt{T}\log^{1+\varphi} T, & \text{ on } \Omega, \\ 
-        (t-t_0) - 8 \sqrt{T\log T}, &\text{ on } \mathcal{E}.
-    \end{cases} \notag \\
-    &:= (t-t_0) - B_{2,T}.
-\end{align}
-On $\mathcal{E}$ we simply have:
+Next, we use the inequality $\log(1 - x) \geq -\frac{x}{\sqrt{1-x}}$ for $x \in [0,1)$ and the fact that $t - t_0 \leq T-t_0+1$ implies $\frac{t-t_0}{T-t_0+1}\in [0,1)$ to write: 
 \begin{align*}
-    \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 &= (T-t)+ \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 - (T-t) \\
-    &> T-t - 8 \sqrt{T \log T}. 
+    \log \left(\frac{T-t+1}{T-t_0+1}\right) &= \log\left(1 - \frac{t-t_0}{T-t_0+1}\right) \\
+    &\geq \frac{-(t-t_0)}{\sqrt{(T-t_0+1)(T-t+1)}}  \\
+    &\geq -\frac{(t-t_0)}{\sqrt{\log^{1+\varepsilon} T}}. \tag{$T-t_0+1 > \log^{1+\varepsilon} T$}
 \end{align*}
-while on $\Omega$ we can write:
+Suppose that $T$ is large enough so that: 
 \begin{align*}
-    \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 &= \sum_{t'=t}^T z^2_{t'} - \frac{1}{T-t+1} \left(\sum_{t'=t}^T z_{t'}\right)^2 \\
-    &= (T-t+1) + \sum_{t'=t}^T z^2_{t'} - (T-t+1) - \frac{1}{T-t+1} \left(\sum_{t'=t}^T z_{t'}\right)^2 \\
-    &>(T-t+1) - C_1\sqrt{T}\log^{1+\varphi} T - \frac{C^2_1 (T-t+1) \log^{2(1+\varphi)}T}{T-t+1} \\
-    &> (T-t+1) - C_1\sqrt{T}\log^{1+\varphi} T - C^2_1 \log^{2(1+\varphi)}T
+    \frac{4}{\sqrt{\log^{1+\varepsilon} T}} < \frac{b_0^2+ f_1(s_0^2)}{2}
 \end{align*}
-and thus:
+where we know the term on the right is bounded away from zero by Assumptions \ref{assumption:mean} and \ref{assumption:scale}. Then after collecting the terms multiplied by $(t-t_0)$ in (\ref{eq:thm3-cs1-bd0}) we have: 
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq  \frac{s_0^2}{2} \sum_{t' = t_0}^{t - 1} (z_{t'}^2-1) + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} + \left(\frac{t-t_0}{4}\right)\left[b_0^2 + f_1(s_0^2)\right] \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2\right]\notag \\
+    &\quad\: -\left(\frac{T - t_0 +1}{2}\right)\log\left[1 + \frac{\sum_{t'=t_0}^T (z_{t'}^2 -1)}{T-t_0+1} - \left(\frac{\sum_{t'=t_0}^T z_{t'}}{T-t_0+1}\right)^2\right] \notag \\
+    &\quad\: + \mathcal{O}(1). \label{eq:thm3-cs1-bd1}
+\end{align}
+For any $t < T$, because $x^2$ is strictly convex on $(0,\infty)$, then with probability equal to one we have:
+\begin{align}
+      \frac{\sum_{t'=t}^T z_{t'}^2}{T-t+1} > \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \implies \frac{\sum_{t'=t}^T (z_{t'}^2 -1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 > -1. \label{eq:neg1-bd}
+\end{align}
+Therefore, we can use the inequality $\frac{x}{1+x} \leq \log(1+x) \leq x$ for $x > -1$ to get:
 \small
-\begin{align}
-    \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2  &>
-    \begin{cases}
-    (T - t +1) -  C_1\sqrt{T}\log^{1+\varphi} T - C^2_1 \log^{2(1+\varphi)}T, \text{ on } \Omega, \\
-    (T - t + 1) - 1 - 8\sqrt{T \log T}, \text{ on } \mathcal{E}.
-    \end{cases} \notag \\
-    &:= (T- t +1) - B_{3,T}
-\end{align}
+\begin{align*}
+    -\log\left[1 + \frac{\sum_{t'=t_0}^T (z_{t'}^2 -1)}{T-t_0+1} - \left(\frac{\sum_{t'=t_0}^T z_{t'}}{T-t_0+1}\right)^2\right] &\geq -\frac{\sum_{t'=t_0}^T (z_{t'}^2 -1)}{T-t_0+1} + \left(\frac{\sum_{t'=t_0}^T z_{t'}}{T-t_0+1}\right)^2 \geq -\frac{\sum_{t'=t_0}^T (z_{t'}^2 -1)}{T-t_0+1}
+\end{align*}
 \normalsize
-where taking the log is well defined for large enough $T$ since $T-t > cT$. Similarly, on $\mathcal{E}$ we have:
-\begin{align*}
-    \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 &= (T-t_0) + \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 - (T-t_0) \\
-    &< T-t_0 + 8 \sqrt{T \log T}  
-\end{align*}
-while on $\Omega$ we can write:
-\begin{align*}
-    \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 &= \sum_{t'=t_0}^T z^2_{t'} - \frac{1}{T-t_0+1} \left(\sum_{t'=t_0}^T z_{t'}\right)^2 \\
-    &= (T-t_0+1) + \sum_{t'=t_0}^T z^2_{t'} - (T-t_0+1) - \frac{1}{T-t_0+1} \left(\sum_{t'=t_0}^T z_{t'}\right)^2 \\
-    &< (T-t_0+1) + C_1\sqrt{T}\log^{1+\varphi} T 
-\end{align*}
-and thus:
+and: 
 \small
-\begin{align}
-    \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 &< 
-    \begin{cases}
-    (T - t_0 +1) +  C_1\sqrt{T}\log^{1+\varphi} T , \text{ on } \Omega, \\
-    (T - t_0 + 1) -1 + 8\sqrt{T \log T}, \text{ on } \mathcal{E}.
-    \end{cases} \notag \\
-    &:= (T - t_0 + 1) + B_{4,T}.
-    \label{eq:thm3-cs1-bd3}
-\end{align}
+\begin{align*}
+    \log\left[1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2\right] &\geq \frac{\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2}{1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 } \\
+    &= \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 - \frac{\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2}{1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 }.
+\end{align*}
 \normalsize
-Combining the bounds (\ref{eq:thm3-cs1-bd2})-(\ref{eq:thm3-cs1-bd3}) with (\ref{eq:thm3-cs1-bd1}), on either $\Omega$ or $\mathcal{E}$ we have:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \log c  - \frac{s_0^2 }{2}B_{2,T} - | b_0| s_0 B_{1,T} + \left(\frac{t-t_0}{2}\right)\left(b_0^2 + s_0^2 - \log s_0^2 - 1\right) \notag \\
-    &\quad\: + \left(\frac{T - t+1}{2}\right)\log\left(1 - \frac{B_{3,T}}{T-t+1}\right)\\
-    &\quad\: - \left(\frac{T - t_0+1}{2}\right)\log\left(1 + \frac{B_{4,T}}{T-t_0+1}\right)  \\
-    &\quad\: + u_0\log\left(T - t + 1 - B_{3,T}\right) \\
-    &\quad\: - u_0\log\left(T-t_0 + 1 + B_{4,T}\right) \\
-    &\quad\: + \mathcal{O}(T^{-1}).
-\end{align*}
-Using the bounds $T - t_0 + 1 < (1-c)T + 1$ and $T-t +1> cT$, we get the:
-\begin{align*}
-    u_0\log\left[\frac{T - t + 1 - B_{3,T}}{T-t_0 + 1 + B_{4,T}}\right] > u_0\log \left[\frac{cT - B_{3,T}}{(1-c)T  + 1 + B_{4,T}}\right]
-\end{align*}
-and since:
-\begin{align*}
-    \lim_{T\to\infty} T^{-1} B_{3,T} = \lim_{T\to\infty} T^{-1} (1 + B_{4,T}) = 0
-\end{align*}
-we have: 
-\begin{align*}
-    \lim_{T \to \infty} u_0\log \left[\frac{cT - B_{3,T}}{(1-c)T  + 1 + B_{4,T}}\right] =  u_0\log \frac{c}{(1-c)} \implies u_0\log \left[\frac{cT - B_{3,T}}{(1-c)T  + 1 + B_{4,T}}\right] = \mathcal{O}(1)
-\end{align*}
-thus:
+Combining these bounds with (\ref{eq:thm3-cs1-bd1}) gives: 
 \begin{align}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{s_0^2 }{2}B_{2,T} - | b_0| s_0 B_{1,T} + \left(\frac{t-t_0}{2}\right)\left(b_0^2 + s_0^2 - \log s_0^2 - 1\right) \notag \\
-    &\quad\: + \left(\frac{T - t+1}{2}\right)\log\left(1 - \frac{B_{3,T}}{T-t+1}\right) \notag\\
-    &\quad\: - \left(\frac{T - t_0+1}{2}\right)\log\left(1 + \frac{B_{4,T}}{T-t_0+1}\right)  \notag \\
-    &\quad\: + \mathcal{O}(1). \label{eq:thm3:cs1-bd4}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq \left(\frac{t-t_0}{4}\right)\left[b_0^2 + f_1(s_0^2)\right]  + \frac{(s_0^2-1)}{2} \sum_{t' = t_0}^{t - 1} (z_{t'}^2-1) + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} \notag \\
+    &\quad\:  - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{2(T-t+1)} - \frac{\frac{(T-t+1)}{2}\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2}{1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 } + \mathcal{O}(1). \label{eq:thm3-cs1-bd2}
 \end{align}
-Next, we have:
-\begin{align*}
-    \frac{B_{4,T}}{T-t_0+1} > -1
-\end{align*}
-and since $\log(1+x) \leq x$ for $x > -1$, we have:
-\begin{align*}
-    -\left(\frac{T - t_0 + 1}{2}\right)\log\left(1 + \frac{-1 + 8\sqrt{T \log T}}{T-t_0+1}\right)  &\geq -\left(\frac{T - t_0+1}{2}\right) \left(\frac{B_{4,T}}{T-t_0+1}\right) \\
-    &= -\frac{1}{2} B_{4,T}.
-\end{align*}
-Similarly, since $T-t + 1 > cT$:
-\begin{align*}
-    \lim_{T\to \infty} \frac{B_{3,T}}{T-t+1} = 0.
-\end{align*}
-Using a first order Taylor expansion of $\log(1-x)$ around zero we have $\log(1-x) = -x + \mathcal{O}(x^2)$, and thus:
-\begin{align*}
-    \left(\frac{T - t+1}{2}\right)\log\left(1 - \frac{B_{3,T}}{T-t+1}\right) &= \left(\frac{T - t+1}{2}\right)\left[-\frac{B_{3,T}}{T-t+1} + \mathcal{O} \left(\frac{B^2_{3,T}}{T^2}\right)\right] \\
-    &= -\frac{1}{2}B_{3,T} + \mathcal{O}\left(\frac{B^2_{3,T}}{T}\right). \tag{$T-t+1 = \mathcal{O}(T)$}
-\end{align*}
-The lower bound in (\ref{eq:thm3:cs1-bd4}) now simplifies to: 
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{t-t_0}{2}\right)\left(b_0^2 + s_0^2 - \log s_0^2 - 1\right) \notag \\
-    &\quad\: -\frac{2| b_0| s_0 B_{1,T} + s_0^2 B_{2,T} +B_{3,T} + B_{4,T}}{2} + \mathcal{O}\left(\frac{B^2_{3,T}}{T}\right) \\
-    &\quad\: + \mathcal{O}(1). 
-\end{align*}
-Define the upper bound terms:
-\begin{align*}
-    M_b &:= \mathbbm{1}\{b_0 = 0\} + \overline{b}\mathbbm{1}\{|b_0| > 0\} \\
-    M_v &:= \mathbbm{1}\{s_0 = 1\} + \overline{s}\mathbbm{1}\{s_0 \neq 1\}.
-\end{align*}
-Then regardless of whether Assumption \ref{assumption:mean} or \ref{assumption:scale} holds, we have:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{t-t_0}{2}\right)\left(b_0^2 + s_0^2 - \log s_0^2 - 1\right)  \\
-    &\quad\: -\frac{2M_bM_sB_{1,T} + M_s^2 B_{2,T} +B_{3,T} + B_{4,T}}{2} + \mathcal{O}\left(\frac{B^2_{3,T}}{T}\right) \\
-    &\quad\: + \mathcal{O}(1). 
-\end{align*}
-Note that on $\Omega$, each of the $B_{i,T}$ bound terms is of order $\mathcal{O}(\sqrt{T}\log^{1+\varphi}T)$, and $\mathcal{O}\left(T^{-1}B^2_{3,T}\right) = \mathcal{O}\left(\log^{2(1+\varphi)T}\right)$, so on $\Omega$:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{t-t_0}{2}\right)\left(b_0^2 + s_0^2 - \log s_0^2 - 1\right) + \mathcal{O}(\sqrt{T}\log^{1+\varphi}T). 
-\end{align*}
-Now, if Assumption \ref{assumption:scale} holds and we define:
-\begin{align*}
-    \alpha := \min\{\overline{s}_1^2 - \log \overline{s}_1^2 - 1, \underline{s}_2^2 - \log \underline{s}_2^2 - 1\}.
-\end{align*}
-then since that $x - \log x - 1$ is a convex function with a unique minimum at $x = 1$, we have:
-\begin{align*}
-    s_0^2 - \log s_0^2 - 1 &\geq \alpha > 0
-\end{align*}
-and thus:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\alpha(t-t_0)}{2} - \mathcal{O}(\sqrt{T}\log^{1+\varphi}T).
-\end{align*}
-So if $|t_0 -t| > \kappa \sqrt{T}\log^{1+\varepsilon}T$ for any $\kappa > 0$, then since $\varepsilon > \varphi$, the first term dominates and:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} \gtrsim \sqrt{T}\log^{1+\varepsilon}T
-\end{align*}
-which implies (\ref{eq:thm3-result-2}). On the other hand, when Assumption \ref{assumption:mean} holds, then since $\log^{-\xi/2} T > \log^{-\xi} T$, by (\ref{eq:thm3-b_0-bd}) we get:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{t-t_0}{2}\right)\underline{b}^2\log^{-\xi} T + \mathcal{O}(\sqrt{T}\log^{1+\varphi}T). 
-\end{align*}
-So if $|t_0 -t| > \kappa \sqrt{T}\log^{1+\varepsilon}T$ for any $\kappa > 0$, then since $\varepsilon - \xi > \varphi$, the first term again dominates and:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} \gtrsim \sqrt{T}\log^{1+\varepsilon -\xi}T
-\end{align*}
-which again implies (\ref{eq:thm3-result-2}). On the other hand, on $\mathcal{E}$ we have $\mathcal{O}\left(T^{-1}B^2_{3,T}\right) = \mathcal{O}\left(\log T\right)$, so:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &>  \left(\frac{t-t_0}{2}\right)\left(b_0^2 + s_0^2 - \log s_0^2 - 1\right)  -  \left(2M_bM_v +4M_v^2 + 8\right) \sqrt{T \log T} + \mathcal{O}(\log T).
-\end{align*}
-If we pick $\kappa$ so that: 
-\begin{align*}
-    \kappa > \frac{2(C_\pi + 2M_bM_v +4M_v^2 + 8)}{\min\{\alpha, \underline{b}^2\}}
-\end{align*}
-then when Assumption \ref{assumption:scale} holds and $|t_0 - t| > \kappa \sqrt{T\log^{1+\xi} T}$, we get:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\kappa \alpha}{2}\sqrt{T\log^{1+\xi} T}  -  \left(2M_bM_v +4M_v^2 + 8\right) \sqrt{T \log T} + \mathcal{O}(\log T)\\ 
-    &\geq \left(\frac{\kappa \alpha}{2} - 2M_bM_v +4M_v^2 + 8\right) \sqrt{T \log T} + \mathcal{O}(\log T) \tag{$\xi \geq 0$} \\
-    &> C_\pi \sqrt{T \log T} + \mathcal{O}(\log T)
-\end{align*}
-proving (\ref{eq:thm3-result-1}). Whereas, when Assumption \ref{assumption:mean} holds and $|t_0 - t| > \kappa \sqrt{T\log^{1+\xi} T}$, by (\ref{eq:thm3-b_0-bd}) we get:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{\kappa \underline{b}^2}{2} - 2M_bM_v +4M_v^2 + 8\right) \sqrt{T \log T} + \mathcal{O}(\log T) \\
-    &> C_\pi \sqrt{T \log T} + \mathcal{O}(\log T)
-\end{align*}
-again proving (\ref{eq:thm3-result-1}). 
+We now show that the last line above is of order $\mathcal{O}(\log T)$ on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound}. We consider two cases: 
 
-\subsubsection*{Case 2: $t < t_0$ and $\min\{t, T-t\} > cT$.}
+\subsubsection*{Case 1.a: $T -t+1 \geq \log^{1+\varepsilon} T$.}
+
+For any $t \in[T]$, on  $\mathcal{E}_5 \subseteq \mathcal{E}$ there is some $C> 0$ so that we have: 
+\begin{align*}
+     \left|\sum_{t'=t}^T (z_{t'}^2-1)\right| < \sqrt{C(T-t+1)\log T}.
+\end{align*}
+When $T -t+1 \geq \log T$, on $\mathcal{E}_3 \subseteq \mathcal{E}$ we have:
+\begin{align*}
+    \left|\sum_{t'=t}^T z_{t'}\right| < \sqrt{C(T-t+1)\log T}\implies - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1} > -C \log T
+\end{align*}
+and thus:
+\small
+\begin{align*}
+    \left|\sum_{t'=t}^T (z_{t'}^2-1) - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1}\right| &\leq \left|\sum_{t'=t}^T (z_{t'}^2-1)\right|  + \left| \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1}\right| \\
+    &<\sqrt{C(T-t+1)\log T} + C\log T \\
+    &\leq 2C\sqrt{(T-t+1)\log T}. \tag{$T-t+1 > \log T$ and $C > 1$ WLOG} 
+\end{align*}
+\normalsize
+Therefore, for $T -t+1 \geq \log^{1+\varepsilon} T$ on $\mathcal{E}$, we have:
+\begin{align*}
+    \frac{(T-t+1)}{2}\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2 < 2C^2 \log T
+\end{align*}
+and for $T$ large enough so that $16C^2 \leq \log^{\varepsilon} T$:
+\begin{align*}
+    1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 > 1 - 2C\sqrt{\frac{\log T}{T-t+1}} > 1 - \frac{2C}{\sqrt{\log^{\varepsilon}T}} \geq \frac{1}{2}
+\end{align*}
+which gives:
+\begin{align*}
+     - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{2(T-t+1)} - \frac{\frac{(T-t+1)}{2}\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2}{1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 } \geq - \left(\frac{C}{2} + 4C^2\right)\log T.
+\end{align*}
+
+\subsubsection*{Case 1.b: $\log^{\varepsilon} T \leq T -t+1 < \log^{1+\varepsilon} T$.}
+
+As in the previous case, for any $t \in [T]$ on $\mathcal{E}_5 \subseteq \mathcal{E}$ we have: 
+\begin{align*}
+     \left|\sum_{t'=t}^T (z_{t'}^2-1)\right| < \sqrt{C(T-t+1)\log T}
+\end{align*}
+and when $\log T \leq T -t+1 < \log^{1+\varepsilon} T$, then on $\mathcal{E}_3 \subseteq \mathcal{E}$ we have:
+\begin{align*}
+    \left|\sum_{t'=t}^T z_{t'}\right| < \sqrt{C(T-t+1)\log T}\implies - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1} > -C \log T
+\end{align*}
+and thus:
+\small
+\begin{align*}
+    \left|\sum_{t'=t}^T (z_{t'}^2-1) - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1}\right| &\leq \left|\sum_{t'=t}^T (z_{t'}^2-1)\right|  + \left| \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1}\right| \\
+    &<\sqrt{C(T-t+1)\log T} + C\log T \\
+    &\leq 2C\sqrt{(T-t+1)\log T}. \tag{$T-t+1 \geq \log T$ and $C > 1$ WLOG} 
+\end{align*}
+\normalsize
+On the other hand, when $T -t+1 < \log T$, then on the event $\mathcal{E}_4 \subseteq\mathcal{E}$:
+\begin{align*}
+    \left|\sum_{t'=t}^T z_{t'}\right| < \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T \implies - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1} > - C \sqrt{(T-t+1)\log T} > - C \log T
+\end{align*}
+and thus: 
+\small
+\begin{align*}
+    \left|\sum_{t'=t}^T (z_{t'}^2-1) - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1}\right| &\leq \left|\sum_{t'=t}^T (z_{t'}^2-1)\right|  + \left| \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1}\right| \\
+    &< \sqrt{C(T-t+1)\log T} + C\sqrt{(T-t+1)\log T}\\
+    &\leq 2C\sqrt{(T-t+1)\log T}. \tag{$C > 1$ WLOG} 
+\end{align*}
+\normalsize
+Therefore, for  $\log^{\varepsilon} T \leq T -t+1 < \log^{1+\varepsilon} T$ on the event $\mathcal{E}$ we have:
+\begin{align*}
+    \frac{(T-t+1)}{2}\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2 &< 2C^2\log T
+\end{align*}
+At the same time, for  $\log^{\varepsilon} T \leq T -t+1 < \log^{1+\varepsilon} T$, on $\mathcal{E}_6 \subseteq \mathcal{E}$ we have: 
+\begin{align*}
+     \left|\sum_{t'=t}^T z_{t'}\right| < \frac{T-t+1}{2} \implies  \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 < \frac{1}{4}
+\end{align*}
+and on $\mathcal{E}_7 \subseteq \mathcal{E}$ we have: 
+\begin{align*}
+     \left|\sum_{t'=t}^T (z_{t'}^2-1)\right| < \frac{T-t+1}{4} \implies  \frac{\left|\sum_{t'=t}^T (z_{t'}^2-1)\right|}{T-t+1} < \frac{1}{4}.
+\end{align*}
+Therefore, on $\mathcal{E}$:
+\begin{align*}
+    1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 > \frac{1}{2}
+\end{align*}
+which again gives:
+\begin{align*}
+     - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{2(T-t+1)} - \frac{\frac{(T-t+1)}{2}\left[\frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 \right]^2}{1 + \frac{\sum_{t'=t}^T (z_{t'}^2-1)}{T-t+1} - \left(\frac{\sum_{t'=t}^T z_{t'}}{T-t+1}\right)^2 } \geq - \left(\frac{C}{2} + 4C^2\right)\log T.
+\end{align*}
+
+Returning now to the bound (\ref{eq:thm3-cs1-bd2}), on $\mathcal{E}$ we can write:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq \left(\frac{t-t_0}{4}\right)\left[b_0^2 + f_1(s_0^2)\right] + \frac{(s_0^2-1)}{2} \sum_{t' = t_0}^{t - 1} (z_{t'}^2-1) + b_0 s_0 \sum_{t' = t_0}^{t - 1} z_{t'} - \left(\frac{C}{2} + 4C^2\right)\log T  \label{eq:thm3-cs1-bd3}
+\end{align}
+Next, for $t\in\mathcal{T}_\kappa$ on the event event $\mathcal{E}_1 \subseteq\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound} we have:
+\begin{align*}
+    \left|\sum_{t' = t_0}^{t - 1} z_{t'}\right| &< \sqrt{C|t_0 - t|\log T}
+\end{align*}
+and:
+\begin{align*}
+     t \in \mathcal{T}_{\kappa} \implies (t - t_0)\sqrt{\frac{C[b_0^2 + f_1(s_0^2)]}{\kappa}} > \sqrt{C (t - t_0)\log T}.
+\end{align*}
+For $|b_0| > 0$ we can pick $\kappa$ so that:
+\begin{align*}
+    \kappa >  256 \overline{s}^2 C \geq \frac{256 b_0^2s_0^2 C}{b_0^2 + f_1(s_0^2)}
+\end{align*}
+then for this $\kappa$ we can write:
+\begin{align*}
+    b_0s_0 \sum_{t' = t_0}^{t - 1} z_{t'} \geq - |b_0| s_0 \left|\sum_{t' = t_0}^{t - 1} z_{t'}\right| \geq - |b_0|s_0\sqrt{C|t_0 - t|\log T}  \geq - \frac{(t-t_0)[b_0^2 + f_1(s_0^2)]}{16}.
+\end{align*}
+Similarly, on the event event $\mathcal{E}_2 \subseteq \mathcal{E}$ we have:
+\begin{align*}
+     \left|\sum_{t' = t_0}^{t - 1} (z^2_{t'}-1)\right| <\sqrt{C|t_0 - t|\log T}
+\end{align*}
+so for $s_0\neq 1$ we can pick $\kappa$ so that:
+\begin{align*}
+    \kappa >  \frac{64 \max\{1,(1 -\overline{s}^2)^2\} C}{\min\{f_1(\underline{s}^2), f_1(\overline{s}^2)\}} \geq \frac{64 (1 -s_0^2)^2 C}{b_0^2 + f_1(s_0^2)}
+\end{align*}
+then we will have:
+\small
+\begin{align*}
+      \frac{(s_0^2-1)}{2} \sum_{t' = t_0}^{t - 1} (z_{t'}^2-1) \geq -\frac{|s_0^2-1|}{2} \left|\sum_{t' = t_0}^{t - 1} (z_{t'}^2-1)\right| \geq -\frac{|s_0^2-1|\sqrt{C|t_0 - t|\log T}}{2} \geq - \frac{(t-t_0)[b_0^2 + f_1(s_0^2)]}{16}. 
+\end{align*}
+\normalsize
+Therefore, for $\kappa$ satisfying the above bounds, on $\mathcal{E}$ we can rewrite the bound (\ref{eq:thm3-cs1-bd3}) as:
+\begin{align*}
+    \frac{\Delta_{t_0}}{\Delta_t} &\geq \left(\frac{t-t_0}{8}\right)\left[b_0^2 + f_1(s_0^2)\right]- \left(\frac{C}{2} + 4C^2\right)\log T \\
+    &> \frac{\kappa}{8}\log T - \left(\frac{C}{2} + 4C^2\right)\log T \tag{$t \in \mathcal{T}_\kappa$}. 
+\end{align*}
+Then for $\kappa \geq 8C_\pi + 4C + 32C^2$ we have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq C_\pi \log T
+\end{align*}
+i.e. the event (\ref{eq:thm3-result}) holds for this case. 
+
+\subsubsection*{Case 2: $t < t_0$ and $t\in\mathcal{T}_\kappa$.}
 
 From (\ref{eq:thm3-delta_t}) we again have:
 \begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &= \log \left(\frac{T - t + 1}{T - t_0 +1} \right) + \frac{1}{2} \sum_{t' = t}^{t_0 - 1} y_{t'}^2 \\
-    &\quad\: + \left(\frac{T - t_0 + 1}{2}\right) \log\left(\frac{T-t_0+1}{2}\right) - \left(\frac{T - t + 1}{2}\right) \log\left(\frac{T-t+1}{2}\right) + \frac{t_0-t}{2} \\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \right]  - \left(u_0 + \frac{T - t_0 +1}{2}\right)\log\left[\frac{1}{2}\sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t_0:T})^2 \right] \\
-    &\quad\: + \mathcal{O}(T^{-1}).
+    \log \frac{\Delta_{t_0}}{\Delta_t} &= \log \left(\frac{T - t + 1}{T - t_0 +1} \right) - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} y_{t'}^2 + \frac{(t_0-t)}{2} \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[\frac{\sum_{t'=t}^T y_{t'}^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T y_{t'}}{T-t+1}\right)^2 \right] \\
+    &\quad\: -\left(\frac{T - t_0 +1}{2}\right)\log\left[\frac{\sum_{t'=t_0}^T y_{t'}^2}{T-t_0+1} - \left(\frac{\sum_{t'=t_0}^T y_{t'}}{T-t_0+1}\right)^2 \right] \\
+    &\quad\: + \mathcal{O}(1).
 \end{align*}
-After standardizing we have:
+Since $t < t_0$ implies $T-t + 1> T-t_0 +1$ for this case, then:
 \begin{align*}
-    \sum_{t' = t}^{t_0 - 1} y_{t'}^2 &= \sum_{t' = t}^{t_0 - 1} z_{t'}^2 \\
-    \sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t_0:T})^2 &= s_0^2 \sum_{t'=t_0}^T  (z_{t'} - \overline{z}_{t_0:T})^2
+    \log\left(\frac{T-t+1}{T-t_0+1}\right) > 0
 \end{align*}
-and thus:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &= \log \left(\frac{T - t + 1}{T - t_0 + 1} \right) - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} z_{t'}^2 \\
-    &\quad\: + \left(\frac{T - t_0 + 1}{2}\right) \log\left(\frac{T-t_0+1}{2}\right) - \left(\frac{T - t + 1}{2}\right) \log\left(\frac{T-t+1}{2}\right) + \frac{(t_0-t)}{2} \\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \right]- \left(u_0 + \frac{T - t_0 +1}{2}\right)\log\left[\frac{s_0^2}{2}\sum_{t'=t_0}^T  (z_{t'} - \overline{z}_{t_0:T})^2 \right] \\
-    &\quad\: +  \mathcal{O}(T^{-1}). 
-\end{align*}
-Since $t < t_0$ implies $T-t + 1> T-t_0 +1$, then:
-\begin{align*}
-    \log\frac{T-t+1}{T-t_0+1} > 0
-\end{align*}
-so we have:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} z_{t'}^2  + \left(\frac{T - t_0+1}{2}\right) \log\left(\frac{T-t_0+1}{2}\right) - \left(\frac{T - t+1}{2}\right) \log\left(\frac{T-t+1}{2}\right) + \frac{(t_0-t)}{2} \\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \right] - \left(u_0 + \frac{T - t_0 +1}{2}\right)\log\left[\frac{s_0^2}{2}\sum_{t'=t_0}^T  (z_{t'} - \overline{z}_{t_0:T})^2 \right] \\
-    &\quad\: +  \mathcal{O}(T^{-1}).
-\end{align*}
-If we factor out a $\log s_0^2$ term from the second line of this lower bound, then we have:
-\begin{align}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} z_{t'}^2 + \frac{(t_0-t)}{2} + \frac{(t_0-t)}{2}\log s_0^2 \notag \\
-    &\quad\: + \left(\frac{T - t_0 + 1}{2}\right) \log\left(\frac{T-t_0+1}{2}\right) - \left(\frac{T - t + 1}{2}\right) \log\left(\frac{T-t+1}{2}\right) \notag\\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2s_0^2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \right] \notag\\
-    &\quad\: - \left(u_0 + \frac{T - t_0 +1}{2}\right)\log\left[\frac{1}{2}\sum_{t'=t_0}^T  (z_{t'} - \overline{z}_{t_0:T})^2 \right] \notag\\
-    &\quad\: +  \mathcal{O}(T^{-1}). \label{eq:thm3-cs2-bd1}
-\end{align}
-Now, suppose that we are on one of the events $\Omega$ or $\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound}, then since $T > t_0 - t$, we have:
-\begin{align}
-    \sum_{t' = t}^{t_0 - 1} z^2_{t'} &= (t_0 - t) + \sum_{t' = t}^{t_0 - 1} z^2_{t'} - (t_0 - t)\notag \\
-    &< 
-    \begin{cases}
-        (t_0 - t) + C_1 \sqrt{T}\log^{1+\varphi} T, & \text{ on } \Omega, \\ 
-        (t_0 - t) + 8 \sqrt{T\log T}, &\text{ on } \mathcal{E}.
-    \end{cases} \notag \\
-    &:=(t_0 - t) + B_{1,T}. \label{eq:thm3-cs2-bd2}
-\end{align}
-Similarly, on $\mathcal{E}$ we have:
-\begin{align*}
-    \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 &= (T-t_0) + \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 - (T-t_0) \\
-    &< T-t_0 + 8 \sqrt{T \log T}  
-\end{align*}
-while on $\Omega$ we can write:
-\begin{align*}
-    \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 &= \sum_{t'=t_0}^T z^2_{t'} - \frac{1}{T-t_0+1} \left(\sum_{t'=t_0}^T z_{t'}\right)^2 \\
-    &= (T-t_0+1) + \sum_{t'=t_0}^T z^2_{t'} - (T-t_0+1) - \frac{1}{T-t_0+1} \left(\sum_{t'=t_0}^T z_{t'}\right)^2 \\
-    &< (T-t_0+1) + C_1\sqrt{T}\log^{1+\varphi} T 
-\end{align*}
-and thus:
+and after standardizing terms we have:
 \small
-\begin{align}
-    \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 &< 
-    \begin{cases}
-    (T - t_0 +1) +  C_1\sqrt{T}\log^{1+\varphi} T , \text{ on } \Omega, \\
-    (T - t_0 + 1) -1 + 8\sqrt{T \log T}, \text{ on } \mathcal{E}.
-    \end{cases} \notag \\
-    &:= (T - t_0 + 1) + B_{2,T}.
-    \label{eq:thm3-cs2-bd3}
-\end{align}
+\begin{align*}
+    \sum_{t' = t}^{t_0 - 1} y_{t'}^2 &= (t_0-t) + \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) \\
+    \frac{\sum_{t'=t_0}^T y_{t'}^2}{T-t_0+1} - \left(\frac{\sum_{t'=t_0}^T y_{t'}}{T-t_0+1}\right)^2
+    &= s_0^2 \left[1 + \frac{\sum_{t'=t_0}^T (z_{t'}^2-1)}{T-t_0+1} - \left(\frac{\sum_{t'=t_0}^T z_{t'}}{T-t_0+1}\right)^2\right]. 
+\end{align*}
 \normalsize
-Combining the bounds (\ref{eq:thm3-cs2-bd2}) and (\ref{eq:thm3-cs2-bd3}) with (\ref{eq:thm3-cs2-bd1}), when we are on $\Omega$ or $\mathcal{E}$, we have:
+Therefore, we can write:
+\small
 \begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} B_{1,T} + \frac{(t_0-t)}{2}\log s_0^2 \notag \\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2s_0^2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \right] - \left(\frac{T - t + 1}{2}\right) \log\left(\frac{T-t+1}{2}\right)\notag\\
-    &\quad\: - \left(\frac{T - t_0+1}{2}\right)\log\left(1 + \frac{B_{2,T}}{T-t_0+1}\right) - u_0\log\left(\frac{T-t_0 + 1 + B_{2,T}}{2}\right) \notag \\
-    &\quad\: +  \mathcal{O}(T^{-1}). 
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) - \frac{(T-t_0+1)}{2}\log s_0^2 \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[\frac{\sum_{t'=t}^T y_{t'}^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T y_{t'}}{T-t+1}\right)^2 \right] \notag \\
+    &\quad\: -\left(\frac{T - t_0 +1}{2}\right)\log \left[1 + \frac{\sum_{t'=t_0}^T (z_{t'}^2-1)}{T-t_0+1} - \left(\frac{\sum_{t'=t_0}^T z_{t'}}{T-t_0+1}\right)^2\right] \notag \\
+    &\quad\: + \mathcal{O}(1). 
 \end{align*}
-Again, we have:
-\begin{align*}
-    \frac{B_{2,T}}{T-t_0+1} > -1
-\end{align*}
-and since $\log(1+x) \leq x$ for $x > -1$, we have:
-\begin{align*}
-    \left(\frac{T - t_0 + 1}{2}\right)\log\left(1 + \frac{B_{2,T}}{T-t_0+1}\right)  &\leq \left(\frac{T - t_0 + 1}{2}\right) \frac{B_{2,T}}{T-t_0+1} \\
-    &= \frac{1}{2}B_{2,T}.
-\end{align*}
-Combining this bound with the fact that $T-t_0 < (1-c)T$, we get:
+\normalsize
+Define the random terms:
 \begin{align}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\log s_0^2 \notag \\
-    &\quad\: + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2s_0^2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \right] - \left(\frac{T - t + 1}{2}\right) \log\left(\frac{T-t+1}{2}\right)\notag\\
-    &\quad\: - \frac{B_{1,T} + B_{2,T}}{2}  - u_0\log\left[\frac{(1-c)T + 1 + B_{2,T}}{2}\right] \notag \\
-    &\quad\: +  \mathcal{O}(T^{-1}). \label{eq:thm3-cs2-bd4}
+    \epsilon_{t:t_0} &:=  \sum_{t'=t}^{t_0-1 } (z^2_{t'}-1) - \frac{\left(\sum_{t'=t}^{t_0-1 } z_{t'}\right)^2}{t_0-t} \label{eq:thm-3-error-t:t0} \\ 
+    \epsilon_{t:T} &:= \sum_{t'=t}^{T} (z^2_{t'}-1)  - \frac{\left(\sum_{t'=t}^{T} z_{t'} \right)^2}{T-t+1} \label{eq:thm-3-error-t:T}
 \end{align}
-We now proceed in two steps. First, we show that if Assumption \ref{assumption:scale} holds, then for any value of $b_0$, (\ref{eq:thm3-result-1}) holds on $\mathcal{E}$ and (\ref{eq:thm3-result-1}) holds on $\Omega$. Second, if $s_0^2$ is a fixed constant and Assumption \ref{assumption:scale} does not hold, then it must be the case that $s_0^2 = 1$ since since otherwise we would be able to construct some intervals $I_1\subset(0,1)$ and $I_2 \subset(1,\infty)$ such that $s_0^2 \in I_1\cup I_2$. Therefore, the next step is to set $s_0^2 = 1$ and show that if Assumption \ref{assumption:mean} holds, then (\ref{eq:thm3-result-1}) holds on $\mathcal{E}$ and (\ref{eq:thm3-result-1}) holds on $\Omega$.
+By the same argument we used to argue (\ref{eq:neg1-bd}) we have $\frac{\epsilon_{t_0:T}}{T-t_0+1} > -1$. So we can again use the bound $\log(1+x) \leq x$ for $x > -1$, to get: 
+\begin{align*}
+    -\left(\frac{T - t_0 +1}{2}\right)\log \left[1 + \frac{\epsilon_{t_0:T}}{T-t_0+1}\right] \geq -  \frac{\epsilon_{t_0:T}}{2}
+\end{align*}
+which allows us to write:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) - \frac{(T-t_0+1)}{2}\log s_0^2 \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[\frac{\sum_{t'=t}^T y_{t'}^2}{T-t+1} - \left(\frac{\sum_{t'=t}^T y_{t'}}{T-t+1}\right)^2 \right] - \frac{\epsilon_{t_0:T}}{2} \notag \\
+    &\quad\: + \mathcal{O}(1). \label{eq:thm3-cs2-bd1}
+\end{align}
+We now proceed in two steps. First, we show that if Assumption \ref{assumption:scale} holds, then for large enough $\kappa$ and any value of $b_0$, (\ref{eq:thm3-result}) holds on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound}. Second, if $s_0^2$ is a fixed constant and Assumption \ref{assumption:scale} does not hold, then it must be the case that $s_0^2 = 1$ since since otherwise we would be able to construct some intervals $I_1\subseteq(0,1)$ and $I_2 \subseteq(1,\infty)$ such that $s_0^2 \in I_1\cup I_2$. Therefore, the next step is to set $s_0^2 = 1$ and show that if Assumption \ref{assumption:mean} holds, then (\ref{eq:thm3-result}) holds on $\mathcal{E}$.
 
 \subsubsection*{Case 2.a: Assumption \ref{assumption:scale} holds.}
 
-Focusing now on the remaining random term in the lower bound (\ref{eq:thm3-cs2-bd4}), we have:
+For $t > s$ if we define the partial average term:
+\begin{align*}
+    \overline{y}_{s:t} := \frac{\sum_{t'=s}^t y_{t'}}{t-s+1} 
+\end{align*}
+then we can write:
 \small
 \begin{align*}
-    \sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 &= \sum_{t'=t}^{t_0-1 } (y_{t'} - \overline{y}_{t:T})^2 + \sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t:T})^2 \\
+    \sum_{t'=t}^T y_{t'}^2 - \frac{\left(\sum_{t'=t}^T y_{t'}\right)^2}{T-t+1} &= \sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \\
+    &= \sum_{t'=t}^{t_0-1 } (y_{t'} - \overline{y}_{t:T})^2 + \sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t:T})^2 \\
     &= \sum_{t'=t}^{t_0-1 } (y_{t'} - \overline{y}_{t:(t_0-1)} + \overline{y}_{t:(t_0-1)} - \overline{y}_{t:T})^2 + \sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t_0:T} + \overline{y}_{t_0:T} - \overline{y}_{t:T})^2 \\
     &= \sum_{t'=t}^{t_0-1 } (y_{t'} - \overline{y}_{t:(t_0-1)})^2 + \sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t_0:T})^2 \\
     &\quad + (t_0-t)(\overline{y}_{t:(t_0-1)} - \overline{y}_{t:T})^2  +  (T-t_0+1)(\overline{y}_{t:T} - \overline{y}_{t_0:T})^2 \\
-    &> \sum_{t'=t}^{t_0-1 } (y_{t'} - \overline{y}_{t:(t_0-1)})^2 + \sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t_0:T})^2 \\
-    &= \sum_{t'=t}^{t_0-1 } (z_{t'} - \overline{z}_{t:(t_0-1)})^2 + s_0^2\sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2. 
+    &> \sum_{t'=t}^{t_0-1 } (y_{t'} - \overline{y}_{t:(t_0-1)})^2 + \sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t_0:T})^2.
 \end{align*}
 \normalsize
-On $\mathcal{E}$ we simply have:
+Standardizing the last bound above gives:
 \small
 \begin{align*}
-    \sum_{t'=t}^{t_0-1 } (z_{t'} - \overline{z}_{t:(t_0-1)})^2 + s_0^2\sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 &=  (t_0 - t -1) + \sum_{t'=t}^{t_0-1 } (z_{t'} - \overline{z}_{t:(t_0-1)})^2 -(t_0 - t -1) \\
-    &\quad\: + s_0^2\left[(T-t_0) + \sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 -(T-t_0)\right] \\
-    &> (t_0 - t) -1 - 8 \sqrt{T\log T} + s_0^2(T-t_0) - 8 s_0^2 \sqrt{T \log T} \\
-    &= (1 - s_0^2)(t_0 - t) + s_0^2(T-t+1) -(s_0^2 + 1)(1 +  8\sqrt{T \log T}).
+    \sum_{t'=t}^{t_0-1 } (y_{t'} - \overline{y}_{t:(t_0-1)})^2 + \sum_{t'=t_0}^T (y_{t'} - \overline{y}_{t_0:T})^2 &= \sum_{t'=t}^{t_0-1 } y^2_{t'} - \frac{\left(\sum_{t'=t}^{t_0-1 } y_{t'}\right)^2}{t_0-t} + \sum_{t'=t_0}^{T} y^2_{t'} - \frac{\left(\sum_{t'=t_0}^{T} y_{t'}\right)^2}{T-t_0+1} \\
+    &= \sum_{t'=t}^{t_0-1 } z^2_{t'} - \frac{\left(\sum_{t'=t}^{t_0-1 } z_{t'}\right)^2}{t_0-t} + \sum_{t'=t_0}^{T} (s_0 z_{t'} + b_0)^2  - \frac{\left(\sum_{t'=t_0}^{T} (s_0 z_{t'} + b_0)\right)^2}{T-t_0+1} \tag{$y_t = z_t$ for $t < t_0$} \\
+    &= (1 - s_0^2)(t_0 - t) + s_0^2(T-t +1) + \epsilon_{t:t_0}+ s^2_0\epsilon_{t_0:T}. \tag{by (\ref{eq:thm-3-error-t:t0}) and (\ref{eq:thm-3-error-t:T})}
 \end{align*}
 \normalsize
-While on $\Omega$ we can write:
+Therefore, we can lower bound (\ref{eq:thm3-cs2-bd1}) with:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) + \frac{(t_0-t)}{2}\log s_0^2 \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1) + \epsilon_{t:t_0} + s_0^{2}\epsilon_{t_0:T} }\right] \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T} }{T-t+1}\right] - \frac{\epsilon_{t_0:T}}{2} \notag \\
+    &\quad\: + \mathcal{O}(1). \label{eq:thm3-cs2-bd2}
+\end{align}
+Again, since $T-t_0+1 > \log^{1+\varepsilon} T$ and $t\in\mathcal{T}_\kappa$, there is some $C>0$ so that on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound} we have:
+\begin{align*}
+    \max\left\{\left|\sum_{t'=t}^{t_0-1 } z_{t'}\right|,\;\left|\sum_{t'=t}^{t_0-1 } (z^2_{t'}-1)\right|\right\} &< \sqrt{C(t_0-t)\log T} \tag{on $\mathcal{E}_1\cap\mathcal{E}_2\subseteq \mathcal{E}$}\\
+    \max\left\{\left|\sum_{t'=t_0}^{T} z_{t'} \right|,\;\left|\sum_{t'=t_0}^{T} (z^2_{t'}-1)\right|\right\} &< \sqrt{C(T-t_0+1)\log T} \tag{on $\mathcal{E}_3\cap \mathcal{E}_5\subseteq \mathcal{E}$}.
+\end{align*}
+Therefore, on $\mathcal{E}$ we have:
 \small
 \begin{align*}
-    \sum_{t'=t}^{t_0-1 } (z_{t'} - \overline{z}_{t:(t_0-1)})^2 + s_0^2\sum_{t'=t_0}^T (z_{t'} - \overline{z}_{t_0:T})^2 &= (t_0-t) + \sum_{t'=t}^{t_0-1} z^2_{t'} - (t_0-t) - \frac{1}{t_0-t} \left(\sum_{t'=t}^{t_0-1} z_{t'}\right)^2 \\
-    &\quad\: + s_0^2\left[(T-t_0+1) + \sum_{t'=t_0}^T z^2_{t'} - (T-t_0+1) - \frac{1}{T-t_0+1} \left(\sum_{t'=t_0}^T z_{t'}\right)^2\right] \\
-    &> (t_0-t) - C_1\sqrt{T}\log^{1+\varphi} T - \frac{C^2_1 (t_0-t) \log^{2(1+\varphi)} T}{t_0-t} \\
-    &\quad\: + s_0^2\left[(T-t_0+1) - C_1\sqrt{T}\log^{1+\varphi} T - \frac{ C^2_1 (T-t_0+1)\log^{2(1+\varphi)} T}{T-t_0+1}\right]\\ 
-    &= (1-s_0^2)(t_0-t) + s_0^2(T-t+1) \\
-    &\quad - (s_0^2 + 1)\left(C_1\sqrt{T}\log^{1+\varphi} T  + C^2_1\log^{2(1+\varphi)}T\right)
+    \frac{|s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T}|}{T-t+1} &\leq \frac{s_0^{-2}\left(\left|\sum_{t'=t}^{t_0-1 } (z^2_{t'}-1)\right| + \frac{\left(\sum_{t'=t}^{t_0-1 } z_{t'}\right)^2}{t_0-t}\right) + \left|\sum_{t'=t_0}^{T} (z^2_{t'}-1)\right| + \frac{\left(\sum_{t'=t_0}^{T} z_{t'} \right)^2}{T-t_0+1}}{T-t+1} \\
+    &\leq \frac{s_0^{-2}\sqrt{C(t_0-t)\log T} + \sqrt{C(T-t_0+1)\log T} + 2C\log T}{T-t+1} \\
+    &\leq \frac{4C}{\underline{s}^{2}}\sqrt{\frac{\log T}{T-t+1}} \tag{by (\ref{eq:thm3-s_0-I-1-bd}), $T-t+1 > \max\{t_0 - t, T-t_0+1\} > \log T$, and $C > 1$ WLOG} \\
+    &\leq \frac{4C}{\underline{s}^2\sqrt{\log^{\varepsilon} T}}  \tag{$T-t+1 > \log^{1+\varepsilon} T$}
 \end{align*}
 \normalsize
+Since the last line vanishes as $T \to \infty$, we can use a first order Taylor approximation of $\log(1+x)$ around zero to write: 
+\begin{align*}
+    \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T} }{T-t+1}\right] &= \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{2} + \mathcal{O}\left(\frac{\left[s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T}\right]^2}{T-t+1}\right) \\
+    &= \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{2} + \mathcal{O}\left(\log T\right) \tag{$\frac{(s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T})^2}{T-t+1} \leq \frac{16C^2\log T}{\underline{s}^{4}}$}
+\end{align*}
+Returning to (\ref{eq:thm3-cs2-bd2}), on $\mathcal{E}$ we now have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{(1-s_0^{-2})}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) - \frac{\left(\sum_{t'=t}^{t_0-1 } z_{t'}\right)^2}{2s_0^2(t_0-t)} + \frac{(t_0-t)}{2}\log s_0^2  \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1) + \epsilon_{t:t_0} + s_0^{2}\epsilon_{t_0:T} }\right]  \\
+    &\quad\: +\mathcal{O}\left(\log T\right). 
+\end{align*}
+Once again, on $\mathcal{E}_1 \subseteq \mathcal{E}$ we have:
+\begin{align*}
+    - \frac{\left(\sum_{t'=t}^{t_0-1 } z_{t'}\right)^2}{2s_0^2(t_0-t)} > - \frac{C}{2s_0^2} \log T > - \frac{C}{2\underline{s}^2} \log T \tag{by (\ref{eq:thm3-s_0-I-1-bd})}
+\end{align*}
+and on $\mathcal{E}_2 \subseteq \mathcal{E}$ we have: 
+\begin{align*}
+    - \frac{(1-s_0^{-2})}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) \geq - \frac{|1-s_0^{-2}|}{2} \left|\sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1)\right| \geq - \frac{|1 - s_0^2|\sqrt{C(t_0-t)\log T}}{2} \tag{by (\ref{eq:thm3-s_0-I-2-bd})}
+\end{align*}
+so we have the further simplification:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\log s_0^2  - \frac{|1 - s_0^2|\sqrt{C(t_0-t)\log T}}{2} \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1) + \epsilon_{t:t_0} + s_0^{2}\epsilon_{t_0:T} }\right] \notag \\
+    &\quad\: + \mathcal{O}\left(\log T\right). 
+\end{align*}
+Next, we can rewrite:
+\begin{align*}
+    \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1) + \epsilon_{t:t_0} + s_0^{2}\epsilon_{t_0:T}} &= \left(1 - \frac{\frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}{1 + \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}\right)\frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}
+\end{align*}
+and thus:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\log s_0^2  - \frac{|1 - s_0^2|\sqrt{C(t_0-t)\log T}}{2} \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}\right] \notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 - \left(\frac{\frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}{1 + \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}\right)\frac{\frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}{1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}\right]  \notag \\
+    &\quad\: + \mathcal{O}\left(\log T\right). \label{eq:thm3-cs2-bd3}
+\end{align}
+We have already shown that on $\mathcal{E}$: 
+\begin{align*}
+    \frac{|s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T}|}{T-t+1} \leq \frac{4C}{\underline{s}^{2}}\sqrt{\frac{\log T}{T-t+1}} &\leq \frac{4C}{\underline{s}^2\sqrt{\log^{\varepsilon} T}}
+\end{align*}
+Therefore, we can pick $T$ large enough so that we have $ \frac{|s_0^{-2} \epsilon_{t:t_0} + \epsilon_{t_0:T}|}{T-t+1}  < \frac{1}{2}$, and we can use the bound above to write: 
+\begin{align*}
+    \left|\frac{\frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}{1 + \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}\right| \leq  \frac{8C}{\underline{s}^{2}}\sqrt{\frac{\log T}{T-t+1}} = \mathcal{O}\left(\sqrt{\frac{\log T}{T-t+1}}\right) = \mathcal{O}(\log^{-\varepsilon/2} T) .
+\end{align*}
+Furthermore, since $\frac{t_0 - t}{T-t+1} \in (0,1)$ and $\frac{|1-s_0^2|}{s_0^2} < \frac{1+\overline{s}^2}{\underline{s}^2} < \infty$, then:
+\small
+\begin{align*}
+     \frac{\frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}{1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}} = \mathcal{O}\left(\frac{t_0-t}{T-t+1}\right) = \mathcal{O}(1) \implies \left(\frac{\frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}{1 + \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}\right)\frac{\frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}{1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}} = \mathcal{O}(\log^{-\varepsilon/2} T).
+\end{align*}
+\normalsize
+Since the $\mathcal{O}(\log^{-\varepsilon/2} T)$ term vanishes as $T \to \infty$, we can again use a first order Taylor approximation of $\log(1+x)$ around zero to write:
+\small
+\begin{align*}
+    \left(\frac{T - t +1}{2}\right)\log\left[1 - \left(\frac{\frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}{1 + \frac{s_0^{-2}\epsilon_{t:t_0} + \epsilon_{t_0:T}}{T-t+1}}\right)\frac{\frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}{1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}}\right] &= \left(\frac{T - t +1}{2}\right)\left[\mathcal{O}\left(\frac{(t_0-t)\sqrt{\log T}}{(T-t+1)^{3/2}}\right)  + \mathcal{O}\left(\frac{\log T}{T-t+1}\right) \right] \\
+    &= \mathcal{O}\left(\sqrt{(t_0-t)\log T}\right) + \mathcal{O}(\log T). \tag{$T-t+1 > t_0-t$}
+\end{align*}
+\normalsize
+Using the last result in combination with (\ref{eq:thm3-cs2-bd3}), there exist some $T$ large enough and constant $C_1 > \frac{\sqrt{C}(1+\overline{s}^2)}{2}$ so that on $\mathcal{E}$: 
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\log s_0^2 + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{(1 - s_0^2)(t_0 - t)}{s_0^{2}(T-t+1)}\right] - C_1\sqrt{(t_0 -t)\log T} + \mathcal{O}(\log T) \label{eq:thm3-cs2-bd4}
+\end{align}
+We now show the bound above is non-increasing as a function of $t$ for fixed $t_0$ and $T$. Taking the derivative with respect to $t$ gives the following expression: 
+\small
+\begin{align*}
+    \frac{1}{2}\left[C_1\sqrt{\frac{\log T}{(t_0 - t)}} - \log\left[s_0^2 + \frac{(1 - s_0^2)(t_0 - t)}{(T-t+1)}\right] - \frac{(T-t_0+1)(1-s_0^2)}{(1-s_0^2)(t_0-t) + s_0^2(T-t+1)}\right]. 
+\end{align*}
+\normalsize
+Note that we can write $t_0 = T - f(T) + 1$ for some function $f$ so long as $\log^{1+\varepsilon} T < f(T) <T - \log^{1+\varepsilon} T$. Plugging in for $t_0$, the previous expression becomes:
+\small
+\begin{align}\label{eq:thm3-cs2-derivative1}
+    \frac{1}{2}\left[C_1\sqrt{\frac{\frac{\log T}{T - t + 1}}{1 - \frac{f(T)}{T - t + 1}}} - \log\left[1 - (1 - s_0^2)\frac{f(T)}{T-t+1}\right] - \frac{(1 - s_0^2)\frac{f(T)}{T-t+1}}{1 - (1-s_0^2)\frac{f(T)}{T - t + 1}}\right]. 
+\end{align}
+\normalsize
+Now, since $t < t_0$ implies $T-t+1 > T- t_0+1 = f(T)$, then $\frac{f(T)}{T-t+1}$ must converge to some real value in $[0,1]$. The first term of (\ref{eq:thm3-cs2-derivative1}) is clearly positive and converges to zero at a rate $\mathcal{O}\left(\frac{\log T}{T-t+1}\right)$, whereas the second two terms are negative since:
+\small
+\begin{align*}
+    - \log\left[1 - (1 - s_0^2)\frac{f(T)}{T-t+1}\right] - \frac{(1 - s_0^2)\frac{f(T)}{T-t+1}}{1 - \frac{f(T)}{T - t + 1}} < \frac{ (1 - s_0^2)\frac{f(T)}{T-t+1}}{1 - (1 - s_0^2)\frac{f(T)}{T-t+1}}- \frac{(1 - s_0^2)\frac{f(T)}{T-t+1}}{1 - (1-s_0^2)\frac{f(T)}{T - t + 1}} = 0 \tag{$1 - s_0^2$ is bounded and $\log(1 + x) > \frac{x}{1+x}$ for $x \in (-1,0)\cup(1,\infty)$}
+\end{align*}
+\normalsize
+and they converge to zero at the rate $\mathcal{O}\left(\frac{f(T)}{T-t+1}\right)$ since:
+\small
+\begin{align*}
+    - \log\left[1 -\frac{ (1 - s_0^2)f(T)}{T-t+1}\right] - \frac{(1 - s_0^2)\frac{f(T)}{T-t+1}}{1 - \frac{f(T)}{T - t + 1}} &= -(1 - s_0^2)\frac{f(T)}{T-t+1} + \mathcal{O}\left(\left[\frac{(1 - s_0^2)f(T)}{T-t+1}\right]^2\right) - \frac{(1 - s_0^2)\frac{f(T)}{T-t+1}}{1 - \frac{f(T)}{T - t + 1}} \\
+    &= \mathcal{O}\left(\frac{f(T)}{T-t+1}\right).
+\end{align*}
+\normalsize
+We know $\mathcal{O}\left(\frac{f(T)}{T-t+1}\right)$ is a slower rate than $\mathcal{O}\left(\frac{\log T}{T-t+1}\right)$ since $f(T) > \log^{1+\varepsilon} T$. Therefore, (\ref{eq:thm3-cs2-derivative1}) will be negative for large $T$, and thus the bound (\ref{eq:thm3-cs2-bd4}) will be minimized by making $t$ as large as possible, i.e. by setting: 
+\begin{align*}
+    t = \sup\;\{t \in \mathcal{T}_{\kappa} \::\: t< t_0\} = t_0 - \frac{\kappa \log T}{\min\{f_1(s_0^2), f_2(s_0^2)\}}. 
+\end{align*}
+Note that we have assumed $b_0^2 = 0$ in the last line, but this with out loss of generality since Assumption \ref{assumption:mean} implies $|b_0| < \infty$, so we would have to adjust $\kappa$ by a constant factor. Plugging this value of $t$ into (\ref{eq:thm3-cs2-bd3}) we get:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\kappa \log s_0^2 }{2\min\{f_1(s_0^2), f_2(s_0^2)\}}\log T \\
+    &\quad\: + \left(\frac{T - t_0 +1}{2} + \frac{\kappa \log T}{2\min\{f_1(s_0^2), f_2(s_0^2)\}}\right)\log\left[1 + \frac{(1 - s_0^2)}{s_0^{2}\left(1+ \frac{(T-t_0+1)\min\{f_1(s_0^2), f_2(s_0^2)\}}{\kappa \log T}\right)}\right]  \\
+    &\quad\: -C_1\sqrt{\frac{\kappa}{\min\{f_1(s_0^2), f_2(s_0^2)\}}} \log T  + \mathcal{O}(\log T).
+\end{align*}
+Since $T-t_0+1 > \log^{1+\varepsilon} T$, the term:
+\begin{align*}
+    \frac{(1 - s_0^2)}{s_0^{2}\left(1+ \frac{(T-t_0+1)\min\{f_1(s_0^2), f_2(s_0^2)\}}{\kappa \log T}\right)}
+\end{align*}
+vanishes as $T \to \infty$, so we can once again use a first order Taylor approximation of $\log(1+x)$ around zero to write:
+\small
+\begin{align*}
+     \left(\frac{T - t_0 +1}{2} + \frac{\kappa \log T}{2\min\{f_1(s_0^2), f_2(s_0^2)\}}\right)\log\left[1 + \frac{(1 - s_0^2)}{s_0^{2}\left(1+ \frac{(T-t_0+1)\min\{f_1(s_0^2), f_2(s_0^2)\}}{\kappa \log T}\right)}\right]  &=  \frac{\kappa (s_0^{-2} -1) \log T}{\min\{f_1(s_0^2), f_2(s_0^2)\}} \\
+     &\quad\: + \mathcal{O}\left(\frac{\kappa^2\log^2 T}{T-t_0+1 + \log T}\right)
+\end{align*}
+\normalsize
+Since $T-t_0+1 > \log^{1+\varepsilon} T$ implies $\mathcal{O}\left(\frac{\kappa^2\log^2 T}{T-t_0+1 + \log T}\right) = \mathcal{O}(\kappa^2\log^{1-\varepsilon} T)$, there is some $C_2,C_3 > 0$ so that: 
+\small
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\kappa }{2}\log T- C_1\sqrt{\frac{\kappa}{\min\{f_1(s_0^2), f_2(s_0^2)\}}} \log T   - C_2\log T - \kappa^2C_3\log^{1-\varepsilon} T. 
+\end{align*}
+\normalsize
+Therefore, for:
+\begin{align*}
+    \kappa > 2(C\pi + C_2 + C_3) + \frac{4C_1^2}{\min\{f_1(\underline{s}_1^2), f_2(\underline{s}_1^2),f_1(\underline{s}_2^2), f_2(\underline{s}_2^2)\}}
+\end{align*}
+and $T$ large enough so that $\log^{\varepsilon} T > \kappa^2 $ we have:
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq C_\pi \log T
+\end{align*}
+i.e. the event (\ref{eq:thm3-result}) holds for large $T$ on $\mathcal{E}$ for this case. 
+
+\subsubsection*{Case 2.b: Assumption \ref{assumption:mean} holds and $s_0^2 =1$.}
+
+Assume now that $s_0^2 = 1$ and that Assumption \ref{assumption:mean} holds. When $s_0^2 = 1$, we can standardize terms and write:
+\begin{align*}
+    \sum_{t'=t}^T y_{t'}^2  &= 
+    \sum_{t'=t}^{t_0-1} z_{t'}^2 + \sum_{t'=t_0}^{T} (z_{t'} + b_0)^2  \\
+    &= (T-t+1) + \sum_{t'=t}^T (z_{t'}^2 -1) + 2b_0 \sum_{t'=t_0}^{T} z_{t'} + (T-t_0+1)b_0^2  \\
+    \frac{\left(\sum_{t'=t}^T y_{t'}\right)^2}{T-t+1} &= \frac{\left(\sum_{t'=t}^T z_{t'} + (T - t_0+1)b_0\right)^2}{T-t+1}  \\
+    &= \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1} + \frac{2(T-t_0+1)b_0}{T-t+1} \sum_{t'=t}^T z_{t'} + \frac{(T-t_0+1)^2b_0^2}{T-t+1}. 
+\end{align*}
+Then, defining the random term $\epsilon_{t:T}$ as in (\ref{eq:thm-3-error-t:T}), the bound (\ref{eq:thm3-cs2-bd1}) simplifies to:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> - \frac{1}{2} \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) \notag\\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 +\frac{\frac{(T-t_0+1)(t_0-t)b_0^2}{(T-t+1)^2} + \frac{2b_0\left[(t_0-t)\sum_{t'=t_0}^{T} z_{t'} - (T-t_0+1)\sum_{t'=t}^{t_0-1} z_{t'}\right]}{(T-t+1)^2}}{1 + \frac{\epsilon_{t:T}}{T-t+1}} \right]\notag \\
+    &\quad\: + \left(\frac{T - t +1}{2}\right)\log \left[1 + \frac{\epsilon_{t:T}}{T-t+1}\right]-\frac{\epsilon_{t_0:T}}{2} \notag\\
+    &\quad\: + \mathcal{O}(1).\label{eq:thm3-cs2-bd5}
+\end{align}
+Next, since $T-t+1 > T-t_0+1>  \log^{1+\varepsilon} T$, there is some $C>0$ so that on the event $\mathcal{E}$ defined in Lemma \ref{lemma:thm3-event-bound}, we have:
+\begin{align*}
+    \max\left\{\left|\sum_{t'=t}^{T} z_{t'} \right|,\; \left|\sum_{t'=t}^{T} (z^2_{t'}-1)\right|\right\}&< \sqrt{C(T-t+1)\log T}. \tag{on $\mathcal{E}_3\cap\mathcal{E}_5 \subseteq \mathcal{E}$}
+\end{align*}
+We therefore have:
+\begin{align*}
+    - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1} > - C\log T
+\end{align*}
+and: 
+\begin{align*}
+    \frac{|\epsilon_{t:T}|}{T-t+1} &\leq \frac{\left|\sum_{t'=t}^{T} (z^2_{t'}-1)\right|}{T-t+1} + \left(\frac{\sum_{t'=t}^{T} z_{t'}}{T-t+1} \right)^2 \\
+    &<\frac{\sqrt{C(T-t+1)\log T} + C\log T}{T-t+1} \\
+    &< \frac{2C}{\sqrt{\log^{\varepsilon}T}} \tag{$T-1+1 > \log^{1+\varepsilon} T$ and $C > 1$ WLOG}
+\end{align*}
+meaning that $\frac{|\epsilon_{t:T}|}{T-t+1}$ vanishes as $T\to\infty$ on $\mathcal{E}$ and:
+\begin{align*}
+     \mathcal{O}\left(\frac{\epsilon_{t:T}^2}{T-t+1}\right) = \mathcal{O}\left(\log T\right).
+\end{align*}
+Therefore, we can use a first order Taylor approximation of $\log(1+x)$ around zero to get: 
+\begin{align*}
+    \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{\epsilon_{t:T}}{T-t+1}\right] = \frac{\epsilon_{t:T}}{2} + \mathcal{O}\left(\log T\right)
+\end{align*}
+and since:
+\begin{align*}
+    \epsilon_{t:T} - \epsilon_{t_0:T} \geq \sum_{t' = t}^{t_0 - 1} (z_{t'}^2-1) - \frac{\left(\sum_{t'=t}^T z_{t'}\right)^2}{T-t+1}
+\end{align*}
+then returning to the bound (\ref{eq:thm3-cs2-bd5}), we can now write:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1 +\frac{\frac{(T-t_0+1)(t_0-t)b_0^2}{(T-t+1)^2} + \frac{2b_0\left[(t_0-t)\sum_{t'=t_0}^{T} z_{t'} - (T-t_0+1)\sum_{t'=t}^{t_0-1} z_{t'}\right]}{(T-t+1)^2}}{1 + \frac{\epsilon_{t:T}}{T-t+1}} \right]   + \mathcal{O}(\log T). \label{eq:thm3-cs2-bd6}
+\end{align}
+Again, since $t\in\mathcal{T}_\kappa$, there is some $C>0$ so that on $\mathcal{E}$ we have:
+\begin{align*}
+    \left|\sum_{t'=t}^{t_0-1} z_{t'}\right| &< \sqrt{C(t_0-t)\log T} \tag{on $\mathcal{E}_1 \subseteq \mathcal{E}$} \\
+    \left|\sum_{t'=t}^{T} z_{t'} \right|&< \sqrt{C(T-t+1)\log T} \tag{on $\mathcal{E}_3 \subseteq \mathcal{E}$}
+\end{align*}
 and thus:
 \begin{align*}
-     \sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 &> 
-     \begin{cases}
-        (1-s_0^2)(t_0-t) + s_0^2(T-t+1) - (s_0^2 + 1)\left(C_1\sqrt{T}\log^{1+\varphi} T  + C^2_1\log^{2(1+\varphi)}T\right) \text{ on } \Omega, \\
-        (1-s_0^2)(t_0-t) + s_0^2(T-t+1) - (s_0^2 + 1)(1 +  8\sqrt{T \log T}), \text{ on } \mathcal{E}.
-     \end{cases} \notag \\
-     &:= (1-s_0^2)(t_0-t) + s_0^2(T-t+1) - (s_0^2 + 1) B_{3,T}.
+    (t_0-t)\sum_{t'=t_0}^{T} z_{t'} - (T-t_0+1)\sum_{t'=t}^{t_0-1} z_{t'} &\leq (t_0-t)\sqrt{C(T-t_0+1)\log T} + (T-t_0+1)\sqrt{C(t_0-t)\log T}
 \end{align*}
-Therefore, on $\Omega$ and $\mathcal{E}$:
+Since $T-t_0+1 > \log^{1+\varepsilon} T$ and Assumption \ref{assumption:mean} implies $|b_0| > \underline{b}$ for some $\underline{b} > 0$, then for $T$ large enough so that:
+\begin{align*}
+    \sqrt{\frac{\log T}{T-t_0+1}} < \frac{1}{\sqrt{\log^{\varepsilon} T}} < \frac{\underline{b}}{8\sqrt{C}} < \frac{|b_0|}{8 \sqrt{C}}
+\end{align*}
+we have:
+\begin{align*}
+    (t_0-t)\sqrt{C(T-t_0+1)\log T} < \frac{|b_0|(t_0 - t)(T-t_0+1)}{8}.
+\end{align*}
+Next, since $s_0^2 = 1$ and $t \in \mathcal{T}_\kappa$ imply that $t_0 - t > \frac{\kappa\log T}{b_0^2}$, then we have:
+\begin{align*}
+    (T-t_0+1)\sqrt{C(t_0-t)\log T} < \frac{|b_0|(T-t_0+1)(t_0 -t)\sqrt{C}}{\sqrt{\kappa}}
+\end{align*}
+so for $\kappa > 8C$ we have: 
+\begin{align*}
+    2b_0\left[(t_0-t)\sum_{t'=t_0}^{T} z_{t'} - (T-t_0+1)\sum_{t'=t}^{t_0-1} z_{t'}\right] &\geq - 2|b_0|(t_0-t)\left|\sum_{t'=t_0}^{T} z_{t'}\right| + (T-t_0+1)\left|\sum_{t'=t}^{t_0-1} z_{t'}\right| \\
+    &> - \frac{(T-t_0+1)(t_0-t)b_0^2}{2}.
+\end{align*}
+Returning to the bound (\ref{eq:thm3-cs2-bd6}), we can now write::
+\begin{align*}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1 +\frac{\frac{(T-t_0+1)(t_0-t)b_0^2}{2(T-t+1)^2}}{1 + \frac{\epsilon_{t:T}}{T-t+1}} \right] + \mathcal{O}(\log T).
+\end{align*}
+We showed above that $\frac{|\epsilon_{t:T}|}{T-t+1}$ vanishes on $\mathcal{E}$ so for $T$ large enough that $\frac{|\epsilon_{t:T}|}{T-t+1} < \frac{1}{2}$ we have:
 \begin{align}
-     \frac{1}{s_0^2(T-t+1)}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 &> 1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t) - \left(s_0^{-2} + 1\right) B_{3,T}}{T - t + 1} \notag \\
-     &\geq 1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \frac{\left(\underline{s}^{-2} + 1\right) B_{3,T}}{cT} \tag{$s_0^2 > \underline{s}^2$ and $T-t+1 > cT$}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1 +\frac{(T-t_0+1)(t_0-t)b_0^2}{4(T-t+1)^2} \right] + \mathcal{O}(\log T). \label{eq:thm3-cs2-bd7}
 \end{align}
+We can show that the bound above is non-increasing as a function of $t$ for fixed $t_0$ and $T$. Taking the derivative of the bound with respect to $t$ we get the following expression: 
+\begin{align}
+    B(t) := -\frac{1}{2}\log\left[1 +\frac{(T-t_0+1)(t_0-t)b_0^2}{4(T-t+1)^2} \right] + \frac{b_0^2}{8}\left[\frac{2(T-t_0+1)(t_0-t)-(T-t+1)(T-t_0+1)}{(T-t+1)^2 +\frac{(T-t_0+1)(t_0-t)b_0^2}{4}}\right] \label{eq:thm3-cs2-derivative2}
+\end{align}
+Since: 
+\begin{align*}
+    \frac{(T-t_0+1)(t_0-t)b_0^2}{4(T-t+1)^2} > -1
+\end{align*}
+we can use the bound $\log (1+x) \geq \frac{x}{1+x}$ for $x > -1$ to bound (\ref{eq:thm3-cs2-derivative2}) with:
+\begin{align*}
+    B(t) &\leq -\frac{\frac{(T-t_0+1)(t_0-t)b_0^2}{4(T-t+1)^2}}{2\left(1 +\frac{(T-t_0+1)(t_0-t)b_0^2}{4(T-t+1)^2} \right)} + \frac{b_0^2}{8}\left[\frac{2(T-t_0+1)(t_0-t)-(T-t+1)(T-t_0+1)}{(T-t+1)^2 +\frac{(T-t_0+1)(t_0-t)b_0^2}{4}}\right] \\
+    &= -\frac{(T-t_0+1)^2b_0^2}{8(T-t+1)^2 +4(T-t_0+1)(t_0-t)b_0^2} \\
+    &\leq 0.
+\end{align*}
+Therefore, the bound (\ref{eq:thm3-cs2-bd7}) is minimized by making $t$ as large as possible, i.e. by setting: 
+\begin{align*}
+    t = \sup\;\{t \in \mathcal{T}_{\kappa} \::\: t< t_0\} = t_0 - \frac{\kappa \log T}{b_0^2} \tag{$s_0^2 = 1 \implies f_1(s_0^2) = f_1(s_0^2) =0$}. 
+\end{align*}
+Plugging this value for $t$ into  (\ref{eq:thm3-cs2-bd7}) we get:
+\begin{align}
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t_0 +1}{2} + \frac{\kappa \log T}{2b_0^2}\right)\log\left[1 + \frac{\kappa(T-t_0+1)\log T}{4\left(T-t_0+1 + \frac{\kappa\log T}{b_0^2}\right)^2} \right]+ \mathcal{O}(\log T). \label{eq:thm3-cs2-bd8}
+\end{align}
+Since $T-t+1 > T-t_0+1 > \log^{1+\varepsilon} T$ implies:
+\begin{align*}
+    \frac{\kappa(T-t_0+1)\log T}{4\left(T-t_0+1 + \frac{\kappa\log T}{b_0^2}\right)^2} = \mathcal{O}(\log^{-\varepsilon} T)
+\end{align*}
 and:
 \begin{align*}
-     \frac{1}{s_0^2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 &> (s_0^{-2} -1)(t_0-t) + (T-t+1) - (s_0^{-2} + 1) B_{3,T} \\
-     &= (T-t_0+1) + s_0^{-2}(t_0-t) - (\underline{s}^{-2} + 1) B_{3,T} \\
-     &> cT - (\underline{s}^{-2} + 1) B_{3,T}.  \tag{$T-t_0+1 > cT$ and $s_0^2 > \underline{s}^2$}
+    \frac{\kappa^2(T-t_0+1)^2\log^2 T}{32\left(T-t_0+1 + \frac{\kappa\log T}{b_0^2}\right)^3} = \mathcal{O}(\kappa^2 \log^{1-\varepsilon} T).
 \end{align*}
-Combining these two bounds with the lower bound in (\ref{eq:thm3-cs2-bd4}) we now have:
+then the first term above vanishes as $T\to\infty$, then we can use one last first order Taylor approximation of $\log(1+x)$ around zero to get that there are constants $C_1,C_2>0$ so that: 
 \begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\log s_0^2  \\
-    &\quad\: + \left(\frac{T - t +1}{2}\right)\log\left[1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \frac{\left(\underline{s}^{-2} + 1\right) B_{3,T}}{cT} \right] \\
-    &\quad\: - \frac{B_{1,T} + B_{2,T}}{2} + u_0\log\left[\frac{cT - (\underline{s}^{-2} + 1) B_{3,T}}{(1-c)T + 1 + B_{2,T}}\right]  \\
-    &\quad\: +  \mathcal{O}(T^{-1}). 
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\kappa(T-t_0+1)\log T}{8\left(T-t_0+1 + \frac{\kappa\log T}{b_0^2}\right)}- C_1\log T - C_2 \kappa^2\log^{1-\varepsilon} T.
 \end{align*}
-Since:
+For any fixed $\kappa$, if we pick $T$ large enough so that $\log^\varepsilon T > \max\{\kappa^2, \frac{\kappa}{\underline{b}^2}\}$, then we get:
 \begin{align*}
-    \lim_{T\to\infty} T^{-1} (\underline{s}^{-2} + 1) B_{3,T} = \lim_{T\to\infty} T^{-1} (1 + B_{2,T}) = 0
+    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\kappa}{16}\log T - (C_1 + C_2)\log T.
 \end{align*}
-we have: 
+So if we have $\kappa > 16 (C_1 + C_2+ C_\pi)$, then we have:
 \begin{align*}
-    \lim_{T \to \infty} u_0\log\left[\frac{cT - (\underline{s}^{-2} + 1) B_{3,T}}{(1-c)T + 1 + B_{2,T}}\right]  =  u_0\log \frac{c}{(1-c)} \implies u_0\log\left[\frac{cT - (\underline{s}^{-2} + 1) B_{3,T}}{(1-c)T + 1 + B_{2,T}}\right]  = \mathcal{O}(1)
+    \log \frac{\Delta_{t_0}}{\Delta_t} &\geq C_\pi \log T
 \end{align*}
-and thus:
-\small
-\begin{align}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0-t)}{2}\left\{\log s_0^2 + \left(\frac{T - t +1}{t_0-t}\right)\log\left[1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \frac{\left(\underline{s}^{-2} + 1\right) B_{3,T}}{cT} \right]\right\}  - \frac{B_{1,T} + B_{2,T}}{2}  +  \mathcal{O}(1). \label{eq:thm3-cs2-bd5}
-\end{align}
-\normalsize
-We now use the bound above to show that for any $\vartheta > 0$, for large enough $T$:
-\begin{align}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{(t_0 - t)}{2} \left(\log s_0^2 + \frac{\log[1 + (s_0^{-2} -1)(1-c)]}{1-c} - \vartheta\right) - \frac{B_{1,T} + B_{2,T}}{2}  +  \mathcal{O}(1).  \label{eq:thm3-cs2-bd6} 
-\end{align}
-To establish (\ref{eq:thm3-cs2-bd6}), we consider the cases of $s_0^2 > 1$ and $s_0^2 < 1$ separately:
+i.e. the event (\ref{eq:thm3-result}) holds for large $T$ on $\mathcal{E}$ for this case.
 
-\subsubsection*{Case 2.a.i: $s_0^2 < 1$.}
-
-For some $\alpha > 0$, consider the function $\log(1 + z)$ on the interval $[\alpha c/2, \alpha (1-c)]$, where $c$ is the same constant from Assumption $\ref{assumption:1}$ (i). Because $\log(1 + z)$ is continuous for $z > -1$, it is uniformly continuous on the closed and bounded interval $[\alpha c/2, \alpha (1-c)]$. Therefore, for any $\vartheta > 0$, there is an $\epsilon > 0$ such that:
-\begin{align*}
-     \log(1 + z - \epsilon) > \log(1 + z) - \frac{c \vartheta}{2}
-\end{align*}
-Making the substitution $z = \alpha x$ with $x \in [c/2, (1-c)]$ and by dividing by $x$, we get:
-\begin{align*}
-     \frac{\log(1 + \alpha x - \epsilon)}{x} &> \frac{\log(1 + \alpha x) - \frac{c \vartheta}{2}}{x} \\
-     &> \frac{\log(1 + \alpha x)}{x} - \vartheta. \tag{$x \geq c/2$}
-\end{align*}
-Consider the function $f: (0,1) \to \mathbb{R}^+$:
-\begin{align*}
-    f(x) := \frac{\log(1 + \alpha x)}{x}.
-\end{align*}
-Using the inequality $\log(1+x) > \frac{x}{1+x}$ for all $x > - 1$, we get:
-\begin{align*}
-    f'(x) &= -\frac{\log(1 + \alpha x)}{x^2} + \frac{\alpha}{x(1 + \alpha x)} \\
-    &< -\frac{\alpha x }{x^2(1+\alpha x)} + \frac{\alpha}{x(1 + \alpha x)} \\
-    &= 0.
-\end{align*}
-So $f$ is strictly decreasing on $[c/2, (1-c)]$, and we have:
-\begin{align*}
-     \frac{\log(1 + \alpha x - \epsilon)}{x} &> \frac{\log(1 + \alpha x)}{x} - \vartheta \\
-     &\geq \frac{\log[1 + \alpha (1-c)]}{1-c} - \vartheta.
-\end{align*}
-Consider the term in (\ref{eq:thm3-cs2-bd5}): 
-\begin{align*}
-     \left(\frac{T - t +1}{t_0-t}\right)\log\left[1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \frac{\left(\underline{s}^{-2} + 1\right) B_{3,T}}{cT} \right].
-\end{align*}
-Because we have:
-\begin{align*}
-    \lim_{T \to \infty}  \frac{\left(\underline{s}^{-2} + 1\right) B_{3,T}}{cT} = 0
-\end{align*}
-then using the same $\epsilon$ implied by our choice of $\vartheta$ above, for large enough $T$ we have:
-\begin{align*}
-     \log\left[1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \frac{\left(\underline{s}^{-2} + 1\right) B_{3,T}}{cT} \right] > \log\left[1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \epsilon\right].
-\end{align*}
-Furthermore, $\min\{t_0,T-t_0\} > cT$ implies: 
-\begin{align*}
-    \frac{t_0 - t}{T - t + 1} \in [c/2, (1-c)].
-\end{align*}
-So if we let $x = (t_0 - t)/(T - t + 1)$ and $\alpha = s_0^{-2} -1$, noting that $s_0^{2}  \in (0,1)$ implies $\alpha > 0$, then by our previous analysis of the function $f$, for large enough $T$ we have:
-\begin{align*}
-    \frac{T-t+1}{t-t_0}\log\left[1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \epsilon\right] &> \frac{\log[1 +  (s_0^{-2} -1)(1-c)]}{1-c} - \vartheta
-\end{align*}
-which implies (\ref{eq:thm3-cs2-bd6}).
-
-\subsubsection*{Case 2.a.ii: $s_0^2 > 1$.}
-
-For some $\alpha \in (0,1)$, consider the function $\log(1 - z)$ on the interval $[\alpha c/2, \alpha (1-c)]$, where $c$ is the same constant from Assumption $\ref{assumption:1}$ (i). Because $\log(1 - z)$ is continuous for $z < 1$, it is uniformly continuous on the closed and bounded interval $[\alpha c/2, \alpha (1-c)]$. Therefore, for any $\vartheta > 0$, there is an $\epsilon > 0$ such that:
-\begin{align*}
-     \log(1 - z - \epsilon) > \log(1 - z) - \frac{c \vartheta}{2}.
-\end{align*}
-Making the substitution $z = \alpha x$ with $x \in [c/2, (1-c)]$ and by dividing by $x$, we get:
-\begin{align*}
-     \frac{\log(1 - \alpha x - \epsilon)}{x} &> \frac{\log(1 - \alpha x) -\frac{c \vartheta}{2}}{x} \\
-     &> \frac{\log(1 - \alpha x)}{x} - \vartheta. \tag{$x \geq c/2$}
-\end{align*}
-Consider the function $f: (0,1) \to \mathbb{R}^-$:
-\begin{align*}
-    f(x) := \frac{\log(1 - \alpha x)}{x}.
-\end{align*}
-Using the inequality $\log(1+x) > \frac{x}{1+x}$ for all $x > - 1$ and the fact that $-\alpha x > -1$, we get:
-\begin{align*}
-    f'(x) &= -\frac{\log(1 - \alpha x)}{x^2} - \frac{\alpha}{x(1 - \alpha x)} \\
-    &< \frac{\alpha x }{x^2(1+\alpha x)} - \frac{\alpha}{x(1 + \alpha x)} \\
-    &= 0.
-\end{align*}
-So $f$ is strictly decreasing on $[c/2, (1-c)]$, and we have:
-\begin{align*}
-     \frac{\log(1 - \alpha x - \epsilon)}{x} &> \frac{\log(1 - \alpha x)}{x} - \vartheta \\
-     &\geq \frac{\log[1 - \alpha (1-c)]}{1-c} - \vartheta.
-\end{align*}
-Using the same argument as in Case 2.a.i above, for large enough $T$ we have:
-\begin{align*}
-     \log\left[1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \frac{\left(\underline{s}^{-2} + 1\right) B_{3,T}}{cT} \right] > \log\left[1 + \frac{\left(s_0^{-2} -1\right)(t_0 - t)}{T - t + 1} - \epsilon\right].
-\end{align*}
-Once again $\min\{t_0,T-t_0\} > cT$ implies that: 
-\begin{align*}
-    \frac{t_0 - t}{T - t + 1} \in [c/2, (1-c)].
-\end{align*}
-So if we let $x = (t_0 - t)/(T - t + 1)$ and $\alpha = 1 - s_0^{-2}$, noting that $s_0^{2} \in (1,\infty)$ implies $\alpha \in (0,1)$, then by our previous analysis of the function $f$, for large enough $T$ we have:
-\begin{align*}
-    \frac{T-t+1}{t-t_0}\log\left[1 - \frac{\left(1- s_0^{-2}\right)(t_0 - t)}{T - t + 1} - \epsilon\right] &> \frac{\log[1 -  (1 -s_0^{-2})(1-c)]}{1-c} - \vartheta.
-\end{align*}
-which implies (\ref{eq:thm3-cs2-bd6}).
-
-We now show that for the right choice of $\vartheta$, Assumption \ref{assumption:scale} implies:
-\begin{align*}
-    \log s_0^2 + \frac{\log[1 +  (s_0^{-2} -1)(1-c)]}{1-c} - \vartheta > 0.
-\end{align*}
-For some $\alpha \in (1/2,1)$, consider the function $g_\alpha: (0,1) \to \mathbb{R}^+$:
-\begin{align*}
-    g_\alpha(x) := (1-\alpha)x^\alpha + \alpha x^{\alpha - 1}.
-\end{align*}
-Note that:
-\begin{align*}
-    g_\alpha'(x) &= \alpha(1-\alpha)x^{\alpha-1}\left(1 - \frac{1}{x}
-    \right).
-\end{align*}
-Because $1 - x^{-1} < 0$ for all $x \in (0,1)$, $g_\alpha$ is strictly decreasing on $(0,1)$. Similarly, $1 - x^{-1} > 0$ for all $x > 1$, so $g_\alpha$ is strictly increasing on $(1,\infty)$. Then because $g_\alpha(1) = 1$, we get that $g_\alpha(x) > 1$ for all $x \in (0,1)\cup(1,\infty)$. Furthermore, if we set $\alpha = 1 - c$, then:
-\begin{align*}
-    \log s_0^2 + \frac{\log[1 +  (s_0^{-2} -1)(1-c)]}{1-c} = \frac{\log g_{(1-c)}(s_0^2)}{1-c}.
-\end{align*}
-If Assumption (\ref{assumption:scale}) holds, then from (\ref{eq:thm3-s_0-I-1-bd}) and (\ref{eq:thm3-s_0-I-2-bd}) we have $\overline{s}_1^2 < 1$, $\underline{s}^2 > 1$, and $s_0^2 \not\in (\overline{s}_1^2, \underline{s}^2_2)$, so by our previous analysis of $g_\alpha$ we have:
-\begin{align*}
-    (1-c)^{-1}\log g(s_0^2) &> \frac{\min\{\log g_{(1-c)}(\overline{s}^2_1), \log g_{(1-c)}(\underline{s}^2_2)\}}{1-c} > 0.
-\end{align*}
-Our original choice of $\vartheta$ was arbitrary, so we can set:
-\begin{align*}
-    \vartheta = \frac{\min\{\log g_{(1-c)}(\overline{s}^2_1), \log g_{(1-c)}(\underline{s}^2_2)\}}{2(1-c)} > 0.
-\end{align*}
-Then from (\ref{eq:thm3-cs2-bd6}):
-\begin{align}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\vartheta}{4}(t_0-t) - \frac{B_{1,T} + B_{2,T}}{2}  +  \mathcal{O}(1).   
-\end{align}
-Note that on $\Omega$, $B_{1,T}$ and $B_{2,T}$ are of order $\mathcal{O}(\sqrt{T}\log^{1+\varphi}T)$, so on $\Omega$:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\vartheta}{4}(t_0-t) + \mathcal{O}(\sqrt{T}\log^{1+\varphi}T). 
-\end{align*}
-So if $|t_0 -t| > \kappa \sqrt{T}\log^{1+\varepsilon}T$ for any $\kappa > 0$, then since $\varepsilon > \varphi$, the first term dominates and:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} \gtrsim \sqrt{T}\log^{1+\varepsilon}T
-\end{align*}
-which implies (\ref{eq:thm3-result-2}). On the other hand, from (\ref{eq:thm3-cs2-bd2}) and (\ref{eq:thm3-cs2-bd3}), we get that on $\mathcal{E}$:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\vartheta}{4}(t_0-t) - 8\sqrt{T \log T} + \mathcal{O}(1).
-\end{align*}
-If we pick $\kappa$ so that: 
-\begin{align*}
-    \kappa > \frac{4(C_\pi + 8)}{\vartheta}
-\end{align*}
-then when Assumption \ref{assumption:scale} holds and $|t_0 - t| > \kappa \sqrt{T\log^{1+\xi} T}$, we get:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \frac{\vartheta\kappa}{4}\sqrt{T\log^{1+\xi} T}  -  8\sqrt{T \log T} + \mathcal{O}(1)\\
-    &> C_\pi \sqrt{T \log T} + \mathcal{O}(1) \tag{$\xi \geq 0$}
-\end{align*}
-which implies (\ref{eq:thm3-result-1}). 
-
-\subsubsection*{Case 2.b: Assumption \ref{assumption:mean} holds.}
-
-Assume now that $s_0^2 = 1$ and that Assumption \ref{assumption:mean}, and thus (\ref{eq:thm3-b_0-bd}), holds. When $s_0^2 = 1$, we can simplify the lower bound in (\ref{eq:thm3-cs2-bd4}) to:
-\begin{align}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> + \left(u_0 + \frac{T - t +1}{2}\right)\log\left[ \frac{1}{2}\sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 \right] - \left(\frac{T - t + 1}{2}\right) \log\left(\frac{T-t+1}{2}\right)\notag\\
-    &\quad\: - \frac{B_{1,T} + B_{2,T}}{2}  - u_0\log\left[\frac{(1-c)T + 1 + B_{2,T}}{2}\right] \notag \\
-    &\quad\: +  \mathcal{O}(T^{-1}). \label{eq:thm3-cs2-bd7}
-\end{align}
-Focusing again on the remaining random term, when $s_0 = 1$, we can write:
-\small
-\begin{align}
-    \sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 &= \sum_{t'=t}^T y^2_{t'} - \frac{1}{T-t+1}\left(\sum_{t'=t}^T y_{t'} \right)^2 \notag \\
-    &= \sum_{t'=t}^{t_0-1} z^2_{t'} + \sum_{t'=t_0}^T (y_{t'} - b_0 + b_0)^2 - \frac{1}{T-t+1}\left(\sum_{t'=t}^{t_0-1} z_{t'} + \sum_{t'=t_0}^T (y_{t'} - b_0 + b_0)\right)^2 \notag \\
-    &= \sum_{t'=t}^T z^2_{t'} + 2b_0\sum_{t'=t_0}^T z_{t'} + (T - t_0 + 1)b_0^2 \notag \\
-    &\quad - \frac{1}{T-t+1}\left(\sum_{t'=t}^T z_{t'} \right)^2  - \frac{2b_0(T-t_0+1)}{T-t+1}\sum_{t'=t}^T z_{t'} - \frac{(T-t_0+1)^2b_0^2}{T-t+1} \notag \\
-    &=  \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 + 2b_0(t_0-t)\left(\frac{1}{T-t+1} \sum_{t'=t}^T z_{t'} - \frac{1}{t_0-t}\sum_{t' = t}^{t_0 - 1} z_{t'}\right) + \frac{(T-t_0+1)(t_0-t)b_0^2}{T-t+1} \notag \\
-    &> \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 - 2|b_0|(t_0-t)\left[\frac{1}{T-t+1} \left|\sum_{t'=t}^T z_{t'}\right| + \frac{1}{t_0-t}\left|\sum_{t' = t}^{t_0 - 1} z_{t'}\right|\right] + (t_0-t)cb_0^2 \label{eq:thm3-cs2-bd8}
-\end{align}
-\normalsize
-where in the last line we have bounded the last term by using the fact that $T-t+1 < T$ and $T-t_0 + 1 > cT$. Suppose now that for some choice of $\kappa > 0$:
-\begin{align*}
-    |t_0 -t| > 
-    \begin{cases}
-        \kappa \sqrt{T}\log^{1+\varepsilon} T, & \text{on } \Omega, \\
-        \kappa \sqrt{T\log^{1+\xi} T}, & \text{on } \mathcal{E}.
-    \end{cases}
-\end{align*}
-Then by (\ref{eq:thm3-b_0-bd}), when $t_0 > t$:
-\begin{align*}
-    \frac{c|b_0|(t_0-t)}{8} > 
-    \begin{cases}
-        \frac{c\underline{b}\kappa}{8} \sqrt{T}\log^{1+\varepsilon - \xi/4} T, & \text{on } \Omega, \\
-        \frac{c\underline{b}\kappa}{8} \sqrt{T\log^{1+\xi/2} T}, & \text{on } \mathcal{E}.
-    \end{cases}
-\end{align*}
-Note that:
-\begin{align*}
-    \left|\sum_{t'=t}^{t_0-1} z_{t'}\right| < 
-    \begin{cases}
-        C_1 \sqrt{T}\log^{1+\varphi} T, & \text{on } \Omega, \\
-        2 \sqrt{T\log T}, & \text{on } \mathcal{E}.
-    \end{cases}
-\end{align*}
-Therefore, if we pick $\kappa$ so that:
-\begin{align*}
-   \kappa >  
-    \begin{cases}
-        \frac{8C_1}{c\underline{b}}, & \text{on } \Omega, \\
-        \max\left\{\frac{16}{c\underline{b}},\; \frac{4(C_\pi + 12)}{c\underline{b}^2}\right\}, & \text{on } \mathcal{E}.
-    \end{cases}
-\end{align*}
-then since $\xi / 2 \geq0$ and $\varphi < \varepsilon - \xi/4$ by construction, then for this choice of $\kappa$, on both $\Omega$ and $\mathcal{E}$ we will have: 
-\begin{align}
-    \left|\sum_{t'=t}^{t_0-1} z_{t'}\right| < \frac{c|b_0|(t_0-t)}{8}. \label{eq:thm3-cs2-bd9}
-\end{align}
-Additionally:
-\begin{align*}
-    \left|\sum_{t'=t}^T z_{t'}\right| < 
-    \begin{cases}
-        C_1 \sqrt{T}\log^{1+\varphi} T, & \text{on } \Omega, \\
-        2 \sqrt{T\log T}, & \text{on } \mathcal{E}.
-    \end{cases}
-\end{align*}
-and since $t < t_0 < (1-c)T \implies t < t_0 < T - 1 \implies t_0 - t < T - t + 1$, then the same argument gives:
-\begin{align}
-    \left|\sum_{t'=t}^T z_{t'}\right| < \frac{c|b_0|(T-t+1)}{8}. \label{eq:thm3-cs2-bd10}
-\end{align}
-for the same choice of $\kappa$ on both $\Omega$ and $\mathcal{E}$. On $\mathcal{E}$ we also have:
-\begin{align*}
-    \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 > (T-t +1) - (1 + 8\sqrt{T \log T})
-\end{align*}
-while on $\Omega$ we  can write:
-\begin{align*}
-    \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 &= (T-t+1) + \sum_{t'=t}^T z^2_{t'} - (T-t+1) - \frac{1}{T-t+1} \left(\sum_{t'=t}^T z_{t'}\right)^2 \\
-    &> (T-t+1) - C_1\sqrt{T}\log^{1+\varphi} T - \frac{ C^2_1 (T-t+1)\log^{2(1+\varphi)} T}{T-t+1} \\ 
-    &= (T-t+1) - C_1\sqrt{T}\log^{1+\varphi} T - C^2_1 \log^{2(1+\varphi)} T
-\end{align*}
-and thus:
-\begin{align}
-    \sum_{t'=t}^T (z_{t'} - \overline{z}_{t:T})^2 &> 
-    \begin{cases}
-        (T-t+1) - C_1\sqrt{T}\log^{1+\varphi} T - C^2_1 \log^{2(1+\varphi)} T, & \text{on } \Omega,  \\
-        (T-t +1) - (1 + 8\sqrt{T \log T}), & \text{on } \mathcal{E}
-    \end{cases} \notag \\
-    &:= (T-t +1) - B_{4,t}. \label{eq:thm3-cs2-bd11}
-\end{align}
-Combining (\ref{eq:thm3-cs2-bd9})-(\ref{eq:thm3-cs2-bd11}) with (\ref{eq:thm3-cs2-bd8}), on $\Omega$ and $\mathcal{E}$ we have: 
-\begin{align*}
-    \sum_{t'=t}^T (y_{t'} - \overline{y}_{t:T})^2 &> (T-t +1) - B_{4,t} - 2|b_0|(t_0-t)\left[\frac{c|b_0|}{8} + \frac{c|b_0|}{8}\right] + (t_0-t)cb_0^2 \\
-    &= (T-t +1) - B_{4,t} + \frac{cb_0^2}{2}(t_0 - t).
-\end{align*}
-Returning to the bound in (\ref{eq:thm3-cs2-bd7}), on $\Omega$ and $\mathcal{E}$ we have: 
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{\frac{cb_0^2}{2}(t_0 - t)- B_{4,t}}{T-t+1} \right] \\
-    &\quad\: + u_0 \log\left[\frac{(T-t +1) - B_{4,t} + \frac{cb_0^2}{2}(t_0 - t)}{(1-c)T + 1 + B_{2,T}}\right] \\
-    &\quad\: - \frac{B_{1,T} + B_{2,T}}{2} \notag \\
-    &\quad\: +  \mathcal{O}(T^{-1}). 
-\end{align*}
-Since $\frac{cb_0^2}{2}(t_0 - t) > 0$, $T-t+1 > cT$, and $\lim_{T\to\infty} T^{-1}B_{4,t} = \lim_{T\to\infty} T^{-1}(1 + B_{2,T}) = 0$, as before we have:
-\begin{align*}
-    u_0 \log\left[\frac{(T-t +1) - B_{4,t} + \frac{cb_0^2}{2}(t_0 - t)}{(1-c)T + 1 + B_{2,T}}\right] = \mathcal{O}(1)
-\end{align*}
-and thus:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{\frac{cb_0^2}{2}(t_0 - t)- B_{4,t}}{T-t+1} \right] - \frac{B_{1,T} + B_{2,T}}{2} +  \mathcal{O}(1). 
-\end{align*}
-Suppose that we are on $\Omega$, then for $|t_0 - t| > \kappa \sqrt{T}\log^{1+\varepsilon} T$, we have:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{\frac{cb_0^2}{2}(t_0 - t)- B_{4,t}}{T-t+1} \right] - \frac{B_{1,T} + B_{2,T}}{2} +  \mathcal{O}(1) \\
-    &> \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{\frac{cb_0^2\kappa}{2}\sqrt{T}\log^{1+\varepsilon} T- B_{4,t}}{T-t+1} \right] - \frac{B_{1,T} + B_{2,T}}{2} +  \mathcal{O}(1) \\
-    &> \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{4C_1\underline{b}\sqrt{T}\log^{1+\varepsilon-\xi/2} T- B_{4,t}}{T-t+1} \right] - \frac{B_{1,T} + B_{2,T}}{2} +  \mathcal{O}(1). \tag{(\ref{eq:thm3-b_0-bd}) and $\kappa > \frac{8C_1}{c\underline{b}}$ on $\Omega$}
-\end{align*}
-From (\ref{eq:thm3-cs2-bd11}), we see that $B_{4,t} = \mathcal{O}(\sqrt{T}\log^{1+\varphi} T)$, and since $\varepsilon - \xi /2 > \varphi$ by construction, then the term $4C_1\underline{b}\sqrt{T}\log^{1+\varepsilon-\xi/2}$ dominates $B_{4,t}$, and since $T-t > cT$, we have: 
-\begin{align*}
-    \left(\frac{4C_1\underline{b}\sqrt{T}\log^{1+\varepsilon-\xi/2} T- B_{4,t}}{T-t+1} \right)^2 = \mathcal{O}\left(\frac{\log^{2(1+\varepsilon-\xi/2)}T}{T}\right).
-\end{align*}
-Using a first order Taylor expansion around zero to get $\log(1 + x) = x + \mathcal{O}(x^2)$, we therefore have:
-\begin{align*}
-     \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{4C_1\underline{b}\sqrt{T}\log^{1+\varepsilon-\xi/2} T- B_{4,t}}{T-t+1} \right] &= 2C_1\underline{b}\sqrt{T}\log^{1+\varepsilon-\xi/2} T- \frac{B_{4,t}}{2} \\
-     &\quad\:+ \left(\frac{T - t +1}{2}\right)\mathcal{O}\left(\frac{\log^{2(1+\varepsilon-\xi/2)}T}{T}\right) \\
-     &= 2C_1\underline{b}\sqrt{T}\log^{1+\varepsilon-\xi/2} T- \frac{B_{4,t}}{2} + \mathcal{O}\left(\log^{2(1+\varepsilon-\xi/2)}T\right)
-\end{align*}
-and thus:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> 2C_1\underline{b}\sqrt{T}\log^{1+\varepsilon-\xi/2} T- \frac{B_{1,t} + B_{3,t} + B_{4,t}}{2} + \mathcal{O}\left(\log^{2(1+\varepsilon-\xi/2)}T\right).
-\end{align*}
-From (\ref{eq:thm3-cs2-bd2}) and (\ref{eq:thm3-cs2-bd3}), $B_{1,t}$ and $B_{2,t}$ are also of order $\mathcal{O}(\sqrt{T}\log^{1+\varphi} T)$ on $\Omega$, and $\varepsilon - \xi /2 > \varphi$, so on $\Omega$: 
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} \gtrsim \sqrt{T}\log^{1+\varepsilon-\xi/2} T
-\end{align*}
-which implies (\ref{eq:thm3-result-2}). On $\mathcal{E}$, for  $|t_0 - t| > \kappa \sqrt{T\log^{1+\xi} T}$, we have:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{\frac{cb_0^2}{2}(t_0 - t)- B_{4,t}}{T-t+1} \right] - \frac{B_{1,T} + B_{2,T}}{2} +  \mathcal{O}(1) \\
-    &> \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{\left(\frac{c\underline{b}^2\kappa}{2} - 8\right)\sqrt{T\log T} - 1}{T-t+1} \right] - 8 \sqrt{T\log T} +  \mathcal{O}(1). \tag{(\ref{eq:thm3-b_0-bd}), (\ref{eq:thm3-cs2-bd2}), (\ref{eq:thm3-cs2-bd3}), and (\ref{eq:thm3-cs2-bd11})}
-\end{align*}
-Again, since $T-t > cT$: 
-\begin{align*}
-    \left(\frac{\left(\frac{c\underline{b}^2\kappa}{2} - 8\right)\sqrt{T\log T} - 1}{T-t+1}\right)^2 = \mathcal{O}\left(\frac{\log T}{T}\right)
-\end{align*}
-so we can again use a first order Taylor expansion of $\log(1+x)$ to get:
-\begin{align*}
-    \left(\frac{T - t +1}{2}\right)\log\left[1  + \frac{\left(\frac{c\underline{b}^2\kappa}{2} - 8\right)\sqrt{T\log T} - 1}{T-t+1} \right] = \left(\frac{c\underline{b}^2\kappa}{4} - 4\right)\sqrt{T\log T} - \frac{1}{2} + \mathcal{O}(\log T)
-\end{align*}
-and thus:
-\begin{align*}
-    \log \frac{\Delta_{t_0}}{\Delta_t} &> \left(\frac{c\underline{b}^2\kappa}{4} - 12\right)\sqrt{T\log T}+ \mathcal{O}(\log T) \\
-    &> C_\pi \sqrt{T\log T} + \mathcal{O}(\log T) \tag{$\kappa > \frac{4(C_\pi + 12)}{c\underline{b}^2}$ on $\mathcal{E}$} 
-\end{align*}
-which establishes (\ref{eq:thm3-result-1}).
 \end{proof}

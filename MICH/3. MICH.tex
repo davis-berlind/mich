@@ -1,250 +1,152 @@
-\section{Multiple Independent Change-Points}
+\section{Multiple Independent Change-Point (MICH) Model}
 \label{sec:mich}
 
-We now introduce the Multiple Independent CHange-point (MICH) model. By modularly combining the mean-cp, cov-cp, and meancov-cp models of Section \ref{sec:scp}, we are able to generate multiple changes in the piece-wise constant structures of both $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$. We independently generate $L$ additive changes to $\boldsymbol{\mu}_{1:T}$, $K$ multiplicative changes to $\boldsymbol{\Lambda}_{1:T}$, and $J$ simultaneous changes in $\boldsymbol{\mu_{1:T}}$ and $\boldsymbol{\Lambda}_{1:T}$: 
+We now introduce the Multiple Independent CHange-point (MICH) model. By modularly combining the mean-scp, var-scp, and meanvar-scp models of Section \ref{sec:scp}, we are able to generate multiple changes in the piece-wise constant structures of both $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\lambda}_{1:T}$. We independently generate $L$ additive changes to $\boldsymbol{\mu}_{1:T}$, $K$ multiplicative changes to $\boldsymbol{\lambda}_{1:T}$, and $J$ simultaneous changes to $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\lambda}_{1:T}$: 
 \begin{align}
-    \label{eq:mich-start}
-    \{\mathbf{b}_\ell, \gamma_\ell\} &\overset{\text{ind.}}{\sim} \text{mean-cp}(\mathbf{0}, \lambda_\ell\mathbf{I}_d, \boldsymbol{\pi}_{1:T,\ell}) \\
-    \{\mathbf{S}_k, \gamma_k\} &\overset{\text{ind.}}{\sim} \text{cov-cp}(u_k, v_k, \boldsymbol{\pi}_{1:T,k}) \\
-    \{\mathbf{b}_j, \mathbf{S}_j, \gamma_j\} &\overset{\text{ind.}}{\sim} \text{meancov-cp}(\mathbf{0}, \lambda_j\mathbf{I}_d, u_j, v_j, \boldsymbol{\pi}_{1:T,j}).\label{eq:mich-var-end}
+    \boldsymbol{\theta}_\ell &:= \{b_\ell, \gamma_\ell\} \overset{\text{ind.}}{\sim} \text{mean-scp}(0, \tau_\ell, \boldsymbol{\pi}_{\ell}) \label{eq:mich-l-component} \\
+    \boldsymbol{\theta}_k &:= \{s_k, \gamma_k\} \overset{\text{ind.}}{\sim} \text{var-scp}(u_k, v_k, \boldsymbol{\pi}_{k}) \label{eq:mich-k-component} \\
+    \boldsymbol{\theta}_j &:= \{b_j, s_j, \gamma_j\} \overset{\text{ind.}}{\sim} \text{meanvar-scp}(0, \tau_j, u_j, v_j, \boldsymbol{\pi}_{j}). \label{eq:mich-j-component}
 \end{align}
-Given these components of $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$, as well as a potentially unknown intercept parameter $\boldsymbol{\mu}_0$ and initial covariance $\boldsymbol{\Lambda}_0$, we define:
+For each parameter block, we define the mean components $\mu_{\ell t}$ and $\mu_{jt}$ as in (\ref{eq:smcp-start}), and scale components $\lambda_{kt}$ and $\lambda_{jt}$ as in (\ref{eq:sscp-start}). Given a potentially unknown intercept $\mu_0$ and initial precision $\lambda_0$, we then aggregate these components into combined mean and scale signals:
 \begin{align}
-    \mu_{t} &:= \boldsymbol{\mu}_0 + \sum_{j = 1}^J \boldsymbol{\mu}_{jt}  + \sum_{\ell = 1}^L \boldsymbol{\mu}_{\ell t} \label{eq:mu_t}\\
-    \lambda_t &:= \boldsymbol{\Lambda}_0\prod_{j=1}^J \boldsymbol{\Lambda}_{jt}\prod_{k=1}^K \boldsymbol{\Lambda}_{kt} \label{eq:lambda_t}
+    \mu_{t} &:= \mu_0 + \sum_{\ell = 1}^L \mu_{\ell t} + \sum_{j = 1}^J \mu_{jt} \label{eq:mu_t}\\
+    \lambda_t &:= \lambda_0\prod_{k=1}^K \lambda_{kt}\prod_{j=1}^J \lambda_{jt}. \label{eq:lambda_t}
 \end{align}
-where $\boldsymbol{\mu}_{\ell t}$, $\boldsymbol{\mu}_{jt}$, $\boldsymbol{\Lambda}_{kt}$, and $\boldsymbol{\Lambda}_{jt}$ are defined as in the SCP models. Together with (\ref{eq:dgp}), (\ref{eq:mich-start})-(\ref{eq:lambda_t}) define the MICH model. Note the slight abuse of notation in these definitions; in addition to indexing the sum and product in (\ref{eq:mu_t}) and (\ref{eq:lambda_t}), the symbols $j$, $k$, and $\ell$ index which of the SCP models generated each mean and scale component. For notational convenience, we also partition the MICH model parameters into blocks organized by which SCP model generated them: 
+Together with (\ref{eq:dgp}), (\ref{eq:mich-l-component})-(\ref{eq:lambda_t}) fully specify the MICH model.\footnote{Note the slight abuse of notation in these definitions. In addition to indexing the sum and product in (\ref{eq:mu_t}) and (\ref{eq:lambda_t}), the symbols $\ell$, $k$, and $j$ index which class of SCP model generated each mean and scale component.} A plate diagram depicting MICH graphically is available in Figure \ref{fig:plate-diagram}. Modeling $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\lambda}_{1:T}$ as the sum and product of many single change-point components may seem convoluted, but this construction has computational advantages that will become apparent in Section \ref{sec:fit-mich}. We can also adapt MICH to the multivariate setting when the precision matrix $\boldsymbol{\Lambda}_t$ is known or can be estimated. We restrict $J=K=0$ and replace (\ref{eq:mich-l-component}) and (\ref{eq:mu_t}) respectively with:
 \begin{align}
-    \theta_j &:= \{b_j,s_j,\gamma_j\} \\
-    \theta_\ell &:= \{b_\ell, \gamma_\ell\} \\
-    \theta_k &:= \{s_k, \gamma_k\}.
-\end{align}
-A plate diagram depicting the model graphically can be seen in Figure \ref{fig:plate-diagram}. MICH is a generalization of PRISCA (\citealp{Cappello22}) as well as the CPD version of SuSiE described in \cite{Wang20}. If we set $K > 0$ and $J=L=0$, then MICH recovers the $K$ component PRISCA model with the addition of the buffer defined by $B_l$ and $B_r$. Similarly, if $L > 0$ and $J=K=0$, then MICH is just the $L$ component SuSiE model applied to the same covariate matrix $\mathbf{X}$ described in the last paragraph of Section \ref{sec:smcp}. The innovation of MICH is that it i) combines SuSiE and PRISCA's ability to detect multiple separate changes in either $\boldsymbol{\mu}$ or $\boldsymbol{\lambda}$, and ii) adds the new ability to detect multiple simultaneous changes in both $\boldsymbol{\mu}$ and $\boldsymbol{\lambda}$.
-
-\begin{figure}
-    \centering
-    \input{MICH/Figures/Plate Diagram}
-    \caption{Plate diagram depicting the directed acyclic graph specified by (\ref{eq:dgp}) and (\ref{eq:mich-start})-(\ref{eq:lambda_t}).}
-    \label{fig:plate-diagram}
-\end{figure}  
+    \boldsymbol{\theta}_\ell &:= \{\mathbf{b}_\ell, \gamma_\ell\} \overset{\text{ind.}}{\sim} \text{mean-scp}(\mathbf{0}, \tau_\ell\mathbf{I}_d, \boldsymbol{\pi}_{\ell}) \label{eq:mich-multi} \\
+    \boldsymbol{\mu}_{t} &:= \boldsymbol{\mu}_0 + \sum_{\ell = 1}^L \boldsymbol{\mu}_{\ell t}. \label{eq:mu_t-multi}
+\end{align} 
+MICH is a generalization of PRISCA (\citealp{Cappello22}) as well as the CPD version of SuSiE from Section 6 of \cite{Wang20}. If we set $L > 0$ and $K=J=0$, then MICH recovers the $L$ component SuSiE model applied to the same covariate matrix $\mathbf{X}$ described in Section \ref{sec:smcp}, and if $K > 0$ while $L=J=0$, then MICH reduces to the $K$ component PRISCA model. Unlike SuSiE and PRISCA, MICH can detect both multiple separate and simultaneous changes in $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\lambda}_{1:T}$. Even though MICH has the ability to handle a combination of different types of changes, we stress that our presentation of a single unified model is primarily for notational convenience. In practice, the analyst will typically be interested in identifying a single category of change-points (i.e. only one of $L$, $K$, and $J$ will be positive).
 
 \subsection{Fitting MICH}
+\label{sec:fit-mich}
 
-The prior distributions specified in each of the SCP models from Section \ref{sec:scp} are conditionally conjugate; therefore, constructing a Gibbs sampler (\citealp{Geman84}) is a straightforward exercise. The problem with taking an MCMC approach to inference in this setting is that the change-point indicators $\{\gamma_j,\gamma_\ell,\gamma_k\}$ are discrete, highly correlated, and live in a high-dimensional space as $J$, $K$, $L$ and $T$ increase. Gibbs sampling will suffer from poor mixing under these conditions and the sampler may fail to converge, even after a large number of iterations (\citealp{Smith93, Cappello21}). To circumvent the challenges associated with MCMC based inference, we design an analytically tractable backfitting procedure (\citealp{Friedman81, Breiman85}) that approximates the posterior distribution implied by MICH. The backfitting procedure is described in detail in Algorithm \ref{alg:1}. Upon convergence, Algorithm \ref{alg:1} returns a distribution $q$ and in Section \ref{sec:variational-bayes} we show that Algorithm \ref{alg:1} is a variational Bayesian method, meaning that this $q$ is the best available approximation to the true posterior of MICH within a known class of distributions. 
-
-To motivate the backfitting procedure in Algorithm \ref{alg:1}, consider the residual term:
-\begin{align}\label{eq:residual}
-    r_t &:= y_t - \sum_{j = 1}^J \mu_{jt}  - \sum_{\ell = 1}^L \mu_{\ell t}.
-\end{align}
-Note that the intercept $\mu_0$ does not appear in (\ref{eq:residual}). If we take $\mu_0$ and $\lambda_0$ as known constants, then by centering and rescaling $\mathbf{y}$, we can assume without loss of generality that $\mu_0 = 0$ and $\lambda_0=1$. For the case of unknown $\mu_0$ or $\lambda_0$, we estimate the missing parameter with an empirical Bayes procedure (see Appendix \ref{app:empirical-bayes} for details). Suppose for the moment that we have access to all of the MICH model parameters except for the block $\theta_j$. Then we can calculate both a mean and scale partial residual:
-\begin{align}
-    r_{-jt} &:= r_t + \mu_{jt \label{eq:smscp-mean-resid}} \\
-    \lambda_{-jt} &:= \lambda_{jt}^{-1}\lambda_t. \label{eq:smscp-var-resid}
-\end{align}
-The exact posterior distribution for $\theta_j$ conditional on the other MICH parameters would be the SMSCP posterior returned by:
-\begin{align}
-    \texttt{SMSCP}(\mathbf{r}_{-j}\:;\: \boldsymbol{\lambda}_{-j}, \tau_j, u_j, v_j, \boldsymbol{\pi}_j, B_l,B_r).
-\end{align}
-Similarly, if we knew all of the MICH model parameters except for either $\theta_\ell$ or $\theta_k$, we could calculate the respective mean and scale partial residuals: 
-\begin{align}
-    r_{-\ell t} &:= r_t + \mu_{\ell t} \label{eq:smcp-resid}\\
-    \lambda_{-kt} &:= \lambda_{kt}^{-1}\lambda_t. \label{eq:sscp-resid}
-\end{align}
-In each case, the posterior distributions for $\theta_\ell$ and $\theta_k$ conditional on the known model parameters would be the respective SMCP and SSCP posteriors returned by:
-\begin{gather}
-    \texttt{SMCP}(\mathbf{r}_{-\ell}\:;\: \boldsymbol{\lambda}, \tau_\ell,\boldsymbol{\pi}_\ell, B_l,B_r) \label{eq:smcp-call} \\
-    \texttt{SSCP}(\mathbf{r}\:;\: \boldsymbol{\lambda}_{-k}, u_k,v_k,\boldsymbol{\pi}_k, B_l,B_r). \label{eq:sscp-call}
-\end{gather}
-The challenge of course is that we do not have access to any of the model parameters, so none of the partial residuals defined in (\ref{eq:smscp-mean-resid}), (\ref{eq:smscp-var-resid}), (\ref{eq:smcp-resid}), or (\ref{eq:sscp-resid}) can be calculated in practice. However, if we have initial approximations to the model parameters, then we can: i) calculate the partial residuals using the approximate parameters, ii) fit the appropriate SCP model using the partial residuals iii) update the approximate parameters using the fitted models. At a high level, Algorithm \ref{alg:1} iteratively repeats these three steps until some convergence criterion is met.
-
-Let $q_j$, $q_\ell$, and $q_k$ be the respective approximate marginal posterior distributions for the blocks $\theta_j$, $\theta_\ell$, and $\theta_k$. For each $j$, $\ell$, and $k$, we initialize $q_j$, $q_\ell$, and $q_k$ by picking initial values for the parameters $\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{t=1}^T$, $\{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{t=1}^T,$ and $\{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{t=1}^T,$ and assuming that:
-\begin{align}
-    \theta_j &\sim \text{SMSCP}(\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{t=1}^T) \label{eq:q-j}\\
-    \theta_\ell &\sim \text{SMCP}(\{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{t=1}^T)\\
-    \theta_k &\sim \text{SSCP}(\{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{t=1}^T). \label{eq:q-k}
-\end{align}
-We also make the simplifying assumption that each of the parameter blocks $\theta_j$, $\theta_\ell$, and $\theta_k$ are independent in our approximation:
-\begin{align}\label{eq:indep-blocks}
-    q(\{\theta_j\}_{j=1}^J, \{\theta_\ell\}_{\ell=1}^L, \{\theta_k\}_{k=1}^K) := \prod_{j=1}^J q_j(\theta_j) \prod_{\ell=1}^L q_\ell(\theta_\ell) \prod_{k=1}^K q_k(\theta_k).
-\end{align}
-The independence assumption in (\ref{eq:indep-blocks}) is strong, but it is the key to unlocking the backfitting procedure in Algorithm \ref{alg:1}. Despite rendering the component blocks of MICH independent, assumption (\ref{eq:indep-blocks}) still allows for arbitrary dependencies within each block of parameters. This ability to characterize the relationship between the change-point indicator $\gamma$ and the rest of the variables in the block is what allows MICH to effectively localize the change-points. We will see in Section \ref{sec:variational-bayes} that (\ref{eq:indep-blocks}) constitutes a mean-field assumption in the context of variational inference. Let $\E_{g} [\:\cdot\:]$ denote the expectation taken with respect to a generic distribution $g$, then we define a modified residual term:
-\begin{align}\label{eq:mod-resid}
-    \tilde{r}_t &:= y_t - \sum_{j = 1}^J \frac{\E_{q_j}[\lambda_{jt} \mu_{jt}]}{\E_{q_j}[\lambda_{jt}]}  - \sum_{\ell = 1}^L \E_{q_\ell}[\mu_{\ell t}].
-\end{align}
-In Algorithm \ref{alg:1}, we use $\tilde{r}_t$ as a stand in for $r_t$ and calculate partial residuals analogous to (\ref{eq:smscp-mean-resid}) and (\ref{eq:smcp-resid}):
-\begin{align}
-    \tilde{r}_{-jt} &:= \tilde{r}_t + \frac{\E_{q_j}[\lambda_{jt} \mu_{jt}]}{\E_{q_j}[\lambda_{jt}]} \label{eq:smscp-mean-e-resid} \\
-    \tilde{r}_{-\ell t} &:= \tilde{r}_t + \E_{q_\ell}[\mu_{\ell t}]. \label{eq:smcp-e-resid} 
-\end{align}
-Similarly, we define an expected precision vector as a stand in for $\lambda_t$:
-\begin{align}\label{eq:lambda-bar}
-    \overline{\lambda}_t &:= \prod_{j=1}^J \E_{q_j}[\lambda_{jt}] \prod_{k=1}^K \E_{q_k}[\lambda_{kt}]
-\end{align}
-and define partial the analogous partial residuals to (\ref{eq:smscp-var-resid}) and (\ref{eq:sscp-resid}):
-\begin{align}
-    \overline{\lambda}_{-jt} &:= \E_{q_j}[\lambda_{jt}]^{-1}\overline{\lambda}_{t} \label{eq:smscp-var-e-resid}  \\
-    \overline{\lambda}_{-kt} &:= \E_{q_k}[\lambda_{kt}]^{-1}\overline{\lambda}_{t}. \label{eq:sscp-e-resid}
-\end{align}
-Given initial estimates of the model parameters, the backfitting procedure in Algorithm \ref{alg:1} proceeds by iteratively fitting the appropriate SCP model to the partial residuals defined in (\ref{eq:smscp-mean-e-resid}), (\ref{eq:smscp-var-e-resid}), (\ref{eq:smcp-e-resid}), and (\ref{eq:sscp-e-resid}), then updating the model parameters using the fitted models.
-
-An important difference between Algorithm \ref{alg:1} and other backfitting procedures is that (\ref{eq:mod-resid}) is not exactly equal to $\E_q[r_t]$, which is the residual term typically used when backfitting models with additive effects (\citealp{Breiman85,Hastie90,Friedman00,Wang20}). Rather, we have $\E_q[\lambda_t r_t] = \overline{\lambda}_t \tilde{r}_t$. Our choice to use (\ref{eq:mod-resid}) instead of $\E_q[r_t]$ is necessitated by the inclusion of both additive and multiplicative effects in MICH, a fact that will become clear in the derivation of Algorithm \ref{alg:1} in Appendix \ref{app:prop1-proof}. We also must define a variance correction term:
-\begin{align}\label{eq:delta}
-    \delta_t &:= \sum_{j=1}^J\left(\frac{\E_{q_j}[\lambda_{jt} \mu^2_{jt}]}{\E_{q_j}[\lambda_{jt}]} -\frac{\E_{q_j}[\lambda_{jt} \mu_{jt}]^2}{\E_{q_j}[\lambda_{jt}]^2} \right) +\sum_{\ell=1}^L  \Var_{q_\ell}\left(\mu_{\ell t} \right).
-\end{align}
-The correction term $\boldsymbol{\delta} = \{\delta_{t}\}_{t=1-B_l}^{B_r}$ plays an important role in Algorithm \ref{alg:1} that did not previously appear in either the IBSS algorithm of \cite{Wang20} or the ProSCALE algorithm of \cite{Cappello22}. After defining the mean and scale partial residuals as in (\ref{eq:smcp-resid}) and (\ref{eq:sscp-resid}), IBSS and ProSCALE take the expectation with respect to $q$ and iteratively update the parameters of each $\theta_\ell$ and $\theta_k$ block by making a call to \texttt{SMCP} and \texttt{SSCP} with the respective expected partial residuals. In other words, they make the calls defined in (\ref{eq:smcp-call}) and (\ref{eq:sscp-call}), but with the expected analogs of $\mathbf{r}_{-\ell}$ and $\boldsymbol{\lambda}_{-\ell}$. The procedure in Algorithm \ref{alg:1} is similar, but as we will see in Section \ref{sec:variational-bayes}, in order to maintain the validity of Algorithm \ref{alg:1} as a variational Bayes procedure, we must apply a correction to the priors on $s_j$ and $s_k$ using $\boldsymbol{\delta}$. We then call \texttt{SMSCP} and \texttt{SSCP} with the corrected priors (see lines 9 and 29 of Algorithm \ref{alg:1} for more detail detail). 
-
-Due to our choice of $q$ in (\ref{eq:q-j})-(\ref{eq:indep-blocks}), each of the expectation terms in (\ref{eq:mod-resid}) and (\ref{eq:lambda-bar}) have closed forms in terms of the parameters in (\ref{eq:q-j})-(\ref{eq:q-k}) (see Appendix \ref{app:prop1-proof} for details). The availability of these closed form solutions in addition to the backfitting procedure make Algorithm \ref{alg:1} computationally simple. During the backfitting steps, each call of $\texttt{SMCP}$, $\texttt{SSCP}$, and $\texttt{SMSCP}$  requires the calculation of a cumulative sum with $T$ terms, which is an order $\mathcal{O}(T)$ operation. Thus, each iteration of Algorithm \ref{alg:1} is order $\mathcal{O}((J+K+L)T)$. The number of iterations is itself indeterminate and will depend on the convergence criterion unless a maximum number of iterations is specified. We discuss the choice of stopping rule in greater detail in Appendix \ref{app:convergence}.  
+Standard MCMC based methods are ill-equipped to perform inference with the MICH model. The prior distributions for each of the SCP components (\ref{eq:mich-l-component})-(\ref{eq:mich-j-component}) are conditionally conjugate, so designing a Gibbs sampler (\citealp{Geman84}) is conceptually straightforward. However, the change-point locations $\{\gamma_\ell,\gamma_k, \gamma_j\}$ are discrete, highly correlated, and live in a high-dimensional space as $L$, $K$, $J$, and $T$ increase. Under these conditions, Gibbs sampling will suffer from poor mixing the sampler may fail to converge at all (\citealp{Smith93, Cappello21}). We circumvent the need for MCMC with Algorithm \ref{alg:1}, a computationally efficient backfitting procedure (\citealp{Friedman81, Breiman85}) that subsumes the IBSS and ProSCALE algorithms of \cite{Wang20} and \cite{Cappello22}. In Appendix , we show how to modify Algorithm \ref{alg:1} for the case of multivariate mean changes.
 
 \input{MICH/Figures/Algorithm 1}
 
-Upon convergence, Algorithm \ref{alg:1} returns estimates for the posterior probabilities of the change-point locations. For each $j$, $\ell$, and $k$, we can construct MAP estimators for the change-point locations as in (\ref{eq:map}):
-\begin{align}\label{eq:multi-map}
-    \hat{t}_{\text{MAP}, i} := \argmax{1 \leq t \leq T} \; \overline{\pi}_{it}, \quad i \in \{j, \ell, k\}.
+To motivate Algorithm \ref{alg:1}, let $\mu_0 = 0$ and $\lambda_0 = 1$ (the case of unknown $\mu_0$ and $\lambda_0$ is addressed in Appendix \ref{app:empirical-bayes}) and consider the residual term:
+\begin{align}\label{eq:residual}
+    r_t &:= y_t - \sum_{j = 1}^J \mu_{jt}  - \sum_{\ell = 1}^L \mu_{\ell t}.
 \end{align}
-We can also construct $\alpha$-level credible sets around each $\hat{t}_{\text{MAP}, i}$ as in (\ref{eq:cs}):
-\begin{align}\label{eq:multi-cs}
-    \mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_i) := \argmin{S \subset \{1,\ldots,T\}} |S| \quad\text{ s.t. } \sum_{t \in S} \overline{\pi}_{it} \geq \alpha, \quad i \in \{j, \ell, k\}.
-\end{align}
-The MAP estimator in (\ref{eq:multi-map}) and credible set in (\ref{eq:multi-cs}) will still be well-defined even if the index $i$ does not correspond to a true change-point. This will be the case for some $i$ if we fit MICH with $J$, $L$, or $K$ set greater than the corresponding true number of change-points. However, as was the case with a single-change point in Section \ref{sec:localization}, the elements of $\overline{\boldsymbol{\pi}}_i$ tend to be diffuse when the index $i$ does not capture a true change-point. This motivates a generalization  of the heuristic detection rule from \cite{Cappello22}, whereby we only detect a change-point if its associated credible set contains $T/2$ or fewer locations. Adopting this detection rule also gives the following estimators for the numbers of each kind of change-point:
+If we had access to all of the MICH model parameters except for $\boldsymbol{\theta}_j$, we could calculate the corresponding mean and scale partial residuals: 
 \begin{align}
-    \hat{J} &:= |\{j \;:\; j \in \{1,\ldots,J\}, \;\;|\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_j)| \leq T/2\}| \label{eq:J-estimator}\\
-    \hat{L} &:= |\{\ell \;:\; \ell \in \{1,\ldots,L\},\;\;\: |\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_\ell)| \leq T/2\}| \label{eq:L-estimator}\\
-    \hat{K} &:= |\{k \;:\; k \in \{1,\ldots,K\},\; |\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_k)| \leq T/2\}|. \label{eq:K-estimator}
+    r_{-j t} &:= r_t + \mu_{j t}. \label{eq:mean-resid} \\
+    \lambda_{-jt} &:= \lambda_{jt}^{-1}\lambda_t. \label{eq:scale-resid}
+\end{align}
+The conditional distribution for the single joint mean and variance change in $\{\lambda_{-jt}^\frac{1}{2}r_{-j t}\}_{t=1}^T$ would simply be the meanvar-scp posterior with parameters defined by the following call of (\ref{eq:meanvar-scp-fn}):
+\begin{align}
+    \overline{\boldsymbol{\theta}}_j := \{\overline{\mathbf{b}}_{j}, \overline{\boldsymbol{\tau}}_{j}, \overline{\mathbf{u}}_{j}, \overline{\mathbf{v}}_{j}, \overline{\boldsymbol{\pi}}_{j}\} = \texttt{meanvar-scp}(\mathbf{r}_{-j}\:;\: \boldsymbol{\lambda}_{-j}, \tau_j, u_j, v_j, \boldsymbol{\pi}_{j}).
+\end{align}
+For $\boldsymbol{\theta}_\ell$ and $\boldsymbol{\theta}_k$, we could define analogous partial residuals $\mathbf{r}_{-\ell}$ and $\boldsymbol{\lambda}_{-k}$ (conditional on the rest of the parameters) and determine the conditional posteriors with calls of \texttt{mean-scp} and \texttt{var-scp}. The challenge is that we do not have access to any of the model parameters, so  in reality we cannot calculate the partial residuals (\ref{eq:mean-resid}) and (\ref{eq:scale-resid}). We can however, i) choose initial approximations of $\overline{\boldsymbol{\Theta}} := \{\{\overline{\boldsymbol{\theta}}_\ell\}_{\ell=1}^L$, $\{\overline{\boldsymbol{\theta}}_k\}_{k=1}^K$, $\{\overline{\boldsymbol{\theta}}_j\}_{j=1}^J\}$, ii) calculate partial residuals using $\overline{\boldsymbol{\Theta}}$, and iii) update $\overline{\boldsymbol{\Theta}} $ by fitting the appropriate SCP model to the partial residuals. At a high level, Algorithm \ref{alg:1} iteratively repeats these three steps until some convergence criterion is met. Within each iteration of Algorithm \ref{alg:1}, $\overline{\boldsymbol{\Theta}} $ fully characterizes the marginal distributions of the blocks $\boldsymbol{\theta}_\ell$, $\boldsymbol{\theta}_k$, and $\boldsymbol{\theta}_j$:
+\begin{align}
+    q_\ell(\boldsymbol{\theta}_\ell) \sim \text{mean-scp}(\overline{\boldsymbol{\theta}}_\ell), \; q_k(\boldsymbol{\theta}_k) \sim \text{var-scp}(\overline{\boldsymbol{\theta}}_k) ,\; q_j(\boldsymbol{\theta}_j) \sim \text{meanvar-scp}(\overline{\boldsymbol{\theta}}_j). \label{eq:q-LKJ}
+\end{align}
+We can use these distributions to calculate the expected terms required in each update step (See Appendix for detailed derivations):
+\small
+\begin{align}
+    \E_{q_\ell}[\mu_{\ell t}] = \sum_{t'=1}^t \overline{b}_{\ell t'} \overline{\pi}_{\ell t'},\quad \E_{q_k}[\lambda_{kt}] = \sum_{t'=1}^{t} \frac{\overline{u}_{kt'}\overline{\pi}_{kt'}}{\overline{v}_{kt'}}  + \sum_{t'=t+1}^T \overline{\pi}_{kt'},\quad \E_{q_j}[\lambda_{jt}\mu_{jt}] =  \sum_{t'=1}^t \frac{\overline{b}_{j t'}\overline{u}_{jt'}\overline{\pi}_{jt'} }{\overline{v}_{jt'}}. \label{eq:e-mu-lambda}
+\end{align}
+\normalsize
+
+\begin{remark}[Computational Complexity of Algorithm \ref{alg:1}] \label{rmk:computational-complexity}
+    Taking the cumulative sum of $T$ terms is $\mathcal{O}(T)$; therefore, so is calculating each term in (\ref{eq:e-mu-lambda}). Similarly, in Appendix \ref{app:posterior-parameters} we show that the posterior parameters in the SCP models depend on cumulative sums of $T$ terms, so each outer loop of Algorithm \ref{alg:1} is $\mathcal{O}((L+K+J)T)$. The actual number of iterations required for Algorithm \ref{alg:1} to converge is indeterminate and will depend on the chosen criterion. We discuss the stopping rule in greater detail in Appendix \ref{app:convergence}. 
+\end{remark}
+
+Upon convergence, Algorithm \ref{alg:1} returns estimates for the posterior probabilities of the change-point locations. For each component index $i \in \{\ell, k, j\}$, we can construct MAP estimators $\hat{t}_{\text{MAP}, i}$  as in (\ref{eq:map}) and $\alpha$-level credible sets $\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_i)$ as in (\ref{eq:cs}). We adopt the same detection rule from Section \ref{sec:cred-sets} with $\delta$ = 0.1 by default, which suggests the following estimates for $L$, $K$, and $J$: 
+\begin{align}
+    \{\hat{L},\hat{K},\hat{J}\}  := \bigcup_{I \in \{L,K,J\}}|\{ i \in [I] : |\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_i)| \leq \log^{2+\delta} T\}|. \label{eq:LKJ-estimator}
 \end{align}
 
-\subsection{MICH as a Mean-Field Variational Approximation}
+\subsection{Mean-Field Variational Approximation}
 \label{sec:variational-bayes}
 
-In this section we show that the distribution $q$ returned by Algorithm \ref{alg:1} constitutes a variational approximation to the posterior implied by the MICH model. Proposition \ref{prop:1} and Corollary \ref{cor:1} establish the validity of Algorithm \ref{alg:1} as a variational Bayesian (VB) procedure, while Proposition \ref{prop:2} establishes the convergence of Algorithm \ref{alg:1}. These three results are the respective analogs of Proposition 1, Corollary 1, and Proposition 2 in \cite{Wang20}. For a review of VB methods we refer the reader to the classical treatment in \cite{Jordan99} and the recent review in \cite{Blei17}. We begin by considering the generic model:
-\begin{align}
-    \mathbf{y} \:|\: \theta &\sim f(\mathbf{y}\:|\: \theta;\eta) \\
-    \theta &\sim g(\theta)
+Let $p$ be the true posterior distribution for the MICH model parameters $\boldsymbol{\Theta}:= \{\{\boldsymbol{\theta}_\ell\}_{\ell=1}^L, \{\boldsymbol{\theta}_k\}_{k=1}^K, \{\boldsymbol{\theta}_j\}_{j=1}^J\}$. We can use the distributions in (\ref{eq:q-LKJ}) to approximate $p$ by defining a new distribution $q$ such that:
+\begin{align}\label{eq:mean-field}
+    q(\boldsymbol{\Theta}) :=  \prod_{\ell=1}^L q_\ell(\boldsymbol{\theta}_\ell)\prod_{k=1}^K q_k(\boldsymbol{\theta}_k) \prod_{j=1}^J q_j(\boldsymbol{\theta}_j).
 \end{align}
-where the nuisance parameter $\eta$ in the likelihood of $\mathbf{y}$ is taken as known. The goal of VB inference is to find a distribution $q^*(\theta)$ that is the closest approximation to the true posterior $p(\theta\:|\: \mathbf{y};\eta)$ as measured by the Kullback–Leibler divergence (\citealp{Kullback51}):
-\begin{align}\label{eq:unrestriced-kl}
-    q^* := \argmin{q}  \; \text{KL}( q(\theta) \:\lVert\: p(\theta\:|\: \mathbf{y};\eta)).
+The independence assumption in (\ref{eq:mean-field}) is strong, but still allows $q$ to capture arbitrary dependencies within each parameter block $\boldsymbol{\theta}_i$. This is key to the success of MICH and in Section \ref{sec:simulations} we show that $q$ effectively localizes changes in simulations by characterizing the relationship between $\gamma_i$ and the rest of $\boldsymbol{\theta}_i$. 
+
+To provide formal justification for the success of $q$ as an approximation to $p$, we build upon the work of \cite{Wang20} and \cite{Cappello22}, showing that $q$ constitutes a variational approximation to $p$ (see \cite{Jordan99} for the classical treatment of variational Bayesian inference, and \cite{Blei17} for a recent survey of the literature). Given a family of distributions $\mathcal{Q}$, we call $q^* \in \mathcal{Q}$ a Variational Bayes (VB) approximation of the true posterior $p$ if $q^*$ is the ``closest" distribution to $p$ in terms of the KL-divergence (\citealp{Kullback51}):
+\begin{align} \label{eq:restriced-kl}
+    q^* = \argmin{q \in \mathcal{Q}}  \; \text{KL}( q \:\lVert\: p).
 \end{align}
-If we knew the exact form of $p(\theta\:|\: \mathbf{y};\eta)$, then we could solve (\ref{eq:unrestriced-kl}) by simply setting $q^*(\theta)\equiv p(\theta\:|\: \mathbf{y};\eta)$, in which case the KL-divergence would achieve its zero lower-bound. However, in cases such as ours where there is no closed form available for the posterior, we must resort to computational methods to find $q^*$. Because the minimization in (\ref{eq:unrestriced-kl}) is taken with respect to all possible distributions over $\theta$, finding a solution computationally is generally an impossible task. Therefore, we restrict $q^*$ to a known family of distributions $\mathcal{Q}$ that we hope will simplify the problem:
-\begin{align}\label{eq:restriced-kl}
-    q^* := \argmin{q\in\mathcal{Q}}  \; \text{KL}( q(\theta) \:\lVert\: p(\theta\:|\: \mathbf{y};\eta)).
-\end{align}
-In many applications, we can naturally partition $\theta$ into a finite number of blocks $\theta = \{\theta_1, \ldots, \theta_M\}$.\footnote{Examples include product partition models (\citealp{Hartigan90, Barry92}), stochastic block models (\citealp{Holland83}), and mixture models (\citealp{Corduneanu01}).} In such cases, one intuitive way to structure $\mathcal{Q}$ and $g$ is:
-\begin{align} 
-    \mathcal{Q} &= \left\{q \::\: q(\theta) = \prod_{i=1}^M q_i(\theta_i)\right\}, \label{eq:mfvb} \\
-    g(\theta) &= \prod_{i=1}^M g_i(\theta_i) \label{eq:ind-prior}
-\end{align}
-i.e. we restrict the approximate posterior $q$ and the prior $g$ to families of distributions that render the $M$ blocks of $\theta$ independent. Restrictions of the form (\ref{eq:mfvb}) are called mean-field assumptions and are very common within the VB literature due to the fact that they often lead to analytic solutions for (\ref{eq:restriced-kl}) (\citealp{Wainwright08}). In particular, for MICH we have:
-\begin{align}
-    \theta &:= \left\{\{\theta_j\}_{j=1}^J, \{\theta_\ell\}_{\ell=1}^L,\{\theta_k\}_{k=1}^K\right\} \\
-    \eta &:= \{\mu_0,\lambda_0\}
-\end{align}
-and we make the mean-field assumption:
-\begin{align}
-    \mathcal{Q} := \left\{q \;:\; q\left(\theta\right) = \prod_{j=1}^J q_j(\theta_j) \prod_{\ell=1}^L q_\ell(\theta_\ell)\prod_{k=1}^K q_k(\theta_k)\right\}.\label{eq:mean-field}
-\end{align}
-Note that the distribution we defined in (\ref{eq:q-j})-(\ref{eq:indep-blocks}) belongs to $\mathcal{Q}$, meaning that we already know the distribution returned by Algorithm \ref{alg:1} is at least a candidate solution to (\ref{eq:restriced-kl}). In addition to restricting the solution to $\mathcal{Q}$, the minimization problem in (\ref{eq:restriced-kl}) can often be simplified even further by using the following equivalent characterization of the KL-divergence: 
-\begin{align}
-     \text{KL}( q(\theta) \:\lVert\: p(\theta\:|\: \mathbf{y};\eta)) &= \log \int f(\mathbf{y}\:|\:\theta;\eta)g(\theta)\;d\theta - \int q(\theta) \log \frac{ f(\mathbf{y}\:|\: \theta;\eta) g(\theta)}{q(\theta)} \; d\theta. \label{eq:kl-decomp} 
-\end{align}
-Because the KL-divergence is non-negative for all choices of $q$, by (\ref{eq:kl-decomp}) we have:
+When no closed-form for $p$ is available, we can choose $\mathcal{Q}$ to make the optimization task in (\ref{eq:restriced-kl}) tractable. Restricting $\mathcal{Q}$ so that each $q \in \mathcal{Q}$ exhibits independence across the blocks of $\boldsymbol{\Theta}$ as in (\ref{eq:mean-field}) is called a mean-field assumption (\citealp{Wainwright08}). Our goal is to show that the distribution returned by Algorithm \ref{alg:1} is the optimal solution to (\ref{eq:restriced-kl}) among all distributions with the mean-field dependence structure specified in (\ref{eq:mean-field}). We begin by defining the evidence lower bound (ELBO) for a given $q$:
 \begin{align}\label{eq:elbo}
-    \text{ELBO}(q;\eta) := \int q(\theta) \log \frac{ f(\mathbf{y}\:|\: \theta;\eta) g(\theta)}{q(\theta)} \; d\theta \leq \log \int f(\mathbf{y}\:|\:\theta;\eta)g(\theta)\;d\theta.
+    \text{ELBO}(q;\mu_0,\lambda_0) := \int q(\boldsymbol{\Theta}) \log \frac{ p(\mathbf{y}_{1:T},\boldsymbol{\Theta};\mu_0,\lambda_0)}{q(\boldsymbol{\Theta})} \; d\boldsymbol{\Theta}.
 \end{align}
-The log-marginal likelihood that appears in the upper bound of (\ref{eq:elbo}) is frequently referred to as the log-evidence, and thus the term on the left-hand side of the inequality is called the evidence lower bound (ELBO). Notably, the log-evidence does not depend on $q$, so by (\ref{eq:kl-decomp}) solving (\ref{eq:restriced-kl}) is equivalent to solving: 
-\begin{align}
-    \label{eq:restriced-elbo}
-    q^* := \argmax{q\in\mathcal{Q}}  \; \text{ELBO}(q;\eta).
+From (\ref{eq:elbo}) we get the following decomposition:
+\begin{align}\label{eq:kl-decomp} 
+     \text{KL}( q \:\lVert\: p) &= \log p(\mathbf{y}_{1:T};\mu_0,\lambda_0) - \text{ELBO}(q;\mu_0,\lambda_0). 
 \end{align}
-We can now show that the distribution returned by Algorithm \ref{alg:1} is an approximation to the precise $q^*$ we seek in (\ref{eq:restriced-elbo}). In the statement of this result, we use the following non-standard notation for the distribution $q$ with the $i^{\text{th}}$ parameter block marginalized out:
-\begin{align}
-    q_{-i}(\theta_{-i}) &:= \int q(\theta) \; d\theta_i. \label{eq:q-minus-i}
+The marginal log-likelihood term in (\ref{eq:kl-decomp}) does not depend on our choice of $q$; therefore, under the factorization in (\ref{eq:mean-field}), the solution to (\ref{eq:restriced-kl}) is equivalent to:
+\begin{align} \label{eq:restriced-elbo}
+    q^* = \argmax{\{q_\ell\}_{\ell=1}^L,\; \{q_k\}_{k=1}^K,\; \{q_j\}_{j=1}^J}  \; \text{ELBO}\left(\prod_{\ell=1}^L q_\ell \prod_{k=1}^K q_k \prod_{j=1}^J q_j;\mu_0,\lambda_0\right).
 \end{align}
-When $q \in \mathcal{Q}$, we simply have $q_{-i}(\theta_{-i}) =q_{i}(\theta_{i})^{-1}q(\theta)$. We are now ready to state our main result.
+The joint optimization task in (\ref{eq:restriced-elbo}) is generally intractable; however, the subproblem of finding the optimal $q_i$ for just the block $\boldsymbol{\theta}_i$ reduces to simply fitting one of the SCP models from Section \ref{sec:scp}.
+
 \begin{proposition} 
 \label{prop:1}
-Let $p(\theta\:|\: \mathbf{y};\eta)$ be the posterior of the MICH model and define the terms $\tilde{r}_{t}$, $\overline{\lambda}_t$, and $\delta_t$ as in (\ref{eq:mod-resid}), (\ref{eq:lambda-bar}), and (\ref{eq:delta}) respectively.
+Given the distributions $\{q_\ell\}_{\ell=1}^L$, $\{q_k\}_{k=1}^K$, and $\{q_j\}_{j=1}^J$, define $q$ as in (\ref{eq:mean-field}) and define the terms: 
+\small
+\begin{align}
+    \tilde{r}_t &:= y_t - \sum_{\ell = 1}^L \E_{q_\ell}[\mu_{\ell t}] - \sum_{j = 1}^J \frac{\E_{q_j}[\lambda_{jt} \mu_{jt}]}{\E_{q_j}[\lambda_{jt}]}, \label{eq:mod-resid} \\
+    \overline{\lambda}_t &:= \prod_{k=1}^K \E_{q_k}[\lambda_{kt}] \prod_{j=1}^J \E_{q_j}[\lambda_{jt}], \label{eq:lambda-bar} \\
+    \delta_t &:= \sum_{\ell=1}^L \Var_{q_\ell}\left(\mu_{\ell t} \right) +  \sum_{j=1}^J\left(\frac{\E_{q_j}[\lambda_{jt} \mu^2_{jt}]}{\E_{q_j}[\lambda_{jt}]} -\frac{\E_{q_j}[\lambda_{jt} \mu_{jt}]^2}{\E_{q_j}[\lambda_{jt}]^2} \right). \label{eq:delta}
+\end{align}
+\normalsize
 \begin{enumerate}[label=\roman*.]
-    \item Let $q_{-j}(\theta_{-j})$ be a known distribution. For all $t$, define $\tilde{r}_{-jt}$ as in (\ref{eq:smscp-mean-e-resid}) and $\overline{\lambda}_{-jt}$ as in (\ref{eq:smscp-var-e-resid}). If we define a partial correction term:
-    \begin{align}
-        \delta_{-jt} &:= \delta_t - \frac{\E_{q_j}[\lambda_{jt} \mu^2_{jt}]}{\E_{q_j}[\lambda_{jt}]} + \frac{\E_{q_j}[\lambda_{jt} \mu_{jt}]^2}{\E_{q_j}[\lambda_{jt}]^2}
-    \end{align}
-    and use $\delta_{-jt}$ to define a corrected prior rate parameter for $s_k$ and a corrected prior probability for the $j^{\text{th}}$ change-point location as:
-    \begin{align}
-        \tilde{v}_{jt} &:= v_j + \frac{1}{2}\sum_{t'=t}^{T+B_r}\overline{\lambda}_{-jt'}\delta_{-jt'} \label{eq:mod-v_j} \\
-        \tilde{\pi}_{jt} &:= \frac{\pi_{jt} \exp\left(-\frac{1}{2}\sum_{t'=1}^{t-1}\overline{\lambda}_{-jt'}\delta_{-jt'}\right)}{\sum_{t'=1}^T \pi_{jt'} \exp\left(-\frac{1}{2}\sum_{t''=1}^{t'-1}\overline{\lambda}_{-jt''}\delta_{-jt''}\right)} \label{eq:mod-pi_j}
-    \end{align}
-    then the maximization problem:
-    \begin{align}
-        \normalfont
-        \max_{q_j} \; \text{ELBO}(q_j(\theta_j)q_{-j}(\theta_{-j}) \:;\: \eta)\label{eq:elbo-j}
-    \end{align}
-    is solved by choosing $q_j$ so that: 
-    \begin{align*}
-        \normalfont
-        \theta_j \sim \text{SMSCP}(\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{t=1}^T)
-    \end{align*}
-    where 
-    \begin{align*}
-        \normalfont
-        \{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{t=1}^T = \texttt{SMSCP}(\tilde{\mathbf{r}}_{-j} \:;\:\overline{\boldsymbol{\lambda}}_{-j}, \tau_j, u_j, \tilde{\mathbf{v}}_j, \tilde{\boldsymbol{\pi}}_j, B_l,B_r).
-    \end{align*}
+    \item Define the partial mean residual $\tilde{r}_{-\ell t} :=  \tilde{r}_{t} + \E_{q_{\ell}}[\mu_{\ell t}]$ and calculate the posterior parameters $\overline{\boldsymbol{\theta}}_\ell := \normalfont{\texttt{mean-scp}}(\tilde{\mathbf{r}}_{-\ell} \:;\: \overline{\boldsymbol{\lambda}}_{1:T}, \tau_{\ell}, \boldsymbol{\pi}_{\ell})$. Then, $q^*_\ell \equiv \text{\normalfont mean-scp}(\overline{\boldsymbol{\theta}}_\ell)$ solves $\max_{q_\ell} \; \text{\normalfont ELBO}\left(q;\mu_0,\lambda_0\right)$.
+    \vspace{-5pt}
+    
+    \item Define the partial scale residual $\overline{\lambda}_{-kt} :=  \E_{q_k}[\lambda_{k t}]^{-1}\overline{\lambda}_t$. Calculate the variance corrected priors $\tilde{v}_{kt}$ and $\tilde{\pi}_{kt}$ as in () and () and the posterior parameters $\overline{\boldsymbol{\theta}}_k := \normalfont{\texttt{var-scp}}(\tilde{\mathbf{r}}_{1:T} \:;\:\overline{\boldsymbol{\lambda}}_{-k}, u_k, \tilde{\mathbf{v}}_{k}, \tilde{\boldsymbol{\pi}}_k)$.  Then, $q^*_k \equiv \text{\normalfont var-scp}(\overline{\boldsymbol{\theta}}_k)$ solves $\max_{q_k}  \; \text{\normalfont ELBO}\left(q;\mu_0,\lambda_0\right)$.
+    \vspace{-5pt}
 
-    \item Let $q_{-\ell}(\theta_{-\ell})$ be a known distribution. For all $t$, define define $\tilde{r}_{-\ell t}$ as in (\ref{eq:smcp-e-resid}). Then the maximization problem:
+    \item Define the partial mean residuals $\tilde{r}_{-jt} := \tilde{r}_{t} +\E_{q_j}[\lambda_{jt}]^{-1} \E_{q_j}[\lambda_{jt} \mu_{j t}]$, the partial scale residual $\overline{\lambda}_{-jt} := \E_{q_j}[\lambda_{j t}]^{-1}\overline{\lambda}_t$, and the partial variance correction term:
     \begin{align}
-        \normalfont
-        \max_{q_\ell} \; \text{ELBO}(q_\ell(\theta_\ell)q_{-\ell}(\theta_{-\ell}) \:;\: \eta) \label{eq:elbo-l}
+        \delta_{-jt} &:= \delta_t - \frac{\E_{q_j}[\lambda_{jt} \mu^2_{jt}]}{\E_{q_j}[\lambda_{jt}]} + \frac{\E_{q_j}[\lambda_{jt} \mu_{jt}]^2}{\E_{q_j}[\lambda_{jt}]^2}. \label{eq:delta_j}
     \end{align}
-    is solved by choosing $q_\ell$ so that: 
-    \begin{align*}
-        \normalfont
-        \theta_\ell \sim \text{SMCP}(\{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{t=1}^T)
-    \end{align*}
-    where 
-    \begin{align*}
-        \normalfont
-        \{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{t=1}^T= \texttt{SMCP}(\tilde{\mathbf{r}}_{-\ell t} \:;\: \overline{\boldsymbol{\lambda}}_t, \tau_{\ell}, \boldsymbol{\pi}_{\ell}, B_l,B_r).
-    \end{align*}
-
-    \item Let $q_{-k}(\theta_{-k})$ be a known distribution. For all $t$, define $\overline{\lambda}_{-kt}$ as in (\ref{eq:sscp-e-resid}). If we define a corrected prior rate parameter for $s_k$ and a corrected prior probability for the $k^{\text{th}}$ change-point location as:
-    \begin{align}
-        \tilde{v}_{kt} &:= v_k + \frac{1}{2}\sum_{t'=t}^{T+B_r}\overline{\lambda}_{-kt'}\delta_{t'} \label{eq:mod-v_k} \\
-        \tilde{\pi}_{kt} &:= \frac{\pi_{kt} \exp\left(-\frac{1}{2}\sum_{t'=1}^{t-1}\overline{\lambda}_{-kt'}\delta_{t'}\right)}{\sum_{t'=1}^T \pi_{kt'} \exp\left(-\frac{1}{2}\sum_{t''=1}^{t'-1}\overline{\lambda}_{-kt''}\delta_{-kt''}\right)} \label{eq:mod-pi_k}
-    \end{align}
-    then the maximization problem:
-    \begin{align}
-        \normalfont
-        \max_{q_k} \;\text{ELBO}(q_k(\theta_j)q_{-k}(\theta_{-k}) \:;\: \eta) \label{eq:elbo-k}
-    \end{align}
-    is solved by choosing $q_k$ so that: 
-    \begin{align*}
-        \normalfont
-        \theta_k &\sim \normalfont \text{SSCP}(\{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{t=1}^T)
-    \end{align*}
-    where 
-    \begin{align*}
-        \normalfont
-        \{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{t=1}^T = \texttt{SSCP}(\tilde{\mathbf{r}}_{t} \:;\: \overline{\boldsymbol{\lambda}}_{-kt}, u_k, \tilde{\mathbf{v}}_{kt}, \tilde{\boldsymbol{\pi}}_{kt}, B_l,B_r).
-    \end{align*}
+    Calculate the variance corrected priors $\tilde{v}_{jt}$ and $\tilde{\pi}_{jt}$ as in () and () and the posterior parameters $\overline{\boldsymbol{\theta}}_j := \normalfont{\texttt{meanvar-scp}}(\tilde{\mathbf{r}}_{-j} \:;\:\overline{\boldsymbol{\lambda}}_{-j}, \tau_j, u_j, \tilde{\mathbf{v}}_{j}, \tilde{\boldsymbol{\pi}}_j)$. Then, $q^*_j \equiv \text{\normalfont meanvar-scp}(\overline{\boldsymbol{\theta}}_j)$ solves $\max_{q_j}  \; \text{\normalfont ELBO}\left(q;\mu_0,\lambda_0\right)$.
 \end{enumerate}
 \end{proposition}
-The proof of Proposition \ref{prop:1} is given in Appendix \ref{app:prop1-proof}. Looking back, we see that Algorithm \ref{alg:1} begins by initializing some distribution $q \in \mathcal{Q}$, then proceeds to iteratively fix $q_{-i}(\theta_{-i})$, calculate the relevant residuals using $q_{-i}(\theta_{-i})$, and update $q_{i}(\theta_{i})$ by solving the appropriate maximization problem in (\ref{eq:elbo-j}), (\ref{eq:elbo-l}), or (\ref{eq:elbo-k}). In this sense, Algorithm \ref{alg:1} is a coordinate ascent procedure for solving the maximization problem in (\ref{eq:restriced-elbo}). We formalize this statement in Corollary \ref{cor:1}
-\begin{corollary}
-\label{cor:1} 
-Let $\mathcal{Q}$ be defined as in (\ref{eq:mean-field}). Then by Proposition \ref{prop:1}, Algorithm \ref{alg:1} is a coordinate ascent procedure for finding the distribution $q^*$ that solves the maximization problem in (\ref{eq:restriced-elbo}). Equivalently, Algorithm \ref{alg:1} is a coordinate descent procedure for solving the minimization problem in (\ref{eq:restriced-kl}).
-\end{corollary}
-Proposition \ref{prop:1} in conjunction with Corollary \ref{cor:1} establish that the distribution returned by Algorithm \ref{alg:1} is a VB approximation to the true posterior of MICH. It still remains to confirm that Algorithm \ref{alg:1} will in fact converge. To see this, note that the distributions $q_j$, $q_\ell$, and $q_k$ that respectively solve (\ref{eq:elbo-j}), (\ref{eq:elbo-l}), or (\ref{eq:elbo-k}) are fully characterized by the sets of parameters returned by the each call to \texttt{SMSCP}, \texttt{SMCP}, or \texttt{SSCP}. Proposition \ref{prop:2} establishes that these parameters converge to a stationary point, and thus so will the distribution returned by Algorithm \ref{alg:1}. 
-\begin{proposition}
-\label{prop:2}
-Assume that the MICH prior parameters: 
-\begin{align*}
-    \{\{\tau_j, u_j, v_j, \{\pi_{jt}\}_{t=1}^T\}_{j=1}^J, \{\tau_\ell,  \{\pi_{\ell t}\}_{t=1}^T\}_{\ell=1}^L, \{u_k, v_k, \{\pi_{kt}\}_{t=1}^T\}_{k=1}^K\}
-\end{align*}
-are all strictly positive. Then the sequence of parameters generated by each iteration of Algorithm \ref{alg:1}: 
-\begin{align}\label{eq:alg1-params}
-    \{\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{j=1}^J, \{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{\ell=1}^L, \{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{k=1}^K\}_{t=1}^T
-\end{align}
-converge to some limit point. Therefore, the sequence of distributions generate by Algorithm \ref{alg:1}, which are parameterized by (\ref{eq:alg1-params}), will converge to a stationary point of $\text{ELBO}(q\:;\eta)$.
-\end{proposition}
-The proof of Proposition \ref{prop:2} is given in Appendix \ref{app:prop2-proof}.
+%The proof of Proposition \ref{prop:1} is given in Appendix \ref{app:prop1-proof}. 
+Backfitting procedures for models with additive effects typically work with the expected residual $\E_q[r_t]$ (\citealp{Breiman85,Hastie90,Friedman00,Wang20}). Algorithm \ref{alg:1} on the other hand uses the modified residual $\tilde{r}_t$ to fit the individual SCP models, which is necessitated by the inclusion of both mean and variance changes in the MICH model. Similarly, the variance correction term $\delta_t$ plays an important role in Algorithm \ref{alg:1} that did not previously appear in either the IBSS or ProSCALE algorithms. The variance of $\mathbf{y}_{1:T}$ is inflated by the uncertainty around each mean change, and Proposition \ref{prop:1} shows how to use $\delta_t$ to account for the added noise from $\mu_{\ell t}$ and $\mu_{j t}$ when fitting the var-scp and meanvar-scp components.
 
-\subsection{Choice of \texorpdfstring{$J$}{J}, \texorpdfstring{$L$}{L}, and \texorpdfstring{$K$}{K}}
+Upon re-examination, we see that Algorithm \ref{alg:1} begins by initializing some distribution $q$ that satisfies (\ref{eq:mean-field}). Then, by solving the appropriate maximization problem in Proposition \ref{prop:1} (i)-(iii), Algorithm \ref{alg:1} iteratively updates each $q_{i}(\boldsymbol{\theta}_{i})$ while holding all the other component distributions of $q$ fixed. Thus, Algorithm \ref{alg:1} is a coordinate ascent procedure for solving the maximization problem in (\ref{eq:restriced-elbo}).
+
+\begin{corollary}
+\label{cor:coord-ascent}
+Algorithm \ref{alg:1} is a coordinate descent procedure for solving the minimization problem in (\ref{eq:restriced-kl}) subject to the mean-field restriction (\ref{eq:mean-field}). Equivalently, Algorithm \ref{alg:1} is a coordinate ascent procedure for maximizing the ELBO in (\ref{eq:restriced-elbo}).
+\end{corollary}
+
+Proposition \ref{prop:1} and Corollary \ref{cor:coord-ascent} establish that the distribution returned by Algorithm \ref{alg:1} is a VB approximation to the true posterior of MICH, but we must still show that Algorithm \ref{alg:1} is guarantied to converge. The parameters returned by the respective calls of \texttt{mean-scp}, \texttt{var-scp}, and \texttt{meanvar-scp} fully characterize he distributions $q_\ell$, $q_k$, and $q_j$ for each iteration of Algorithm \ref{alg:1}. Proposition \ref{prop:stationary-point} establishes that these parameters converge to a stationary point. Therefore, the distribution returned by Algorithm \ref{alg:1} also converges. 
+
+\begin{proposition}
+\label{prop:stationary-point}
+Assume that each prior parameter for each component (\ref{eq:mich-l-component}), (\ref{eq:mich-k-component}), and (\ref{eq:mich-j-component}) of the MICH model is strictly positive. Then the sequence of parameters $\{\overline{\boldsymbol{\Theta}}^{(n)}\}_{n \geq 1} := \{\overline{\boldsymbol{\theta}}_\ell^{(n)}, \overline{\boldsymbol{\theta}}_k^{(n)}, \overline{\boldsymbol{\theta}}_j^{(n)}\}_{n\geq 1}$ generated by each iteration of Algorithm \ref{alg:1} converges to some limit point. Therefore, the sequence of distributions $\{q^{(n)}\}_{n\geq 1}$ generated by Algorithm \ref{alg:1} will converge to a stationary point of $\text{\normalfont ELBO}(q\:;\lambda_0, \mu_0)$.
+\end{proposition}
+%The proof of Proposition \ref{prop:stationary-point} is given in Appendix \ref{app:prop2-proof}.
+
+\subsection{Computational Details}
+
+\subsubsection{Prior Parameters}
+
+Outside of choosing the number of components $L$, $K$, and $J$, MICH requires almost no hyperparameter tuning. The model is insensitive to the value of prior parameters $\tau_i$, $u_i$, and $v_i$ for each  $i \in \{\ell, k, j\}$, as demonstrated by the sensitivity analysis in Appendix . This result has theoretical support, as the finite sample results in the proofs of Theorems \ref{theorem:smcp}-\ref{theorem:alpha-mixing} all hold for any small value of $\tau_i$, $u_i$, and $v_i$, and the asymptotic localization results hold for any fixed values for these parameters. By default, we set $\tau_i = u_i = v_i = 0.001$. We also have intuitive defaults for $\boldsymbol{\pi}_i$, e.g. the uniform prior $\pi_{it} = T^{-1}$. By default, we choose $\boldsymbol{\pi}_i$ so that $\overline{\pi}_{it} \approx T^{-1}$ under the null model (see Appendix \ref{app:prior} for more detail).
+
+\subsubsection{Choice of \texorpdfstring{$L$}{L}, \texorpdfstring{$K$}{K}, and \texorpdfstring{$J$}{J}}
+
+Suppose that $L^*$, $K^*$, and $J^*$ are the true numbers of mean-only, variance-only, and joint mean and variance changes in $\mathbf{y}_{1:T}$. Since each model component in (\ref{eq:mich-l-component})-(\ref{eq:mich-j-component}) corresponds to a single change-point, we must have $L \geq L^*$, $K \geq K^*$, and $J \geq J^*$ in order for MICH to correctly recover all the changes in $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\lambda}_{1:T}$. As shown in both \cite{Wang21} and \cite{Cappello22}, the model is robust to overstating $L$, $K$, and $J$. The extra $L - L^*$, $K- K^*$, and $J - J^*$ components tend to capture null effects with diffuse posteriors $\overline{\boldsymbol{\pi}}_{\ell}$, $\overline{\boldsymbol{\pi}}_{k}$, and $\overline{\boldsymbol{\pi}}_{j}$ that fail the detection criterion (see Appendix \ref{app:prior} for examples). 
+
+Some prior knowledge of the magnitude of $L$, $K$, and $J$ is still required to ensure we don't underestimate the true number of components. In the true absence of any information on the number of changes, we could conservatively set $L=K=J=\lceil T /\log^{1+\varepsilon} T \rceil$, i.e. the number of observations divided by the minimum spacing condition from Assumption \ref{assumption:1}. However, this is an extremely conservative upper bound, and the inclusion of so many redundant components will cause a considerable slowdown in the convergence of Algorithm \ref{alg:1}. Instead, we propose using the value of $\text{ELBO}(q\:;\lambda_0, \mu_0)$ to automatically select $L$, $K$, and $J$. In the standard case where we only consider a single class of change-points, e.g. when $J^* > 0$ and $L^*=K^*=0$, we begin from the null model with $J=0$, then increment $J$ until the ELBO stops increasing.\footnote{For finite samples, the ELBO does not necessarily increase monotonically from $J = 1$ on $J = J^*$, so we continue the search for an additional $\log T$ steps after local maximum is found.} To increase the speed of the search, we can use the fitted parameters from the $J-1$ component model to initialize Algorithm \ref{alg:1} after incrementing $J$. To search over $L$, $K$, and $J$ simultaneously, we can individually increment $L$, $K$, and $J$ and pick the direction that leads to the largest increase in $\text{ELBO}(q\:;\lambda_0, \mu_0)$.
+
+Using $\text{ELBO}(q\:;\lambda_0, \mu_0)$ to perform model selection has gained some recent theoretical justification in the VB literature (\citealp{Cherief18, Cherief19}). We ideally would like to use the marginal log-likelihood $\log p(\mathbf{y}_{1:T}; \mu_0,\lambda_0)$ for model selection. Within the VB literature this term is referred to as the model ``evidence" (hence ELBO), and in our case it implicitly depends on  $L$, $K$, and $J$. Unfortunately, the evidence is generally not calculable, but $\text{KL}(q \:\lVert\: p)$ is nonnegative, so from (\ref{eq:kl-decomp}) we get that $\text{ELBO}(q\:;\lambda_0, \mu_0)$ is a lower bound for the evidence. When this bound is tight, i.e. when $q$ is ``close" to the true posterior, then the ELBO is a good approximation to the marginal likelihood and can be used for model selection (\citealp{Blei17}). This is analogous selecting based on the BIC, which is just another approximation to the marginal log-likelihood (\citealp{Schwarz78}).
+
+\subsubsection{Model Asymmetry}
+
+By construction, the variable $\gamma_i \in [T]$ is used in MICH to ``turn-on" the $i^{\text{th}}$ component of the model via the indicator $\mathbbm{1}\{t \geq \gamma_i\}$. The direction of this inequality is arbitrary, and we could have just as easily decided to ``turn-off" components with  $\mathbbm{1}\{t < \gamma_i\}$ instead. In Appendix \ref{app:prior}, we show how that the direction of the inequality builds an asymmetry into the model, which may artificially inflate the elements of $\overline{\boldsymbol{\pi}}_{i}$ closer to index $T$. The default prior we have chosen for MICH attempts to mitigate the effects of this asymmetry, but the model does still occasionally miss change-points that it would have identified if the order of $\mathbf{y}_{1:T}$ were reversed (see for example ). To overcome this undesirable behavior, we also fit MICH using $\mathbf{y}_{T:1}$, then reverse the fitted parameters and use them to restart Algorithm \ref{alg:1}. We return the resulting fit if it improves the ELBO over inputting $\mathbf{y}_{1:T}$ directly into Algorithm \ref{alg:1}. The simulations in Section \ref{tab:hsmuce-sim} show that this procedure leads to a marked improvement in the performance of MICH, and since we can fit the model to $\mathbf{y}_{1:T}$ and $\mathbf{y}_{T:1}$ in parallel, this boost comes at little additional cost. 
+
+\subsubsection{Duplicate Components}
+\label{sec:merge-procedure}
+
+The independence of the components (\ref{eq:mich-l-component})-(\ref{eq:mich-j-component}) is key to unlocking the computational simplicity of Algorithm \ref{alg:1}, but because each component is generated independently, there is a non-zero probability that $\gamma_i = \gamma_{i'}$ for some $i \neq i'$, i.e. two changes of the same class may be ``stacked" on top of each other. This construction differs from the product partition model of \cite{Barry93}, which rules out overlapping change-points by placing a joint prior on all possible fixed-sized partitions of $[T]$. Although Algorithm \ref{alg:1} typically avoids assigning multiple components to a single change-point, we do observe instances of a single change splitting across multiple $\gamma_i$'s (see for example ). In these cases, if $L$, $K$, or $J$ are not large enough to allow for some degree of redundancy, then MICH may underestimate of the true number of changes. To avoid this scenario and eliminate duplicates, we propose merging components $i$ and $i'$ if $\langle\overline{\boldsymbol{\pi}}_{i'}, \overline{\boldsymbol{\pi}}_i \rangle$ exceeds some threshold $\beta > 0$. The details of this merge procedure are given in Appendix \ref{app:merge-procedure}.
