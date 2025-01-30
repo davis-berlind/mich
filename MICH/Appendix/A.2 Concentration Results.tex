@@ -1,4 +1,4 @@
-\subsection{Concentration Results and Event Bounds}
+\subsection{Concentration Results}
 \label{app:concentration}
 
 \subsubsection{Sums of sub-Gaussian and sub-Exponential Processes}
@@ -70,450 +70,54 @@ Then there exists some universal constant $C > 0$ such that for any $a \in (0,1)
 \end{lemma}
 
 \begin{lemma}\label{lemma:alpha-mix-sum}
-Suppose that $\{X_t\}_{t\geq 1}$ is a stationary, $\alpha$-mixing processes with mixing coefficients and moments that satisfy the conditions of Lemma \ref{lemma:Padilla23}. Then for any $\varepsilon > 0$, $T \geq 1$, and $t_0 \in [T]$, there exists a universal constant $C > 0$ such that:
+Suppose that $\{X_t\}_{t\geq 1}$ is a stationary, $\alpha$-mixing processes with mixing coefficients and moments that satisfy the conditions of Lemma \ref{lemma:Padilla23}. Then for $T \geq 1$, $t_0 \in [T]$, and sequence $\{a_T\}_{T\geq 1}$ such that $a_T > 0$ and $\lim_{T\to\infty} a_T = \infty$, there exists a universal constant $C > 0$ such that:
 \begin{align*}
-    \Pr \left(\bigcup_{t=t_0 + 1}^{T}\left\{ \left|\sum_{t'=t_0}^{t-1} X_{t'}\right| > C\sqrt{t-t_0}\log^{1+\varepsilon}T\right\}\right) 
-    &\leq \frac{1}{\log^{2\varepsilon} T},
+    \Pr \left(\bigcup_{t=t_0 + 1}^{T}\left\{ \left|\sum_{t'=t_0}^{t-1} X_{t'}\right| > Ca_T\sqrt{t-t_0}\log T\right\}\right) 
+    &\leq \frac{1}{a_T^2},
 \end{align*}
 and:
 \begin{align*}
-    \Pr \left(\bigcup_{t=1}^{t_0-1}\left\{ \left|\sum_{t'=t}^{t_0-1} X_{t'}\right| > C\sqrt{t_0-t}\log^{1+\varepsilon}T\right\}\right) 
-    &\leq \frac{1}{\log^{2\varepsilon} T},
+    \Pr \left(\bigcup_{t=1}^{t_0-1}\left\{ \left|\sum_{t'=t}^{t_0-1} X_{t'}\right| > Ca_T\sqrt{t_0-t}\log T\right\}\right) 
+    &\leq \frac{1}{a^2_T},
 \end{align*}
 and:
 \begin{align*}
-    \Pr \left(\bigcup_{t=1}^{T}\left\{ \left|\sum_{t'=t}^{T} X_{t'}\right| > C\sqrt{T-t+1}\log^{1+\varepsilon}T\right\}\right) 
-    &\leq \frac{1}{\log^{2\varepsilon} T}.
+    \Pr \left(\bigcup_{t=1}^{T}\left\{ \left|\sum_{t'=t}^{T} X_{t'}\right| > Ca_T\sqrt{T-t+1}\log T\right\}\right) 
+    &\leq \frac{1}{a_T^2}.
 \end{align*}
 
 \end{lemma}
 
 \begin{proof}
-By Lemma \ref{lemma:Padilla23}, there is some constant $C > 0$ so that if we let $\nu = 1$ and $a = \log^{-\varepsilon} T$, then:
+By Lemma \ref{lemma:Padilla23}, there is some constant $C > 0$ so that if we let $\nu = 1$ and $a = a_T^{-1}$, then:
 \begin{align*}
-    \Pr \left(\bigcup_{t=1}^\infty\left\{\left|\sum_{t'=1}^t X_{t'}\right| > C\log^{\varepsilon}T\sqrt{t}\left[\log t + 1\right]\right\}\right) 
-    \leq \frac{1}{\log^{2\varepsilon} T}.
+    \Pr \left(\bigcup_{t=1}^\infty\left\{\left|\sum_{t'=1}^t X_{t'}\right| > Ca_T\sqrt{t}\left[\log t + 1\right]\right\}\right) 
+    \leq \frac{1}{a_T^2}.
 \end{align*}
 Note that since $\{X_t\}_{t=1}^\infty$ is a stationary process, so we can shift the time indices of the sum by $t_0-1$ to get:
 \small
 \begin{align*}
-    \frac{1}{\log^{2\varepsilon} T} &\geq \Pr \left(\bigcup_{t=1}^\infty\left\{\left|\sum_{t'=1}^t X_{t'}\right| > C\log^{\varepsilon}T\sqrt{t}\left[\log t + 1\right]\right\}\right) \\
-    &= \Pr \left(\bigcup_{t=t_0+1}^\infty\left\{\left|\sum_{t'=t_0}^{t-1} X_{t'}\right| > C \log^{\varepsilon}T\sqrt{t-t_0}\left[\log (t-t_0) + 1\right]\right\}\right) \tag{stationarity} \\
-    &\geq \Pr \left(\bigcup_{t=t_0+1}^{T}\left\{\left|\sum_{t'=t_0}^{t-1} X_{t'}\right| > C \log^{\varepsilon}T\sqrt{t-t_0}\log (t-t_0)\right\}\right)\\
-    &\geq \Pr \left(\bigcup_{t=t_0+1}^{T}\left\{\left|\sum_{t'=t_0}^{t-1} X_{t'}\right| > C \sqrt{t-t_0}\log^{1+\varepsilon}T\right\}\right). \tag{$T > t-t_0$}
+    \frac{1}{a_T^2} &\geq \Pr \left(\bigcup_{t=1}^\infty\left\{\left|\sum_{t'=1}^t X_{t'}\right| > Ca_T\sqrt{t}\left[\log t + 1\right]\right\}\right) \\
+    &= \Pr \left(\bigcup_{t=t_0+1}^\infty\left\{\left|\sum_{t'=t_0}^{t-1} X_{t'}\right| > C a_T\sqrt{t-t_0}\left[\log (t-t_0) + 1\right]\right\}\right) \tag{stationarity} \\
+    &\geq \Pr \left(\bigcup_{t=t_0+1}^{T}\left\{\left|\sum_{t'=t_0}^{t-1} X_{t'}\right| > C a_T\sqrt{t-t_0}\log (t-t_0)\right\}\right)\\
+    &\geq \Pr \left(\bigcup_{t=t_0+1}^{T}\left\{\left|\sum_{t'=t_0}^{t-1} X_{t'}\right| > C a_T\sqrt{t-t_0}\log T\right\}\right). \tag{$T > t-t_0$}
 \end{align*}
 \normalsize
 Similarly:
 \small
 \begin{align*}
-    \frac{1}{\log^{2\varepsilon} T} &\geq \Pr \left(\bigcup_{t=1}^\infty\left\{\left|\sum_{t'=1}^t X_{t'}\right| > C\log^{\varepsilon}T\sqrt{t} \left[\log t + 1\right]\right\}\right) \\
-    &\geq \Pr \left(\bigcup_{t=1}^{t_0-1}\left\{\left|\sum_{t'=1}^t X_{t'}\right| > C\log^{\varepsilon}T\sqrt{t}\log t\right\}\right) \\
-    &= \Pr \left(\bigcup_{t=1}^{t_0-1}\left\{\left|\sum_{t'=1}^{t_0 - t} X_{t'}\right| > C\log^{\varepsilon}T\sqrt{t_0- t}\log (t_0 - t)\right\}\right)  \\
-    &\geq \Pr \left(\bigcup_{t=1}^{t_0-1}\left\{\left|\sum_{t'=t}^{t_0-1} X_{t'}\right| > C\sqrt{t_0-t}\log^{1+\varepsilon} T\right\}\right). \tag{$T > t_0-t$}
+    \frac{1}{a_T^2} &\geq \Pr \left(\bigcup_{t=1}^\infty\left\{\left|\sum_{t'=1}^t X_{t'}\right| > Ca_T\sqrt{t} \left[\log t + 1\right]\right\}\right) \\
+    &\geq \Pr \left(\bigcup_{t=1}^{t_0-1}\left\{\left|\sum_{t'=1}^t X_{t'}\right| > Ca_T\sqrt{t}\log t\right\}\right) \\
+    &= \Pr \left(\bigcup_{t=1}^{t_0-1}\left\{\left|\sum_{t'=1}^{t_0 - t} X_{t'}\right| > Ca_T\sqrt{t_0- t}\log (t_0 - t)\right\}\right)  \\
+    &\geq \Pr \left(\bigcup_{t=1}^{t_0-1}\left\{\left|\sum_{t'=t}^{t_0-1} X_{t'}\right| > Ca_T\sqrt{t_0-t}\log T\right\}\right). \tag{$T > t_0-t$}
 \end{align*}
 \normalsize
 Lastly:
 \small
 \begin{align*}
-     \frac{1}{\log^{2\varepsilon} T} &\geq \Pr \left(\bigcup_{t=1}^\infty\left\{\left|\sum_{t'=1}^t X_{t'}\right| > C\log^{\varepsilon}T\sqrt{t} \left[\log t + 1\right]\right\}\right) \\
-     &\geq \Pr \left(\bigcup_{t=1}^{T}\left\{\left|\sum_{t'=1}^{t} X_{t'}\right| > C\log^{\varepsilon}T\sqrt{t}\log t\right\}\right) \\
-    &= \Pr \left(\bigcup_{t=1}^{T}\left\{\left|\sum_{t'=1}^{T - t + 1} X_{t'}\right| > C\log^{\varepsilon}T\sqrt{T - t + 1}\log (T - t+1)\right\}\right)  \\
-    &\geq \Pr \left(\bigcup_{t=1}^{T}\left\{\left|\sum_{t'=t}^{T} X_{t'}\right| > C\sqrt{T-t+1}\log^{1 + \varepsilon}T\right\}\right). \tag{$T > T-t+1$}
+     \frac{1}{a_T^2} &\geq \Pr \left(\bigcup_{t=1}^\infty\left\{\left|\sum_{t'=1}^t X_{t'}\right| > Ca_T\sqrt{t} \left[\log t + 1\right]\right\}\right) \\
+     &\geq \Pr \left(\bigcup_{t=1}^{T}\left\{\left|\sum_{t'=1}^{t} X_{t'}\right| > Ca_T\sqrt{t}\log t\right\}\right) \\
+    &= \Pr \left(\bigcup_{t=1}^{T}\left\{\left|\sum_{t'=1}^{T - t + 1} X_{t'}\right| > Ca_T\sqrt{T - t + 1}\log (T - t+1)\right\}\right)  \\
+    &\geq \Pr \left(\bigcup_{t=1}^{T}\left\{\left|\sum_{t'=t}^{T} X_{t'}\right| > Ca_T\sqrt{T-t+1}\log T\right\}\right). \tag{$T > T-t+1$}
 \end{align*}
-\end{proof}
-
-% Theorem 1 Events 
-
-\subsubsection{Theorem \ref{theorem:smcp} Event Bounds}
-\label{app:thm1-events}
-
-In Lemma \ref{lemma:thm1-event-bound}, we assume $\lVert \mathbf{y}_t\rVert_{\psi_2}$ is uniformly bounded over all $t, d \geq 1$. As per Remark \ref{rmk:sub-g}, this assumption holds when either: i) each entry of $\mathbf{y}_t$ is independent and $\mathcal{SG}(\sigma)$ for some $\sigma < \infty$, ii) $\mathbf{y}_t \sim \mathcal{N}_d(\boldsymbol{\mu}_t, \boldsymbol{\Lambda}^{-1})$ and $\inf_{d\geq 1}  \lambda_{\min} > 0$, where $\lambda_{\min}$ is the smallest eigenvalue of $\boldsymbol{\Lambda}$, or iii) $y_{t,j} \in \mathcal{SG}(\sigma_j)$ for each $j \in \{1,\ldots, d\}$ with $\sup_{d \geq 1} \lVert\boldsymbol{\sigma}\rVert_2 < \infty$, $\lVert\boldsymbol{\sigma}\rVert_1 = \mathcal{O}(d^{-\frac{1}{2}})$, or $\lVert\boldsymbol{\sigma}\rVert_\infty = \mathcal{O}(d^{-\frac{1}{2}})$. 
-
-\begin{enumerate}[label=\roman*)]
-    \item When each entry of $\mathbf{y}_t$ is independent and $y_{t,j} \in \mathcal{SG}(\sigma)$ for each $j \in \{1, \ldots, d\}$, then for any $\mathbf{v} \in \mathbb{B}^2_1$, by Lemma \ref{lemma:sum-sub-gaussian} we have $\langle \mathbf{v}, \mathbf{y}_t \rangle \in \mathcal{SG}(\sigma)$.
-    \item For any $\mathbf{v} \in \mathbb{B}^2_1$, we have:
-    \begin{align*}
-        \langle \mathbf{v}, \mathbf{y}_t \rangle &= \langle \boldsymbol{\Lambda}^{-\frac{1}{2}}\mathbf{v}, \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{y}_t \rangle \\
-        &= \lVert\boldsymbol{\Lambda}^{-\frac{1}{2}}\mathbf{v}\rVert_{2} \left\langle \frac{\boldsymbol{\Lambda}^{-\frac{1}{2}}\mathbf{v}}{\lVert\boldsymbol{\Lambda}^{-\frac{1}{2}}\mathbf{v}\rVert_{2}}, \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{y}_t \right\rangle.
-    \end{align*}
-    Since $\mathbf{y}_t$ is Gaussian, the coordinates of $\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{y}_t$ are independent and belong to $\mathcal{SG}(1)$, so by Lemma \ref{lemma:sum-sub-gaussian}, the inner-product above is $\mathcal{SG}(1)$. Also, $\inf_{d\geq 1}  \lambda_{\min} > 0$ by assumption so:
-    \begin{align*}
-        \lVert\boldsymbol{\Lambda}^{-\frac{1}{2}}\mathbf{v}\rVert_{2} \leq \sup_{\mathbf{v} \in \mathbb{B}^2_1} \lVert\boldsymbol{\Lambda}^{-\frac{1}{2}}\mathbf{v}\rVert_{2} = \frac{1}{\sqrt{\lambda_{\min}}} < \infty.
-    \end{align*}
-    \item If $y_{t,j} \in \mathcal{SG}(\sigma_j)$, then for any $\mathbf{v} \in \mathbb{B}^2_1$: 
-    \begin{align*}
-        \langle \mathbf{v}, \mathbf{y}_t \rangle &\in \mathcal{SG}(\langle \mathbf{v}, \boldsymbol{\sigma} \rangle) \tag{Lemma \ref{lemma:sum-sub-gaussian}}\\
-        &\subseteq \mathcal{SG}(\lVert\mathbf{v}\rVert_2 \lVert\boldsymbol{\sigma}\rVert_2). \tag{Cauchy-Schwarz inequality} \\
-        &\subseteq \mathcal{SG}(\sqrt{d} \lVert \boldsymbol{\sigma}\rVert_1). \tag{$\lVert \mathbf{v}\rVert_2 = 1$ and $\lVert \boldsymbol{\sigma}\rVert_2 \leq \sqrt{d} \lVert \boldsymbol{\sigma}\rVert_1 $}
-    \end{align*}    
-    In the last line we can replace $\lVert \boldsymbol{\sigma}\rVert_1$ with $\lVert \boldsymbol{\sigma}\rVert_\infty$.
-\end{enumerate}
-
-\begin{lemma}\label{lemma:thm1-event-bound}
-
-Let $\{\mathbf{y}_t\}_{t=1}^T$ be a sequence of independent random vectors with $\mathbf{y}_t \in \mathbb{R}^d$, $\normalfont{\Var}(\mathbf{y}_t) = \boldsymbol{\Lambda}^{-1}$ and $\sup_{t\geq 1, d\geq 1} \lVert \mathbf{y}_t\rVert_{\psi_2} < \infty$. In addition to Assumptions \ref{assumption:1} and \ref{assumption:mean}, let $\lambda_{\max}$ and $\lambda_{\min}$ be the largest and smallest eigenvalues of $\boldsymbol{\Lambda}$ respectively and assume that $\sup_{d\geq 1} \lambda_{\min} < \infty$ and $\inf_{d\geq 1} \lambda_{\min} > 0$. If we define the normalized terms $\mathbf{z}_t := \boldsymbol{\Lambda}^{\frac{1}{2}}(\mathbf{y}_t - \mathbf{b}_0\mathbbm{1}\{t\geq t_0\})$, then there exist positive constants $\kappa$ and $C_1$ such that we can define the set:
-\begin{align*}
-    \mathcal{T}_{\kappa} := \left\{1\leq t \leq T\::\:|t_0 - t| > \frac{\kappa \log T}{\lVert \boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2}\right\}
-\end{align*}
-and the events:
-\begin{align*}
-    \Omega_1 &:= \bigcap_{t \in \mathcal{T}_{\kappa} } \left\{ 
-    \left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1}\mathbf{z}_{t'} \right\rangle\right| < \frac{|t_0-t| \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}\right\}, \\
-    \Omega_2 &:= \left\{\left|\left\langle \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^T\mathbf{z}_{t'}\right\rangle\right| < \frac{(T-t_0+1) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8} \right\}, \\
-    \Omega_3 &:=  \bigcap_{t \in \mathcal{T}_{\kappa}} \left\{\left|\left\langle \sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1}\frac{\mathbf{z}_{t'}}{\sqrt{|t_0-t|}}, \frac{\sum_{t'=\max\{t_0,t\}}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=\max\{t_0,t\}}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle\right| < 2\sqrt{C_1\log T}\right\}, \\
-    \Omega_4 &:=\bigcap_{t = t_0}^T \left\{\left|\frac{1}{T-t+1}\left\lVert\sum_{t'=t}^T \mathbf{z}_{t'}\right\rVert_2^2 -d \right| < 4 C_1 d \log T \right\} \\
-    \Omega_5 &:= \bigcap_{1\leq t\leq T\::\:  t \neq t_0} \left\{\left|\frac{1}{|t_0 - t|}\left\lVert\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} \mathbf{z}_{t'}\right\rVert_2^2 -d \right| < 4 C_1 d \log T \right\}, \\
-    \Omega_6 &:= \bigcap_{t = t_0}^T \left\{\left|\frac{1}{\sqrt{T-t+1}}\left\lVert\sum_{t'=t}^T \mathbf{z}_{t'}\right\rVert_2 -\sqrt{d} \right| < 2\sqrt{C_1d \log T} \right\},
-\end{align*}
-and the joint event $\Omega := \cap_{i=1}^6 \Omega_i$, then we will have $\lim_{T\to\infty} \Pr(\Omega) = 1$.
-
-\end{lemma}
-
-\begin{proof}
-
-By the union bound $\Pr(\Omega^c) = 1 - P(\cup_{i=1}^6 \Omega^c_i) < 1 - 1 - \sum_{i=1}^6 \Pr(\Omega^c_i)$, so it is sufficient to show that $\Pr(\Omega^c_i) \to 0$ for each $i$. By assumption, there is exists some $K < \infty$ such that $\sup_{t\geq 1, d\geq 1} \lVert \mathbf{y}_t\rVert_{\psi_2} \leq K$, so for any $\mathbf{v} \in \mathbb{B}^2_1$ we have:
-\begin{align*}
-    \left\lVert\left\langle\mathbf{v}, \mathbf{z}_t \right\rangle\right\rVert_{\psi_2} &= \lVert \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{v}\rVert_{2}\left\lVert\left\langle\frac{\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{v}}{\lVert \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{v} \rVert_2}, \mathbf{y}_t - \E[\mathbf{y}_t] \right\rangle\right\rVert_{\psi_2} \\
-    &\leq \sup_{\mathbf{v} \in  \mathbb{B}^2_1}\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{v}\rVert_{2} \sup_{\mathbf{v} \in  \mathbb{B}^2_1} \left\lVert\left\langle\mathbf{v}, \mathbf{y}_t - \E[\mathbf{y}_t] \right\rangle\right\rVert_{\psi_2}\\
-    &= \sqrt{\lambda_{\max}} \left\lVert\mathbf{y}_t - \E[\mathbf{y}_t] \right\rVert_{\psi_2} \\
-    &\lesssim \sqrt{\lambda_{\max}} \left\lVert\mathbf{y}_t \right\rVert_{\psi_2}. \tag{Lemma 2.6.8 of \cite{Vershynin18}} \\
-    &\lesssim \sqrt{\lambda_{\max}} K
-\end{align*}
-Since $\lambda_{\max}$ is finite by assumption, and $\{\mathbf{z}_t\}_{t=1}^T$ is a independent sequence, then by Propositions 2.5.2 and 2.6.1 of \cite{Vershynin18} there exists some constant $C$ such that for any index set $\mathcal{T} \subseteq [T]$ with cardinality $|\mathcal{T}|$ we have: 
-\begin{align*}
-    \sum_{t \in \mathcal{T}} \left\langle\mathbf{v}, \mathbf{z}_t \right\rangle \in \mathcal{SG}\left(C\sqrt{\lambda_{\max}|\mathcal{T}|} K\right).
-\end{align*}
-So letting $\mathbf{v} = \frac{\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0}{\lVert \boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0 \rVert_2}$, then by the Chernoff bound (\ref{eq:chernoff}): 
-\begin{align*}
-    \Pr\left(\left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1}\mathbf{z}_{t'} \right\rangle\right| \geq \frac{|t_0-t| \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}\right) &\leq 2\exp\left[-\frac{|t_0-t|\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2}{128\lambda_{\max}C^2K^2}\right].
-\end{align*}
-For all $t \in \mathcal{T}_{\kappa}$ and $\kappa \geq 256\lambda_{\max}C^2K^2$, we then have: 
-\begin{align*}
-    \Pr\left(\left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1}\mathbf{z}_{t'} \right\rangle\right| \geq \frac{|t_0-t| \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}\right) &\leq \frac{2}{T^2}.
-\end{align*}
-Therefore:
-\begin{align*}
-    \Pr(\Omega^c_1) &= \Pr\left(\bigcup_{t \in \mathcal{T}_{\kappa}} \left\{\left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1}\mathbf{z}_{t'} \right\rangle\right| \geq \frac{|t_0-t| \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}\right\} \right) \\
-    &\leq \sum_{t \in \mathcal{T}_{\kappa}}\Pr\left(\left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1}\mathbf{z}_{t'} \right\rangle\right| \geq \frac{|t_0-t| \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}\right)\tag{union bound} \\
-    &\leq \sum_{t \in \mathcal{T}_{\kappa}} \frac{2}{T^2} \\
-    &= \frac{2}{T}.\tag{$| \mathcal{T}_{\kappa}| \leq T$} 
-\end{align*}
-We can again use the Chernoff bound (\ref{eq:chernoff}) to get: 
-\begin{align*}
-    \Pr\left(\left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^T \mathbf{z}_{t'} \right\rangle\right| \geq \frac{(T-t_0+1) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}\right) &\leq 2\exp\left[-\frac{(T-t_0+1)\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2}{128\lambda_{\max}C^2K^2}\right].
-\end{align*}
-We have $\lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert^2_2 \geq \lambda_{\min} \lVert \mathbf{b}_0\rVert^2_2$ and by Assumption \ref{assumption:mean}, there is some finite $\underline{b} > 0$ such that $\lVert\mathbf{b}_0\rVert_2^2 \geq \underline{b}^2 d$. At the same time, by Assumption \ref{assumption:1} (i) we have $T-t_0 +1 > \log^{1+\varepsilon} T$, and thus:
-\begin{align*}
-    \Pr\left(\left|\left\langle\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0, \sum_{t'=t_0}^T \mathbf{z}_{t'} \right\rangle\right| \geq \frac{(T-t_0+1) \lVert\boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2}{8}\right) &\leq 2\exp\left[-\frac{\lambda_{\min}\underline{b}^2d }{128\lambda_{\max}C^2K^2}\log^{1+\varepsilon} T\right].
-\end{align*}
-So $\Pr(\Omega_2^c) \to 0.$ Again, since $\frac{\sum_{t'=\max\{t_0,t\}}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=\max\{t_0,t\}}^{T}\mathbf{z}_{t'}\rVert_2} \in \mathbb{B}^2_1$ for each $t$, so by the Chernoff bound (\ref{eq:chernoff}) we have:
-\begin{align*}
-    \Pr\left(\left|\left\langle \sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1}\frac{\mathbf{z}_{t'}}{\sqrt{|t_0-t|}}, \frac{\sum_{t'=\max\{t_0,t\}}^{T}\mathbf{z}_{t'}}{\lVert\sum_{t'=\max\{t_0,t\}}^{T}\mathbf{z}_{t'}\rVert_2}\right\rangle\right| \geq \sqrt{2C_1\log T}\right) \leq 2\exp\left[-\frac{2C_1\log T}{C^2K^2\lambda_{\max}}\right] 
-\end{align*}
-So for $C_1 \geq C^2K^2\lambda_{\max}$, we can use the same argument as we did for $\Omega_1$ above to get $\Pr(\Omega_3^c) \leq 2T^{-1}$.
-
-Next, since our observations are independent across $t$, we have $\E[\mathbf{z}'_{t'}\mathbf{z}_{t}] = \E[\mathbf{z}'_{t'}]\E[\mathbf{z}_{t}] = 0$ for $t \geq t'$, and since $\E[z_{t,j}^2] = 1$ by construction, then:
-\begin{align*}
-    \E\left[ \frac{1}{T-t+1}\left\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\right\rVert_2^2\right] &=  \frac{1}{T-t+1}\sum_{t'=t}^T\E[\mathbf{z}'_{t'}\mathbf{z}_{t'}] = d
-\end{align*}
-Since:
-\begin{align*}
-    \left\lVert\frac{1}{\sqrt{|\mathcal{T}|}}\sum_{t'\in\mathcal{T}}\mathbf{z}_{t'}\right\rVert_{\psi_2} \lesssim K\sqrt{\lambda_{\max}}
-\end{align*}
-then by the Hanson–Wright inequality (see e.g. exercise 6.2.5 of \citealp{Vershynin18}), there are universal constants $K_1,K_2>0$ so that for any $t \geq t_0$:
-\begin{align*}
-    \frac{1}{T-t+1}\left\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\right\rVert_2^2 &\in \mathcal{SE}(K_1K\sqrt{\lambda_{\max}d},K_2) 
-\end{align*}
-For $T$ large enough so that $\log T > \frac{K_1^2K^2\lambda_{\max}}{K_2}$, by (\ref{eq:wainwright_prop_2.9}) we have: 
-\begin{align*}
-    \Pr\left(\left| \frac{1}{T-t+1}\left\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\right\rVert_2^2 - d\right| \geq 4K_2d\log T\right) &\leq \frac{2}{T^{2d}}
-\end{align*}
-and thus for any $C_1 > K_2$:
-\begin{align*}
-    \Pr(\Omega^c_3) &= \Pr\left(\bigcup_{t= t_0}^T \left\{\left| \frac{1}{T-t+1}\left\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\right\rVert_2^2 - d\right| \geq 4 C_1 d\log T \right\} \right) \\
-    &\leq \sum_{t = t_0}^{T} \Pr\left(\left| \frac{1}{T-t+1}\left\lVert\sum_{t'=t}^T\mathbf{z}_{t'}\right\rVert_2^2 - d\right| \geq  4 K_2 d \log T \right) \tag{union bound and $C_1 > K_2$} \\
-    &\leq \sum_{t = t_0}^{T} \frac{2}{T^{2d}} \\
-    &\leq \frac{2}{T^{2d - 1}}
-\end{align*}
-The last line is converging to zero since $d \geq 1$. An identical argument gives $\Pr(\Omega^c_4) \to 0$. Next, for any $x,\delta \geq 0$ we have $|x - 1| \geq \delta \implies |x^2 - 1| \geq \max\{\delta, \delta^2\}$ (see 3.2 in \citealp{Vershynin18}). Using this fact and that $2\sqrt{C_1 \log T} \leq 4C_1 \log T$ for large $T$, we have:
-\begin{align*}
-    \left\{\left|\frac{1}{\sqrt{d(T-t+1)}}\left\lVert\sum_{t'=t}^T \mathbf{z}_{t'}\right\rVert_2 -1 \right| \geq  2\sqrt{ C_1 \log T}\right\} &\subseteq \left\{\left|\frac{1}{d(T-t+1)}\left\lVert\sum_{t'=t}^T \mathbf{z}_{t'}\right\rVert^2_2 -1 \right| \geq 4 C_1 \log T \right\} 
-\end{align*}
-and thus $\Omega_5^c \subseteq \Omega_3^c \implies \Pr(\Omega_5^c) \leq 2T^{-(2d-1)}$.
-
-\end{proof}
-
-% Theorem 3 Events
-
-\subsubsection{Theorem \ref{theorem:smscp} Event Bounds}
-
-\begin{lemma}[Theorem \ref{theorem:smscp} Event Bounds]\label{lemma:thm3-event-bound}
-Let $\{y_t\}_{t=1}^T$ be a sequence of independent, sub-Gaussian random variables with $\sup_{t \geq 1} \lVert y_t\rVert_{\psi_2} < \infty$. Let $\E[y_t] = b_0\mathbbm{1}\{t\geq t_0\}$ and $\normalfont{\Var}(y_t) = (s_0^2)^{\mathbbm{1}\{t\geq t_0\}}$, with $b_0 \in \mathbb{R}$ and $s_0 > 0$ so that it is possible that $b_0 = 0$ or $s_0 = 1$. Suppose that Assumptions \ref{assumption:1} holds for some $\varepsilon >0$ and either Assumption \ref{assumption:mean} or \ref{assumption:scale} holds. Define the standardized term $z_t:= \frac{y_t - b_0\mathbbm{1}\{t\geq t_0\}}{s_0^{\mathbbm{1}\{t\geq t_0\}}}$ and the functions $f_1$ and $f_2$ as in (\ref{eq:f1-signal-fn}) and (\ref{eq:f2-signal-fn}), then there exist some constants $C > 0$ and $\kappa > C$ such that if we define the set:
-\begin{align*}
-    \mathcal{T}_{\kappa}:= \left\{1\leq t < T - \lfloor\log^{\varepsilon} T\rfloor\::\: |t_0 - t| > \frac{\kappa\log T}{b^2_0 + \min\{f_1(s_0^2),f_2(s_0^2)\}} \right\}
-\end{align*}
-and the events: 
-\begin{align*}
-    \mathcal{E}_1 &:= \bigcap_{t \in \mathcal{T}_{\kappa}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| < \sqrt{C|t_0-t|\log T}\right\}, \\
-    \mathcal{E}_2 &:=  \bigcap_{t \in \mathcal{T}_{\kappa}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z_{t'}^2 - 1) \right| <  \sqrt{C|t_0-t|\log T}  \right\},  \\
-    \mathcal{E}_3 &:= \bigcap_{t = 1}^{ T - \lfloor\log T\rfloor}  \left\{\left|\sum_{t'=t}^T z_{t'}\right| < \sqrt{C(T-t+1)\log T}\right\}, \\
-    \mathcal{E}_4 &:= \bigcap_{t = T - \lfloor \log T\rfloor +1}^T  \left\{\left|\sum_{t'=t}^T z_{t'}\right| < \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T\right\}, \\
-    \mathcal{E}_5 &:= \bigcap_{t=1}^T \left\{\left|\sum_{t'=t}^T (z_{t'}^2 - 1)\right| < \sqrt{C(T-t+1)\log T}\right\}, \\
-    \mathcal{E}_6 &:= \bigcap_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor} \left\{\left|\sum_{t'=t}^T z_{t'}\right| < \frac{T-t+1}{2}\right\}, \\
-    \mathcal{E}_7 &:= \bigcap_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}  \left\{\left|\sum_{t'=t}^T (z_{t'}^2 - 1)\right| < \frac{T-t+1}{4}\right\},
-\end{align*}
-and the joint event $\mathcal{E} := \bigcap_{i=1}^7 \mathcal{E}_i$, then we will have $\lim_{T\to\infty} \Pr(\mathcal{E}) = 1$. 
-\end{lemma}
-
-\begin{proof}
-By the union bound $\Pr(\mathcal{E}^c) = 1 - P(\cup_{i=1}^7 \mathcal{E}^c_i) < 1 - \sum_{i=1}^7 \Pr(\mathcal{E}^c_i)$, so it is sufficient to show that $\Pr(\mathcal{E}^c_i) \to 0$ for each $i$. Note that if either Assumption \ref{assumption:mean} or \ref{assumption:scale} holds, then for any  $\kappa$, $\mathcal{T}_{\kappa}$ will be non-empty for large enough $T$ (see Appendix \ref{app:localization-smscp}). 
-
-If Assumption \ref{assumption:scale} does not hold, then we assume $\Var(y_t)$ is constant and it is without loss of generality to assume that $s_0=1$, while if  Assumption \ref{assumption:scale} does hold, then there is some $\underline{s} > 0$ such that $s_0 > \underline{s}$. Let $M_s = \min\{1, \underline{s}\}$, then by Lemma 2.6.8 of \cite{Vershynin18} we have: 
-\begin{align*}
-    \lVert z_t \rVert_{\psi_2} &\leq 
-    \frac{\left\lVert y_t - b_0\mathbbm{1}\{t\geq t_0\}\right\rVert_{\psi_2}}{M_s} \lesssim \frac{\left\lVert y_t\right\rVert_{\psi_2}}{M_s}.
-\end{align*}
-By assumption, there is some $K > 0$ so that $\sup_{t \geq 1} \lVert y_t\rVert_{\psi_2} < K$. Therefore, $\lVert z_t \rVert_{\psi_2} \lesssim M_s^{-1}K$, i.e. there exists some constant $K_1 \geq  M_s^{-1}K$ so that $z_t \in \mathcal{SG}(K_1)$. Then by Lemma \ref{lemma:sum-sub-gaussian}, for any index set $\mathcal{T}$, we have:
-\begin{align*}
-    \sum_{t\in\mathcal{T}} z_t \in\mathcal{SG}\left(\sqrt{|\mathcal{T}|}K_1\right).
-\end{align*}
-For $t \neq t_0$ we have:
-\begin{align*}
-     \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq \sqrt{C|t-t_0|\log T}\right) &\leq 2\exp\left[-\frac{C \log T}{2K^2_1}\right]. \tag{Chernoff bound (\ref{eq:chernoff})} \\
-\end{align*}
-So for $C > 4K_1^2$ we have:
-\small
-\begin{align*}
-    \Pr(\mathcal{E}^c_1) &= \Pr\left(\bigcup_{1 \leq t \leq T \::\: t \neq t_0 } \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq \sqrt{C|t-t_0|\log T}\right\} \right) \\
-    &\leq \sum_{1 \leq t \leq T \::\: t \neq t_0 } \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq \sqrt{C|t-t_0|\log T}\right) \tag{union bound} \\
-    &\leq \sum_{t =1}^T 2\exp\left[-\frac{C \log T}{2K^2_1}\right] \\
-    &\leq \frac{2}{T}.  \tag{$C > 4K_1^2$}
-\end{align*}
-\normalsize
-Next, since $\E[z^2_t] =1$, then by Exercise 2.7.10 \citealp{Vershynin18}, $\lVert z^2_t - 1 \rVert_{\psi_1} \lesssim \lVert z^2_t \rVert_{\psi_1}$, and by Lemma 2.7.6 of \citealp{Vershynin18}, $\lVert z^2_t \rVert_{\psi_1} = \lVert z_t \rVert_{\psi_2}^2 \leq K_1^2$. So by Proposition 2.7.1 of \citealp{Vershynin18} there exists some constant $K_2\geq K_1^2$ so that $z_t^2\in\mathcal{SE}(K_2,K_2)$. Then again by Lemma \ref{lemma:sum-sub-gaussian}:
-\begin{align*}
-    \sum_{t\in\mathcal{T}} (z^2_t -1) \in\mathcal{SE}\left(\sqrt{|\mathcal{T}|}K_2,K_2\right).
-\end{align*}
-Using Bernstein’s inequality (see Theorem 2.8.1 of \cite{Vershynin18}) for some $t \in \mathcal{T}_\kappa$ we get:
-\begin{align*}
-     \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z^2_{t'}-1)\right| \geq \sqrt{C|t_0-t|\log T}\right) &\leq 2\exp\left[-\frac{1}{2K_2} \min\left\{\sqrt{C|t_0-t|\log T}, \frac{C\log T}{K_2}\right\}\right] \\
-     &\leq  2\exp\left[-\frac{\log T}{2K_2} \min\left\{\sqrt{\frac{C\kappa}{b_0^2 + \min\{f_1(s^2_0), f_2(s_0^2)\}}}, \frac{C
-     }{K_2}\right\}\right]. \tag{$t \in \mathcal{T}_{\kappa} \implies |t-t_0|> \frac{\kappa\log T}{b_0^2 + \min\{f_1(s^2_0), f_2(s_0^2)\}} $} \\
-     &\leq  2\exp\left[-\frac{\log T}{2K_2} \min\left\{\frac{C}{\sqrt{b_0^2 + f_1(s^2_0)}}, \frac{C
-     }{K_2}\right\}\right]. \tag{$f_1(s^2_0) > \min\{f_1(s^2_0), f_2(s_0^2)\}$ and $\kappa > C$}
-\end{align*}
-If Assumption \ref{assumption:mean} holds then $b_0 < \overline{b}$ for some $\overline{b} < \infty$ and if Assumption \ref{assumption:scale} holds then $\underline{s} < s_0 < \overline{s}$ for some $\underline{s} > 0$ and $\overline{s} < \infty$, so for:
-\begin{align*}
-    C > 4K_2\max\left\{K_2,  \sqrt{\overline{b}^2 + \max\{f_1(\overline{s}^2), f_2(\underline{s}^2)\}}\right\}
-\end{align*}
-we have:
-\begin{align*}
-     \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z^2_{t'}-1)\right| \geq \sqrt{C|t_0-t|\log T}\right) &\leq \frac{2}{T^2}
-\end{align*}
-and thus:
-\small
-\begin{align*}
-    \Pr(\mathcal{E}^c_2) &= \Pr\left(\bigcup_{t \in \mathcal{T}_{\kappa}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z^2_{t'}-1)\right| \geq \sqrt{
-    C|t_0-t|\log T} \right\} \right) \\
-    &\leq \sum_{t \in \mathcal{T}_{\kappa}} \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z^2_{t'}-1)\right| \geq \sqrt{C|t_0-t|\log T}\right) \tag{union bound} \\
-    &\leq \frac{2}{T}. \tag{$|\mathcal{T}_\kappa| \leq T$}
-\end{align*}
-\normalsize
-For any $C > 0$ and $t\in[T]$ we have:
-\begin{align*}
-    \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C(T-t+1)\log T}\right) &\leq 2\exp\left[-\frac{C\log T}{2K^2_1}\right] \tag{Chernoff bound (\ref{eq:chernoff})} 
-\end{align*}
-so for $C > 4K_1^2$ we have:
-\begin{align*}
-    \Pr(\mathcal{E}^c_3) &= \Pr\left(\bigcup_{t = 1}^{ T - \lfloor\log T\rfloor} \left\{\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C(T-t+1)\log T} \right\} \right) \\
-    &\leq \sum_{t = 1}^{ T - \lfloor\log T\rfloor} \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C(T-t+1) \log T} \right)\tag{union bound} \\
-    &\leq \sum_{t = 1}^{ T - \lfloor\log T\rfloor}  2\exp\left[-\frac{C\log T}{2K_1^2}\right] \\
-    &\leq \frac{2}{T}. \tag{$T - \lfloor\log T\rfloor \leq T$ and $C > 4K_1^2$} 
-\end{align*}
-For $C > 4K_1^2$, we have:
-\begin{align*}
-    \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T\right) &\leq 2\exp\left[-\frac{C\sqrt{(T-t+1)\log T}}{2K^2_1}\right] \tag{Chernoff bound (\ref{eq:chernoff})} \\
-    &\leq 2 \exp[-2\sqrt{\log  T}] \tag{$T-t+1 \geq 1$ and $C > 4K_1^2$}
-\end{align*}
-so:
-\begin{align*}
-    \Pr(\mathcal{E}^c_4) &= \Pr\left(\bigcup_{t = T - \lfloor \log T\rfloor +1}^T \left\{\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T \right\} \right) \\
-    &\leq \sum_{t = T - \lfloor \log T\rfloor +1}^T \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T \right)\tag{union bound} \\
-    &\leq \sum_{t = T - \lfloor \log T\rfloor +1}^T 2 \exp[-2\sqrt{\log  T}] \tag{$C > 4K_1^2$}\\
-    &\leq 2\exp\left[\log(\log T)-2\sqrt{\log T}\right]. \tag{$\lfloor \log T\rfloor \leq \log T$}
-\end{align*}
-Since $\lim_{x\to\infty}\frac{\log x}{\sqrt{x}}= 0$, the last line above vanishes as $T\to\infty$. Again, for any $C>0$ we have:
-\small
-\begin{align*}
-    \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \sqrt{C(T-t+1)\log T}\right) &\leq 2\exp\left[-\frac{1}{2K_2}\min\left\{\sqrt{C(T-t+1)\log T}, \frac{C\log T}{K_2}\right\}\right]. \tag{Bernstein's inequality (\ref{eq:wainwright_prop_2.9})}
-\end{align*}
-\normalsize
-For $T-t+1 \geq \log T$ and $C > 16K_2^2$, we have:
-\begin{align*}
-    2\exp\left[-\frac{1}{2K_2}\min\left\{\sqrt{C(T-t+1)\log T}, \frac{C\log T}{K_2}\right\}\right] &\leq 2\exp\left[-\frac{\log T}{2K_2}\min\left\{\sqrt{C}, \frac{C}{K_2}\right\}\right] \tag{$(T-t+1)\log T \geq \log^2 T$} \\
-    &\leq 2\exp\left[-\frac{\log T}{2K_2}\min\left\{4 K_2, 16K_2\right\}\right] \tag{$C > 16K_2^2$} \\
-    &\leq \frac{2}{T^2}
-\end{align*}
-while for $T-t+1 < \log T$ and $C > 16K_2^2$, we have:
-\begin{align*}
-    2\exp\left[-\frac{1}{2K_2}\min\left\{\sqrt{C(T-t+1)\log T}, \frac{C\log T}{K_2}\right\}\right] &\leq 2\exp\left[-\frac{\sqrt{(T-t+1)\log T}}{2K_2}\min\left\{\sqrt{C}, \frac{C}{K_2}\right\}\right] \tag{$\sqrt{(T-t+1)\log T} < \log T$ and $C > 16K_2^2$} \\
-    &\leq 2\exp\left[-2\sqrt{(T-t+1)\log T}\right] \\
-    &\leq 2\exp\left[-2\sqrt{\log T}\right]. \tag{$T-t+1 \geq 1$}
-\end{align*}
-For $C > 16K_2^2$ we therefore have:
-\small
-\begin{align*}
-    \Pr(\mathcal{E}^c_4) &= \Pr\left(\bigcup_{t=1}^T \left\{\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \sqrt{C(T-t+1)\log T}\right\} \right) \\
-    &\leq \sum_{t = 1}^{ T - \lfloor\log T\rfloor} \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \sqrt{C(T-t+1)\log T}\right) + \sum_{t = T - \lfloor \log T\rfloor +1}^T \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \sqrt{C(T-t+1)\log T}\right) \tag{union bound} \\
-    &\leq \sum_{t = 1}^{ T - \lfloor\log T\rfloor}  2\exp\left[-2\sqrt{\log T}\right] + \sum_{t = T - \lfloor \log T\rfloor +1}^T \frac{2}{T^2} \\
-    &\leq \frac{2}{T} + 2\exp\left[\log(\log T)-2\sqrt{\log T}\right]. 
-\end{align*}
-\normalsize
-For $T - t + 1 > \log^\varepsilon T$ we have: 
-\begin{align*}
-    \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \frac{T-t+1}{4}\right) &\leq 2\exp\left[-\frac{T-t+1}{8K^2_1}\right] \tag{Chernoff bound (\ref{eq:chernoff})} \\
-    &\leq 2 \exp\left[-\frac{\log^\varepsilon T}{8K^2_1}\right] \tag{$T-t+1 \geq \log^\varepsilon T$}
-\end{align*}
-and thus:
-\small
-\begin{align*}
-    \Pr(\mathcal{E}^c_6) &= \Pr\left(\bigcup_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor} \left\{\left|\sum_{t'=t}^T z_{t'}\right| \geq \frac{T-t+1}{2}\right\} \right) \\
-    &\leq \sum_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor} \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \frac{T-t+1}{2}\right) \tag{union bound} \\
-    &\leq \sum_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}  2 \exp\left[-\frac{\log^\varepsilon T}{8K^2_1}\right] \tag{$\lfloor\log^{\varepsilon} T\rfloor + 1 \geq \log^{\varepsilon} T$} \\
-    &\leq  2 \log^{1+\varepsilon} T\exp\left[-\frac{\log^\varepsilon T}{8K^2_1}\right] \tag{$\lfloor\log^{1+\varepsilon} T\rfloor - \lfloor\log^{\varepsilon} T\rfloor  \leq \log^{1+\varepsilon} T$} \\
-    &= 2 \exp\left[(1+\varepsilon)\log(\log T)-\frac{\log^\varepsilon T}{8K^2_1}\right]. 
-\end{align*}
-\normalsize
-Note that the last line vanishes as $T \to \infty$ since $\log^\varepsilon T$ dominates $\log(\log T)$ for any $\varepsilon > 0$. Similarly, for $T - t + 1 > \log^\varepsilon T$ we have: 
-\small
-\begin{align*}
-    \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \frac{T-t+1}{4}\right) &\leq 2\exp\left[-\frac{T-t+1}{8K_2}\min\left\{1, \frac{1}{4K_2}\right\}\right]& \tag{Bernstein's inequality (\ref{eq:wainwright_prop_2.9})} \\
-    &\leq 2 \exp\left[-\frac{\log^\varepsilon T}{32K^2_2}\right] \tag{$T-t+1 \geq \log^\varepsilon T$ and $K_2 > 1$ WLOG}
-\end{align*}
-\normalsize
-and thus:
-\small
-\begin{align*}
-    \Pr(\mathcal{E}^c_6) &= \Pr\left(\bigcup_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}  \left\{\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \frac{T-t+1}{4}\right\} \right) \\
-    &\leq \sum_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}  \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \frac{T-t+1}{4}\right) \tag{union bound} \\
-    &\leq \sum_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}   2 \exp\left[-\frac{\log^\varepsilon T}{32K^2_2}\right]  \\
-    &\leq2 \exp\left[(1+\varepsilon)\log(\log T)-\frac{\log^\varepsilon T}{32K^2_2}\right]. 
-\end{align*}
-\normalsize
-\end{proof}
-
-\subsubsection{Theorem \ref{theorem:alpha-mixing} Event Bounds}
-
-\begin{lemma}[Theorem \ref{theorem:alpha-mixing} Event Bounds]\label{lemma:thm4-event-bound}
-
-Let $\{y_t\}_{t\geq 1}$ be a univariate sequence of random variables satisfying Assumption \ref{assumption:alpha-mixing}. Let $\E[y_t] = b_0\mathbbm{1}\{t\geq t_0\}$ and $\normalfont{\Var}(y_t) = (s_0^2)^{\mathbbm{1}\{t\geq t_0\}}$, with $b_0 \in \mathbb{R}$ and $s_0 > 0$ so that it is possible that $b_0 = 0$ or $s_0 = 1$. Define the standardized term $z_t:= \frac{y_t - b_0\mathbbm{1}\{t\geq t_0\}}{s_0^{\mathbbm{1}\{t\geq t_0\}}}$ and the functions $f_1$ and $f_2$ as in (\ref{eq:f1-signal-fn}) and (\ref{eq:f2-signal-fn}), then for any $\delta > 0$, there exist some universal constants $\kappa, C > 0$ such that for any $T\in\mathbb{N}$ and $t_0$ such that $\min\{t_0,T-t_0\} > \log^{2+\varepsilon} T$ for some $\varepsilon > 2\delta$, if we define the set:
-\begin{align*}
-    \mathcal{T}_{\kappa,\delta}:= \left\{1\leq t \leq T - \lfloor\log^{2 + \delta} T\rfloor \::\: |t_0 - t| > \frac{\kappa\log^{2 + \delta} T}{b^2_0 + \min\{f_1(s_0^2),f_2(s_0^2)\}} \right\}
-\end{align*}
-and the events: 
-\begin{align*}
-    \mathcal{E}_1 &:= \bigcap_{t \in \mathcal{T}_{\kappa, \delta}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| < C\sqrt{|t_0-t|}\log^{1+\frac{\delta}{4}} T\right\}, \\
-    \mathcal{E}_2 &:= \bigcap_{t \in \mathcal{T}_{\kappa, \delta}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z_{t'}^2 - 1) \right| <  C\sqrt{|t_0-t|}\log^{1+\frac{\delta}{4}} T  \right\},  \\
-    \mathcal{E}_3 &:= \bigcap_{t=1}^{T- \lfloor\log^{2 +\delta} T\rfloor }  \left\{\left|\sum_{t'=t}^{T} z_{t'}\right| < C\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T  \right\}, \\
-    \mathcal{E}_4 &:= \bigcap_{t=1}^{T- \lfloor\log^{2 +\delta} T \rfloor} \left\{\left|\sum_{t'=t}^{T} (z_{t'}^2 - 1) \right| <  C\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T  \right\},
-\end{align*}
-and the joint event $\mathcal{E} := \bigcap_{i=1}^4 \mathcal{E}_i$, then we will have $\lim_{T\to\infty} \Pr(\mathcal{E}) = 1$. 
-\end{lemma}
-
-\begin{proof}
-
-First, by Assumption \ref{assumption:alpha-mixing} there are stochastic processes $\{y_{0,t}\}_{t \geq 1}$ and $\{y_{1,t}\}_{t \geq 1}$ such that $y_{0,t} \sim F_0$, and $y_{1,t} \sim F_1$, $y_t := y_{0,t} \mathbbm{1}\{t < t_0\}  + y_{1,t}\mathbbm{1}\{t \geq t_0\}$, and:
-    \begin{enumerate}[label=(\roman*)]
-        \item $\{y_{0,t}\}_{t \geq 1}$ and $\{y_{1,t}\}_{t \geq 1}$ are $\alpha$-mixing processes with respective coefficients $\{\alpha_{0,k}\}_{k\geq 1}$ and $\{\alpha_{1,k}\}_{k\geq 1}$ that satisfy $\max\{\alpha_{0,k}, \alpha_{1,k}\} \leq e^{-C k}$ for some $C > 0$.
-        \item There exist constants $\delta_1, D_1 > 0$ such that $\sup_{t \geq 1} \max\{\E\left[|y_{0,t}|^{4+\delta_1}\right],\;\E\left[|y_{1,t}|^{4+\delta_1}\right]\}\leq D_1.$  
-    \end{enumerate}
-Let $z_{0,t} := y_{0,t}$ and $z_{1,t} := \frac{y_{1,t} - b_0}{s_0}$. Since $|y_{0,t}|^{2+\frac{\delta_1}{2}} \leq 1 + |y_{0,t}|^{4+\delta_1}$ we have:
-\begin{align*}
-    \E\left[\left|z_{0,t}\right|^{2 + \frac{\delta_1}{2}}\right] = \E\left[\left|y_{0,t}\right|^{2 + \frac{\delta_1}{2}}\right] < 1 + \E\left[\left|y_{0,t}\right|^{4 + \delta_1}\right] < 1 + D_1.
-\end{align*}
-Next:
-\begin{align*}
-    \E\left[\left|z^2_{0,t} -1 \right|^{2+\frac{\delta_1}{2}}\right] &\leq \E\left[\left(z_{0,t}^2 + 1\right)^{2+\frac{\delta_1}{2}}\right]\\
-    &\leq 2^{2+\frac{\delta_1}{2}}\E\left[\frac{z_{0,t}^{4+\delta_1} + 1}{2}\right] \tag{$x^{2+\frac{\delta_1}{2}}$ is convex}\\
-    &=2^{1+\frac{\delta_1}{2}}\left(\E\left[y_{0,t}^{4+\delta_1} \right]+ 1\right) \\
-    &< 2^{1+\frac{\delta_1}{2}}(D_1 + 1).    
-\end{align*}
-If Assumption \ref{assumption:mean} holds, there is some $\overline{b} > 0$ such that $|b_0| \leq \overline{b}$ (if Assumption \ref{assumption:mean} does not hold then we can set $\overline{b}=0$) and if Assumption \ref{assumption:scale} holds, there is some $\underline{s}^2 > 0$ such that $s^2_0 \geq \underline{s}^2$ (if Assumption \ref{assumption:scale} does not hold, then we can set $\underline{s}^2=1$). Therefore:
-\begin{align*}
-    \E\left[\left|z^2_{1,t} -1 \right|^{2+\frac{\delta_1}{2}}\right] &\leq \E\left[\left(z_{1,t}^2 + 1\right)^{2+\frac{\delta_1}{2}}\right]\\
-    &\leq 2^{1+\frac{\delta_1}{2}}\left(\E\left[z_{1,t}^{4+\delta_1} \right]+ 1\right) \tag{$x^{2+\frac{\delta_1}{2}}$ is convex} \\
-    &= 2^{1+\frac{\delta_1}{2}}\left(\E\left[\left|\frac{y_{1,t} - b_0}{s_0}\right|^{4+\delta_1}\right] + 1\right) \\
-    &\leq 2^{1+\frac{\delta_1}{2}}\left(\frac{\E\left[\left(|y_{1,t}| + |b_0| \right)^{4+\delta_1}\right]}{s_0^{4+\delta_1}}+ 1\right)  \\
-    &\leq 2^{1+\frac{\delta_1}{2}}\left(\frac{2^{3+\delta_1}\E\left[|y_{1,t}|^{4+\delta_1} + |b_0|^{4+\delta_1}\right]}{s_0^{4+\delta_1}} + 1\right) \tag{$x^{4+\delta_1}$ is convex} \\
-    &\leq 2^{1+\frac{\delta_1}{2}}\left(\frac{2^{3+\delta_1}(D_1 + \overline{b}^{4+\delta_1})}{\underline{s}^{4+\delta_1}} + 1 \right)
-\end{align*}
-and:
-\begin{align*}
-    \E\left[\left|z_{1,t}\right|^{2 + \frac{\delta_1}{2}}\right] \leq 1 + \E\left[\left|z_{1,t}\right|^{4 + \delta_1}\right] \leq 1+2^{1+\frac{\delta_1}{2}}\left(\frac{2^{3+\delta_1}(D_1 + \overline{b}^{4+\delta_1})}{\underline{s}^{4+\delta_1}} + 1 \right)
-\end{align*}
-Next, since $z_{1,t}$ is a continuous and therefore measurable function of $y_{1,t}$, for any $t \geq 1$ and $k \geq 0$, we have:
-\begin{align*}
-    \sigma(\{z_{1,t'}\}_{t'\leq t}) &\subseteq \sigma(\{y_{1,t'}\}_{t'\leq t}) \\
-    \sigma(\{z_{1,t'}\}_{t'\geq t+k}) &\subseteq \sigma(\{y_{1,t'}\}_{t'\geq t+k})
-\end{align*}
-which implies:
-\begin{align*}
-    \alpha_k(\{z_{1,t}\}_{t\geq 1}) \leq \alpha_k(\{y_{1,t}\}_{t\geq 1}) \leq e^{-Ck}.
-\end{align*}
-Similarly, $z^2_{0,t} - 1$ is a continuous and therefore measurable function of $y_{0,t}$, and thus:
-\begin{align*}
-    \sigma(\{z^2_{0,t'} - 1\}_{t'\leq t}) &\subseteq \sigma(\{y_{0,t'}\}_{t'\leq t}) \\
-    \sigma(\{z^2_{0,t'} - 1\}_{t'\geq t+k}) &\subseteq \sigma(\{y_{0,t'}\}_{t'\geq t+k})
-\end{align*}
-and thus:
-\begin{align*}
-    \alpha_k(\{z^2_{0,t} - 1\}_{t\geq 1}) \leq \alpha_k(\{y_{0,t}\}_{t\geq 1}) \leq e^{-Ck}.
-\end{align*}
-An identical argument shows that:
-\begin{align*}
-    \alpha_k(\{z^2_{1,t} - 1\}_{t\geq 1}) \leq \alpha_k(\{z_{1,t}\}_{t\geq 1}) \leq e^{-Ck}.
-\end{align*}
-Therefore, $\{z_{0,t}\}_{t\geq1}$, $\{z_{1,t}\}_{t\geq1}$, $\{z^2_{0,}-1\}_{t\geq1}$, and $\{z^2_{1,t}-1\}_{t\geq1}$ are all $\alpha$-mixing processes with moments and coefficients that satisfy the conditions of Lemma \ref{lemma:Padilla23}. For $C_1 >0$, we can write:
-\small
-\begin{align*}
-    \Pr\left(\mathcal{E}_1^c\right) &= \Pr\left(\bigcup_{t \in \mathcal{T}_{\kappa, \delta}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq C_1\sqrt{|t_0-t|}\log^{1+\frac{\delta}{4}} T\right\} \right) \\
-    &\leq \Pr\left(\bigcup_{t \in \mathcal{T}_{\kappa, \delta} \::\: t < t_0} \left\{\left|\sum_{t'=t}^{t_0-1} z_{t'}\right| \geq C_1\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T\right\} \right) + \Pr\left(\bigcup_{t \in \mathcal{T}_{\kappa, \delta} \::\: t > t_0} \left\{\left|\sum_{t'=t_0}^{t-1} z_{t'}\right| \geq C_1\sqrt{t-t_0}\log^{1+\frac{\delta}{4}} T\right\} \right) \tag{union bound} \\
-    &\leq \Pr\left(\bigcup_{t = 1}^{t_0-1} \left\{\left|\sum_{t'=t}^{t_0-1} z_{t'}\right| \geq C_1\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T\right\} \right) + \Pr\left(\bigcup_{t = t_0+1}^T \left\{\left|\sum_{t'=t_0}^{t-1} z_{t'}\right| \geq C_1\sqrt{t-t_0}\log^{1+\frac{\delta}{4}} T\right\} \right) \\
-    &= \Pr\left(\bigcup_{t = 1}^{t_0-1} \left\{\left|\sum_{t'=t}^{t_0-1} z_{0,t'}\right| \geq C_1\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T\right\} \right) + \Pr\left(\bigcup_{t = t_0+1}^T \left\{\left|\sum_{t'=t_0}^{t-1} z_{1,t'}\right| \geq C_1\sqrt{t-t_0}\log^{1+\frac{\delta}{4}} T\right\} \right) \tag{$z_{t'} = z_{0,t'} \mathbbm{1}\{t' < t_0\}  + z_{1,t'}\mathbbm{1}\{t' \geq t_0\}$}
-\end{align*}
-\normalsize
-Since $\{z_{0,t}\}_{t\geq1}$ and $\{z_{1,t}\}_{t\geq1}$ satisfy the conditions of Lemma \ref{lemma:alpha-mix-sum}, for some $K_1,K_2 > 0$ we have:
-\begin{align*}
-    \Pr\left(\bigcup_{t = 1}^{t_0-1} \left\{\left|\sum_{t'=t}^{t_0-1} z_{0,t'}\right| \geq K_1\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T\right\} \right) &\leq \frac{1}{\sqrt{\log^\delta T}} \\
-    \Pr\left(\bigcup_{t = t_0+1}^T \left\{\left|\sum_{t'=t_0}^{t-1} z_{1,t'}\right| \geq K_2\sqrt{t-t_0}\log^{1+\frac{\delta}{4}} T\right\} \right) &\leq \frac{1}{\sqrt{\log^\delta T}}
-\end{align*}
-So for $C_1 > \max\{K_1,K_2\}$ we get $\Pr\left(\mathcal{E}_1^c\right) \leq \frac{2}{\sqrt{\log^\delta T}}$. Since $\{z^2_{0,t}-1\}_{t\geq1}$ and $\{z^2_{1,t}-1\}_{t\geq1}$ also satisfy the conditions of Lemma \ref{lemma:alpha-mix-sum}, an identical argument shows we can pick $C_1$ large enough so that $\Pr\left(\mathcal{E}_2^c\right) \leq \frac{2}{\sqrt{\log^\delta T}}$ as well. Next, note that if $t < t_0$ and: 
-\begin{align*}
-    \left|\sum_{t'=t}^{t_0-1} z_{0,t'}\right| < \frac{C_1}{2}\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T
-\end{align*}
-and:
-\begin{align*}
-    \left|\sum_{t'=t_0}^{T} z_{1,t'}\right| < \frac{C_1}{2}\sqrt{T-t_0+1}\log^{1+\frac{\delta}{4}} T
-\end{align*}
-then:
-\begin{align*}
-    \left|\sum_{t'=t}^{T} z_{t'}\right| < \frac{C_1}{2}\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T + \frac{C_1}{2}\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T \leq C_1\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T. \tag{$T-t+1 > \max\{t_0-t,T-t_0+1\}$}
-\end{align*}
-So:
-\small
-\begin{align*}
-     \Pr\left(\mathcal{E}^c_3\right) &\leq \Pr\left(\bigcup_{t=1}^{T} \left\{\left|\sum_{t'=t}^{T} z_{t'}\right| \geq C_1\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T\right\} \right) \\
-     &\leq\Pr\left(\bigcup_{t=1}^{t_0-1} \left\{\left|\sum_{t'=t}^{T} z_{t'}\right| \geq C_1\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T\right\} \right) + \Pr\left(\bigcup_{t=t_0}^{T} \left\{\left|\sum_{t'=t}^{T} z_{1,t'}\right| \geq C_1\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T\right\} \right) \tag{union bound, $z_t = z_{1,t}$ for $t\geq t_0$} \\
-     &\leq\Pr\left(\bigcup_{t=1}^{t_0-1} \left\{\left|\sum_{t'=t}^{t_0-1} z_{0,t'}\right| \geq \frac{C_1}{2}\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T\right\}\cup\left\{ \left|\sum_{t'=t_0}^{T} z_{1,t'}\right| \geq \frac{C_1}{2}\sqrt{T-t_0+1}\log^{1+\frac{\delta}{4}} T\right\}  \right) \\
-     &\quad\: + \Pr\left(\bigcup_{t=t_0}^{T} \left\{\left|\sum_{t'=t}^{T} z_{1,t'}\right| \geq C_1\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T\right\} \right) \tag{union bound} \\
-     &\leq \Pr\left(\bigcup_{t=1}^{t_0-1} \left\{\left|\sum_{t'=t}^{t_0-1} z_{0,t'}\right| \geq \frac{C_1}{2}\sqrt{t_0-t}\log^{1+\frac{\delta}{4}} T\right\}  \right) + \Pr\left( \left|\sum_{t'=t_0}^{T} z_{1,t'}\right| \geq \frac{C_1}{2}\sqrt{T-t_0+1}\log^{1+\frac{\delta}{4}} T  \right) \\
-     &\quad\: + \Pr\left(\bigcup_{t=t_0}^{T} \left\{\left|\sum_{t'=t}^{T} z_{1,t'}\right| \geq C_1\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T\right\} \right) \tag{union bound} \\
-\end{align*}
-\normalsize
-Once again, by Lemma \ref{lemma:alpha-mix-sum} there is some $K_3 > 0$ such that:
-\begin{align*}
-    \Pr\left(\bigcup_{t=1}^{T} \left\{\left|\sum_{t'=t}^{T} z_{1,t'}\right| \geq K_3\sqrt{T-t+1}\log^{1+\frac{\delta}{4}} T\right\} \right)  &\leq \frac{1}{\sqrt{\log^\delta T}}
-\end{align*}
-So for $C_1 \geq 2\max\{K_1,K_3\}$, we have $\Pr\left(\mathcal{E}_3^c\right) \leq \frac{3}{\sqrt{\log^\delta T}}$. Again, we can use an identical argument to show that we can pick $C_1$ large enough so that $\Pr\left(\mathcal{E}_4^c\right) \leq \frac{3}{\sqrt{\log^\delta T}}$.
-
 \end{proof}

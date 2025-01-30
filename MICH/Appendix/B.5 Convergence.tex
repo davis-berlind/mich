@@ -1,0 +1,14 @@
+\subsection{Convergence Criterion}
+\label{app:convergence}
+
+Because Algorithm \ref{alg:mich} defines a coordinate ascent procedure for maximizing the ELBO (\ref{eq:elbo}), then the ELBO is strictly increases after each iteration of Algorithm \ref{alg:mich}. Therefore, one possibility for a stopping rule is to pick an error tolerance $\epsilon$ and terminate Algorithm \ref{alg:mich} when the increase in the ELBO falls below $\epsilon$. Note that by (\ref{eq:mean-field}) and  (\ref{eq:elbo}):
+\begin{align*}
+    \text{ELBO}(q\:;\mu_0,\lambda_0) &= \int q(\boldsymbol{\Theta}) \log \frac{ p(\mathbf{y}_{1:T},\boldsymbol{\Theta};\mu_0,\lambda_0)}{q(\boldsymbol{\Theta})} \; d\boldsymbol{\Theta} \\
+    &= \E_q\left[\log p(\mathbf{y}_{1:T},\boldsymbol{\Theta};\mu_0,\lambda_0)\right] - \sum_{\ell=1}^L \text{KL}(q_\ell\:\lVert\: p_\ell) - \sum_{k=1}^K \text{KL}(q_k\:\lVert\: p_k) -\sum_{j=1}^J \text{KL}(q_j\:\lVert\: p_j) \\
+    &= \frac{T  }{2} \log \lambda_0 + \frac{1}{2}\sum_{t=1}^T \left[\sum_{j=1}^J \E_{q_j}[\log \lambda_{jt}]+ \sum_{k=1}^K \E_{q_k}[\log \lambda_{kt}]\right] - \frac{1}{2} \sum_{t=1-B_l}^{T} \E_q[\lambda_t(y_t -\mu_t)^2] \\
+    &\quad - \sum_{j=1}^J \text{KL}(q_j\:\lVert\: p_j) - \sum_{\ell=1}^L \text{KL}(q_\ell\:\lVert\: p_\ell) - \sum_{k=1}^K \text{KL}(q_k\:\lVert\: p_k) +C \\
+    &= \frac{T  }{2} \log \lambda_0 + \frac{1}{2}\sum_{t=1}^T \left[\sum_{j=1}^J (T-t+1)\overline{\pi}_{jt}[\psi(\overline{u}_{jt}) - \log\overline{v}_{jt}]+ \sum_{k=1}^K(T-t+1)\overline{\pi}_{kt}[\psi(\overline{u}_{kt}) - \log\overline{v}_{kt}]\right] \\
+    &\quad- \frac{1}{2} \sum_{t=1-B_l}^{T} \overline{\lambda}_t(\Tilde{r}_t^2 + \delta_t) - \sum_{j=1}^J \text{KL}(q_j\:\lVert\: p_j) - \sum_{\ell=1}^L \text{KL}(q_\ell\:\lVert\: p_\ell) - \sum_{k=1}^K \text{KL}(q_k\:\lVert\: p_k) +C,
+\end{align*}
+\normalsize
+where $C$ is a constant that does not change between iterations, $\psi(x)$ is the digamma function, and $\tilde{r}_t$, $\overline{\lambda}_t$, and $\delta_t$ are defined as in (\ref{eq:mod-resid})-(\ref{eq:delta}). Each of these quantities as well as the KL divergences are functions of the parameters $\mu_0$, $\lambda_0$ and $\overline{\boldsymbol{\Theta}}$ (see Appendix \ref{app:prop1-proof} ). Proposition \ref{prop:vb} guaranties the convergence of these parameters, so the ELBO is guaranteed to converge as well. In practice, we follow the example set by \cite{Wang20} and set $\epsilon = 0.001$, which is the default stopping rule implemented in our \texttt{R} package.

@@ -37,11 +37,7 @@
       $\overline{\lambda}_t := \E_q[\lambda_{kt}]\overline{\lambda}_t, \; \sforall t$; \\
       $k := k + 1$; \\
     }
-    $\tilde{r}_t := \tilde{r}_t + \mu_0\; \sforall t$; \\
-    $\overline{\lambda}_t := \lambda_0{-1}\overline{\lambda}_t, \; \sforall t$; \\
-    Calculate: $\mu_0$ and $\lambda_0$ by (\ref{eq:EB-max-solution-mu}) and (\ref{eq:EB-max-solution-lambda});\\ 
-    $\tilde{r}_t := \tilde{r}_t - \mu_0\; \sforall t$; \\
-    $\overline{\lambda}_t := \lambda_0\overline{\lambda}_t, \; \sforall t$; \\
+
   }
   \Return{Posterior Parameters: $\mu_0;\lambda_0;\{\{\overline{b}_{jt}, \overline{\tau}_{jt}, \overline{u}_{jt}, \overline{v}_{jt}, \overline{\pi}_{jt}\}_{j=1}^J, \{\overline{b}_{\ell t}, \overline{\tau}_{\ell t}, \overline{\pi}_{\ell t}\}_{\ell=1}^L, \{\overline{u}_{kt}, \overline{v}_{kt}, \overline{\pi}_{kt}\}_{k=1}^K\}_{t=1}^T$}.
   \caption{Variational Bayes Approximation to MICH Posterior with $\mu_0$ and $\lambda_0$ Unknown.}

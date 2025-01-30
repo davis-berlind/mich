@@ -1,0 +1,156 @@
+\subsection{Theorem \ref{theorem:smscp} Event Bounds}
+
+\begin{lemma}[Theorem \ref{theorem:smscp} Event Bounds]\label{lemma:thm3-event-bound}
+Let $\{y_t\}_{t=1}^T$ be a sequence of independent, sub-Gaussian random variables with $\sup_{t \geq 1} \lVert y_t\rVert_{\psi_2} < \infty$. Let $\E[y_t] = b_0\mathbbm{1}\{t\geq t_0\}$ and $\normalfont{\Var}(y_t) = (s_0^2)^{\mathbbm{1}\{t\geq t_0\}}$, with $b_0 \in \mathbb{R}$ and $s_0 > 0$ so that it is possible that $b_0 = 0$ or $s_0 = 1$. Suppose that Assumptions \ref{assumption:1} holds for some $\varepsilon >0$ and either Assumption \ref{assumption:mean} or \ref{assumption:scale} holds. Define the standardized term $z_t:= \frac{y_t - b_0\mathbbm{1}\{t\geq t_0\}}{s_0^{\mathbbm{1}\{t\geq t_0\}}}$ and the functions $f_1$ and $f_2$ as in (\ref{eq:f1-signal-fn}) and (\ref{eq:f2-signal-fn}), then there exist some constants $C > 0$ and $\kappa > C$ such that if we define the set:
+\begin{align*}
+    \mathcal{T}_{\kappa}:= \left\{1\leq t < T - \lfloor\log^{\varepsilon} T\rfloor\::\: |t_0 - t| > \frac{\kappa\log T}{b^2_0 + \min\{f_1(s_0^2),f_2(s_0^2)\}} \right\}
+\end{align*}
+and the events: 
+\begin{align*}
+    \mathcal{E}_1 &:= \bigcap_{t \in \mathcal{T}_{\kappa}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| < \sqrt{C|t_0-t|\log T}\right\}, \\
+    \mathcal{E}_2 &:=  \bigcap_{t \in \mathcal{T}_{\kappa}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z_{t'}^2 - 1) \right| <  \sqrt{C|t_0-t|\log T}  \right\},  \\
+    \mathcal{E}_3 &:= \bigcap_{t = 1}^{ T - \lfloor\log T\rfloor}  \left\{\left|\sum_{t'=t}^T z_{t'}\right| < \sqrt{C(T-t+1)\log T}\right\}, \\
+    \mathcal{E}_4 &:= \bigcap_{t = T - \lfloor \log T\rfloor +1}^T  \left\{\left|\sum_{t'=t}^T z_{t'}\right| < \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T\right\}, \\
+    \mathcal{E}_5 &:= \bigcap_{t=1}^T \left\{\left|\sum_{t'=t}^T (z_{t'}^2 - 1)\right| < \sqrt{C(T-t+1)\log T}\right\}, \\
+    \mathcal{E}_6 &:= \bigcap_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor} \left\{\left|\sum_{t'=t}^T z_{t'}\right| < \frac{T-t+1}{2}\right\}, \\
+    \mathcal{E}_7 &:= \bigcap_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}  \left\{\left|\sum_{t'=t}^T (z_{t'}^2 - 1)\right| < \frac{T-t+1}{4}\right\},
+\end{align*}
+and the joint event $\mathcal{E} := \bigcap_{i=1}^7 \mathcal{E}_i$, then we will have $\lim_{T\to\infty} \Pr(\mathcal{E}) = 1$. 
+\end{lemma}
+
+\begin{proof}
+By the union bound $\Pr(\mathcal{E}^c) = 1 - P(\cup_{i=1}^7 \mathcal{E}^c_i) < 1 - \sum_{i=1}^7 \Pr(\mathcal{E}^c_i)$, so it is sufficient to show that $\Pr(\mathcal{E}^c_i) \to 0$ for each $i$. Note that if either Assumption \ref{assumption:mean} or \ref{assumption:scale} holds, then for any  $\kappa$, $\mathcal{T}_{\kappa}$ will be non-empty for large enough $T$ (see Appendix \ref{app:localization-smscp}). 
+
+If Assumption \ref{assumption:scale} does not hold, then we assume $\Var(y_t)$ is constant and it is without loss of generality to assume that $s_0=1$, while if  Assumption \ref{assumption:scale} does hold, then there is some $\underline{s} > 0$ such that $s_0 > \underline{s}$. Let $M_s = \min\{1, \underline{s}\}$, then by Lemma 2.6.8 of \cite{Vershynin18} we have: 
+\begin{align*}
+    \lVert z_t \rVert_{\psi_2} &\leq 
+    \frac{\left\lVert y_t - b_0\mathbbm{1}\{t\geq t_0\}\right\rVert_{\psi_2}}{M_s} \lesssim \frac{\left\lVert y_t\right\rVert_{\psi_2}}{M_s}.
+\end{align*}
+By assumption, there is some $K > 0$ so that $\sup_{t \geq 1} \lVert y_t\rVert_{\psi_2} < K$. Therefore, $\lVert z_t \rVert_{\psi_2} \lesssim M_s^{-1}K$, i.e. there exists some constant $K_1 \geq  M_s^{-1}K$ so that $z_t \in \mathcal{SG}(K_1)$. Then by Lemma \ref{lemma:sum-sub-gaussian}, for any index set $\mathcal{T}$, we have:
+\begin{align*}
+    \sum_{t\in\mathcal{T}} z_t \in\mathcal{SG}\left(\sqrt{|\mathcal{T}|}K_1\right).
+\end{align*}
+For $t \neq t_0$ we have:
+\begin{align*}
+     \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq \sqrt{C|t-t_0|\log T}\right) &\leq 2\exp\left[-\frac{C \log T}{2K^2_1}\right]. \tag{Chernoff bound (\ref{eq:chernoff})} \\
+\end{align*}
+So for $C > 4K_1^2$ we have:
+\small
+\begin{align*}
+    \Pr(\mathcal{E}^c_1) &= \Pr\left(\bigcup_{1 \leq t \leq T \::\: t \neq t_0 } \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq \sqrt{C|t-t_0|\log T}\right\} \right) \\
+    &\leq \sum_{1 \leq t \leq T \::\: t \neq t_0 } \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} z_{t'}\right| \geq \sqrt{C|t-t_0|\log T}\right) \tag{union bound} \\
+    &\leq \sum_{t =1}^T 2\exp\left[-\frac{C \log T}{2K^2_1}\right] \\
+    &\leq \frac{2}{T}.  \tag{$C > 4K_1^2$}
+\end{align*}
+\normalsize
+Next, since $\E[z^2_t] =1$, then by Exercise 2.7.10 \citealp{Vershynin18}, $\lVert z^2_t - 1 \rVert_{\psi_1} \lesssim \lVert z^2_t \rVert_{\psi_1}$, and by Lemma 2.7.6 of \citealp{Vershynin18}, $\lVert z^2_t \rVert_{\psi_1} = \lVert z_t \rVert_{\psi_2}^2 \leq K_1^2$. So by Proposition 2.7.1 of \citealp{Vershynin18} there exists some constant $K_2\geq K_1^2$ so that $z_t^2\in\mathcal{SE}(K_2,K_2)$. Then again by Lemma \ref{lemma:sum-sub-gaussian}:
+\begin{align*}
+    \sum_{t\in\mathcal{T}} (z^2_t -1) \in\mathcal{SE}\left(\sqrt{|\mathcal{T}|}K_2,K_2\right).
+\end{align*}
+Using Bernstein’s inequality (see Theorem 2.8.1 of \cite{Vershynin18}) for some $t \in \mathcal{T}_\kappa$ we get:
+\begin{align*}
+     \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z^2_{t'}-1)\right| \geq \sqrt{C|t_0-t|\log T}\right) &\leq 2\exp\left[-\frac{1}{2K_2} \min\left\{\sqrt{C|t_0-t|\log T}, \frac{C\log T}{K_2}\right\}\right] \\
+     &\leq  2\exp\left[-\frac{\log T}{2K_2} \min\left\{\sqrt{\frac{C\kappa}{b_0^2 + \min\{f_1(s^2_0), f_2(s_0^2)\}}}, \frac{C
+     }{K_2}\right\}\right]. \tag{$t \in \mathcal{T}_{\kappa} \implies |t-t_0|> \frac{\kappa\log T}{b_0^2 + \min\{f_1(s^2_0), f_2(s_0^2)\}} $} \\
+     &\leq  2\exp\left[-\frac{\log T}{2K_2} \min\left\{\frac{C}{\sqrt{b_0^2 + f_1(s^2_0)}}, \frac{C
+     }{K_2}\right\}\right]. \tag{$f_1(s^2_0) > \min\{f_1(s^2_0), f_2(s_0^2)\}$ and $\kappa > C$}
+\end{align*}
+If Assumption \ref{assumption:mean} holds then $b_0 < \overline{b}$ for some $\overline{b} < \infty$ and if Assumption \ref{assumption:scale} holds then $\underline{s} < s_0 < \overline{s}$ for some $\underline{s} > 0$ and $\overline{s} < \infty$, so for:
+\begin{align*}
+    C > 4K_2\max\left\{K_2,  \sqrt{\overline{b}^2 + \max\{f_1(\overline{s}^2), f_2(\underline{s}^2)\}}\right\}
+\end{align*}
+we have:
+\begin{align*}
+     \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z^2_{t'}-1)\right| \geq \sqrt{C|t_0-t|\log T}\right) &\leq \frac{2}{T^2}
+\end{align*}
+and thus:
+\small
+\begin{align*}
+    \Pr(\mathcal{E}^c_2) &= \Pr\left(\bigcup_{t \in \mathcal{T}_{\kappa}} \left\{\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z^2_{t'}-1)\right| \geq \sqrt{
+    C|t_0-t|\log T} \right\} \right) \\
+    &\leq \sum_{t \in \mathcal{T}_{\kappa}} \Pr\left(\left|\sum_{t'=\min\{t_0,t\}}^{\max\{t_0,t\}-1} (z^2_{t'}-1)\right| \geq \sqrt{C|t_0-t|\log T}\right) \tag{union bound} \\
+    &\leq \frac{2}{T}. \tag{$|\mathcal{T}_\kappa| \leq T$}
+\end{align*}
+\normalsize
+For any $C > 0$ and $t\in[T]$ we have:
+\begin{align*}
+    \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C(T-t+1)\log T}\right) &\leq 2\exp\left[-\frac{C\log T}{2K^2_1}\right] \tag{Chernoff bound (\ref{eq:chernoff})} 
+\end{align*}
+so for $C > 4K_1^2$ we have:
+\begin{align*}
+    \Pr(\mathcal{E}^c_3) &= \Pr\left(\bigcup_{t = 1}^{ T - \lfloor\log T\rfloor} \left\{\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C(T-t+1)\log T} \right\} \right) \\
+    &\leq \sum_{t = 1}^{ T - \lfloor\log T\rfloor} \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C(T-t+1) \log T} \right)\tag{union bound} \\
+    &\leq \sum_{t = 1}^{ T - \lfloor\log T\rfloor}  2\exp\left[-\frac{C\log T}{2K_1^2}\right] \\
+    &\leq \frac{2}{T}. \tag{$T - \lfloor\log T\rfloor \leq T$ and $C > 4K_1^2$} 
+\end{align*}
+For $C > 4K_1^2$, we have:
+\begin{align*}
+    \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T\right) &\leq 2\exp\left[-\frac{C\sqrt{(T-t+1)\log T}}{2K^2_1}\right] \tag{Chernoff bound (\ref{eq:chernoff})} \\
+    &\leq 2 \exp[-2\sqrt{\log  T}] \tag{$T-t+1 \geq 1$ and $C > 4K_1^2$}
+\end{align*}
+so:
+\begin{align*}
+    \Pr(\mathcal{E}^c_4) &= \Pr\left(\bigcup_{t = T - \lfloor \log T\rfloor +1}^T \left\{\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T \right\} \right) \\
+    &\leq \sum_{t = T - \lfloor \log T\rfloor +1}^T \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \sqrt{C}(T-t+1)^{3/4}\log^{1/4} T \right)\tag{union bound} \\
+    &\leq \sum_{t = T - \lfloor \log T\rfloor +1}^T 2 \exp[-2\sqrt{\log  T}] \tag{$C > 4K_1^2$}\\
+    &\leq 2\exp\left[\log(\log T)-2\sqrt{\log T}\right]. \tag{$\lfloor \log T\rfloor \leq \log T$}
+\end{align*}
+Since $\lim_{x\to\infty}\frac{\log x}{\sqrt{x}}= 0$, the last line above vanishes as $T\to\infty$. Again, for any $C>0$ we have:
+\small
+\begin{align*}
+    \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \sqrt{C(T-t+1)\log T}\right) &\leq 2\exp\left[-\frac{1}{2K_2}\min\left\{\sqrt{C(T-t+1)\log T}, \frac{C\log T}{K_2}\right\}\right]. \tag{Bernstein's inequality (\ref{eq:wainwright_prop_2.9})}
+\end{align*}
+\normalsize
+For $T-t+1 \geq \log T$ and $C > 16K_2^2$, we have:
+\begin{align*}
+    2\exp\left[-\frac{1}{2K_2}\min\left\{\sqrt{C(T-t+1)\log T}, \frac{C\log T}{K_2}\right\}\right] &\leq 2\exp\left[-\frac{\log T}{2K_2}\min\left\{\sqrt{C}, \frac{C}{K_2}\right\}\right] \tag{$(T-t+1)\log T \geq \log^2 T$} \\
+    &\leq 2\exp\left[-\frac{\log T}{2K_2}\min\left\{4 K_2, 16K_2\right\}\right] \tag{$C > 16K_2^2$} \\
+    &\leq \frac{2}{T^2}
+\end{align*}
+while for $T-t+1 < \log T$ and $C > 16K_2^2$, we have:
+\begin{align*}
+    2\exp\left[-\frac{1}{2K_2}\min\left\{\sqrt{C(T-t+1)\log T}, \frac{C\log T}{K_2}\right\}\right] &\leq 2\exp\left[-\frac{\sqrt{(T-t+1)\log T}}{2K_2}\min\left\{\sqrt{C}, \frac{C}{K_2}\right\}\right] \tag{$\sqrt{(T-t+1)\log T} < \log T$ and $C > 16K_2^2$} \\
+    &\leq 2\exp\left[-2\sqrt{(T-t+1)\log T}\right] \\
+    &\leq 2\exp\left[-2\sqrt{\log T}\right]. \tag{$T-t+1 \geq 1$}
+\end{align*}
+For $C > 16K_2^2$ we therefore have:
+\small
+\begin{align*}
+    \Pr(\mathcal{E}^c_4) &= \Pr\left(\bigcup_{t=1}^T \left\{\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \sqrt{C(T-t+1)\log T}\right\} \right) \\
+    &\leq \sum_{t = 1}^{ T - \lfloor\log T\rfloor} \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \sqrt{C(T-t+1)\log T}\right) + \sum_{t = T - \lfloor \log T\rfloor +1}^T \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \sqrt{C(T-t+1)\log T}\right) \tag{union bound} \\
+    &\leq \sum_{t = 1}^{ T - \lfloor\log T\rfloor}  2\exp\left[-2\sqrt{\log T}\right] + \sum_{t = T - \lfloor \log T\rfloor +1}^T \frac{2}{T^2} \\
+    &\leq \frac{2}{T} + 2\exp\left[\log(\log T)-2\sqrt{\log T}\right]. 
+\end{align*}
+\normalsize
+For $T - t + 1 > \log^\varepsilon T$ we have: 
+\begin{align*}
+    \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \frac{T-t+1}{4}\right) &\leq 2\exp\left[-\frac{T-t+1}{8K^2_1}\right] \tag{Chernoff bound (\ref{eq:chernoff})} \\
+    &\leq 2 \exp\left[-\frac{\log^\varepsilon T}{8K^2_1}\right] \tag{$T-t+1 \geq \log^\varepsilon T$}
+\end{align*}
+and thus:
+\small
+\begin{align*}
+    \Pr(\mathcal{E}^c_6) &= \Pr\left(\bigcup_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor} \left\{\left|\sum_{t'=t}^T z_{t'}\right| \geq \frac{T-t+1}{2}\right\} \right) \\
+    &\leq \sum_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor} \Pr\left(\left|\sum_{t'=t}^T z_{t'}\right| \geq \frac{T-t+1}{2}\right) \tag{union bound} \\
+    &\leq \sum_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}  2 \exp\left[-\frac{\log^\varepsilon T}{8K^2_1}\right] \tag{$\lfloor\log^{\varepsilon} T\rfloor + 1 \geq \log^{\varepsilon} T$} \\
+    &\leq  2 \log^{1+\varepsilon} T\exp\left[-\frac{\log^\varepsilon T}{8K^2_1}\right] \tag{$\lfloor\log^{1+\varepsilon} T\rfloor - \lfloor\log^{\varepsilon} T\rfloor  \leq \log^{1+\varepsilon} T$} \\
+    &= 2 \exp\left[(1+\varepsilon)\log(\log T)-\frac{\log^\varepsilon T}{8K^2_1}\right]. 
+\end{align*}
+\normalsize
+Note that the last line vanishes as $T \to \infty$ since $\log^\varepsilon T$ dominates $\log(\log T)$ for any $\varepsilon > 0$. Similarly, for $T - t + 1 > \log^\varepsilon T$ we have: 
+\small
+\begin{align*}
+    \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \frac{T-t+1}{4}\right) &\leq 2\exp\left[-\frac{T-t+1}{8K_2}\min\left\{1, \frac{1}{4K_2}\right\}\right]& \tag{Bernstein's inequality (\ref{eq:wainwright_prop_2.9})} \\
+    &\leq 2 \exp\left[-\frac{\log^\varepsilon T}{32K^2_2}\right] \tag{$T-t+1 \geq \log^\varepsilon T$ and $K_2 > 1$ WLOG}
+\end{align*}
+\normalsize
+and thus:
+\small
+\begin{align*}
+    \Pr(\mathcal{E}^c_6) &= \Pr\left(\bigcup_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}  \left\{\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \frac{T-t+1}{4}\right\} \right) \\
+    &\leq \sum_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}  \Pr\left(\left|\sum_{t'=t}^T (z^2_{t'}-1)\right| \geq \frac{T-t+1}{4}\right) \tag{union bound} \\
+    &\leq \sum_{t = T - \lfloor\log^{1+\varepsilon} T\rfloor + 1}^{T - \lfloor\log^{\varepsilon} T\rfloor}   2 \exp\left[-\frac{\log^\varepsilon T}{32K^2_2}\right]  \\
+    &\leq2 \exp\left[(1+\varepsilon)\log(\log T)-\frac{\log^\varepsilon T}{32K^2_2}\right]. 
+\end{align*}
+\normalsize
+\end{proof}

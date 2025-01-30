@@ -10,9 +10,9 @@
   % SMCP
   \node[latent, left=0.5 of mu] (b_l) {$b_\ell$} ;
   \factor[left=of b_l, xshift=0.25cm] {b_l-f} {above:$\mathcal{N}$} {} {} ; %
-  \node[const, left=of b_l, xshift=0.75cm] (tau_l) {$\tau_\ell$} ; %
+  \node[const, left=of b_l, xshift=0.75cm] (tau_l) {$\omega_\ell$} ; %
 
-  \node[latent, left=0.5 of mu, yshift=1cm] (gamma_l) {$\gamma_\ell$} ;
+  \node[latent, left=0.5 of mu, yshift=1cm] (gamma_l) {$\tau_\ell$} ;
   \factor[left=of gamma_l, xshift=0.25cm] {gamma_l-f} {above:Multi.} {} {} ; %
   \node[const, left=of gamma_l, xshift=0.75cm] (pi_l) {$\pi_\ell$} ; %
 
@@ -22,7 +22,7 @@
   \node[const, right=of s_k, xshift=-0.75cm, yshift = 0.5cm] (u_k) {$u_k$} ; %
   \node[const, right=of s_k, xshift=-0.75cm, yshift = -0.5cm] (v_k) {$v_k$} ; %
 
-  \node[latent, right=0.5 of lambda, yshift=1cm] (gamma_k) {$\gamma_k$} ;
+  \node[latent, right=0.5 of lambda, yshift=1cm] (gamma_k) {$\tau_k$} ;
   \factor[right=of gamma_k, xshift=-0.25cm] {gamma_k-f} {above:Multi.} {} {} ; %
   \node[const, right=of gamma_k, xshift=-0.75cm] (pi_k) {$\pi_k$} ; %
 
@@ -33,9 +33,9 @@
   \node[const, above=0.5 of s_j, xshift=-0.25cm] (u_j) {$u_j$} ; %
   \node[const, above=0.5 of s_j, xshift=0.2cm] (v_j) {$v_j$} ; %
   
-  \node[latent, above=1.2cm of y-f] (gamma_j) {$\gamma_j$} ;
+  \node[latent, above=1.2cm of y-f] (gamma_j) {$\tau_j$} ;
   \factor[above=0.61cm of gamma_j] {b_j-f} {below:$\mathcal{N}$} {} {} ; %
-  \node[const, above=0.65cm of b_j-f] (tau_j) {$\tau_j$} ; %
+  \node[const, above=0.65cm of b_j-f] (tau_j) {$\omega_j$} ; %
   \factor[left=of gamma_j , xshift=0.3cm] {gamma_j-f} {above:Multi.} {} {} ; %
   \node[const, left=of gamma_j, xshift=0.8cm] (pi_j) {$\pi_j$} ; %
 

@@ -1,135 +1,139 @@
 \section{Single Change-Point (SCP) Models}
 \label{sec:scp}
 
-
-
-We start by presenting our methodology for the single change point setting, as this will be the building block for the multiple change point detection methods in Section  \ref{sec:mich}. Suppose that we have $T$ observations of a $d$-dimensional time-series $\mathbf{y}_{1:T}$ where each $\mathbf{y}_t$ is generated according to:
+We begin by introducing three single change-point (SCP) models that will form the basic components of the multiple change-point method in Section \ref{sec:mich}. Suppose that we have $T$ observations of a $d$-dimensional time-series $\mathbf{y}_{1:T}$ where:
 \begin{align}\label{eq:dgp}
     \mathbf{y}_t \:|\: \boldsymbol{\mu}_t, \boldsymbol{\Lambda}_t \overset{\text{ind.}}{\sim} \mathcal{N}_d\left(\boldsymbol{\mu}_t, \boldsymbol{\Lambda}^{-1}_t\right), \;\sforall t \in [T].
 \end{align}
-We assume that either $\boldsymbol{\mu}_{1:T} := \{\boldsymbol{\mu}_t\}_{t=1}^{T}$, $\boldsymbol{\Lambda}_{1:T} := \{\boldsymbol{\Lambda}_t\}^{T}_{t=1}$, or both exhibit piece-wise constant structures with a single change occurring at some unknown time $\gamma \in [T]$.\footnote{In some cases it may make sense to restrict $\gamma$ to a subset of $[T]$, e.g. it is common in the CPD literature to assume that there is a buffer at the start and end of $\mathbf{y}$ within which no change $\boldsymbol{\mu}_{1:T}$ or $\boldsymbol{\Lambda}_{1:T}$ can occur. We show how to include such a buffer in our model in Appendix \ref{app:posterior-parameters}. \label{fn:buffer}} We introduce three single change-point (SCP) models for the random processes that generate $\gamma$ along with the jumps in $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$. In Section \ref{sec:smcp} and Section \ref{sec:sscp} we introduce models that handle the respective cases of either a single change-point in $\boldsymbol{\mu}_{1:T}$ or a single change-point in $\boldsymbol{\Lambda}_{1:T}$, while the model in Section \ref{sec:smscp} addresses the setting of a simultaneous change in both $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$.  In each model, given the prior probabilities for the change-point location $\pi_{1:T} \in \mathcal{S}^T$, we assume that:
+We assume that either $\boldsymbol{\mu}_{1:T}$, $\boldsymbol{\Lambda}_{1:T}$, or both can be decomposed into a known trend and an unknown piece-wise constant structure with a single change occurring at some unknown time $\tau \in [T]$, where:
 \begin{align}
-    \gamma \sim \text{Categorical}(\boldsymbol{\pi}_{1:T}). \label{eq:gamma-cat}
+    \tau \sim \text{Categorical}(\boldsymbol{\pi}_{1:T}), \; \boldsymbol{\pi}_{1:T} \in \mathcal{S}^T. \label{eq:tau-cat}
 \end{align}
-\textcolor{red}{Oscar:  we should define what "Categorical" means. This can go in the Notation section }
-By modeling $\gamma$ as in (\ref{eq:gamma-cat}) and choosing conditionally conjugate prior distributions for the jumps in $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$, we arrive below at simple closed form posterior distributions for the jumps $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$ and the location of $\gamma$:
+Then, the posterior distribution of $\tau$ is given by:
 \begin{align}
-    \gamma &\sim \text{Categorical}(\overline{\boldsymbol{\pi}}_{1:T}) \label{eq:gamma-post-cat1} \\ 
-    \overline{\pi}_t &\propto  \pi_t p(\mathbf{y}_{1:T} \;|\; \gamma = t ; \eta) \label{eq:gamma-post-cat2}
+    \tau \:|\: \mathbf{y}_{1:T} &\sim \text{Categorical}(\overline{\boldsymbol{\pi}}_{1:T}), \label{eq:gamma-post-cat1} \\ 
+    \overline{\pi}_t &\propto  \pi_t p(\mathbf{y}_{1:T} \;|\; \tau = t). \label{eq:gamma-post-cat2}
 \end{align}
-where $\eta$ is a generic stand-in for the parameters in the marginal density of $\mathbf{y}_{1:T}$. Explicit calculations for the posterior parameters in each of the following models are available in Appendix \ref{app:posterior-parameters}.
+By choosing conditionally conjugate prior distributions for the jumps in $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\Lambda}_{1:T}$, we arrive at closed-form expressions for $\overline{\pi}_t$ (see Appendix \ref{app:posterior-parameters}). Given $\overline{\boldsymbol{\pi}}_{1:T}$, a natural point-estimate for the location of the change-point is the posterior mode of $\tau$, i.e. the maximum \textit{a posteriori} (MAP) estimator:
+\begin{align}\label{eq:map}
+    \hat{t}_{\text{MAP}} := \argmax{1 \leq t \leq T} \; \overline{\pi}_t.
+\end{align}
+We give a detailed characterization of the consistency properties of $\hat{t}_{\text{MAP}}$ in Section \ref{sec:localization}. The posterior probabilities $\overline{\boldsymbol{\pi}}_{1:T}$ also facilitate our goal of quantifying the uncertainty around $\tau$ with $\alpha$-level credible sets, which we construct by solving the following optimization problem:
+\begin{align}\label{eq:cs}
+    \mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T}) := \argmin{S \subseteq[T]} |S| \;\text{ s.t. } \sum_{t \in S} \overline{\pi}_t \geq \alpha.
+\end{align}
+\begin{remark}[Knapsack Problem]\label{rmk:knapsack}
+    The optimization task (\ref{eq:cs}) is equivalent to solving the integer program $\mathbf{z} := \text{\normalfont arg min}_{\mathbf{x}\in\{0,1\}^T} \; \langle\mathbf{1}, \mathbf{x}\rangle \text{ s.t. } \langle \overline{\boldsymbol{\pi}}_{1:T}, \mathbf{x}\rangle \geq \alpha$, and setting $\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T}) := \{t \in [T]: z_t = 1\}$. This is an example of a knapsack problem (\citealp{Santini24}), which we solve by adding indices to $\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T})$ in decreasing order of the value of $\overline{\boldsymbol{\pi}}_{1:T}$ until $\sum_{t \in \mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T})} \overline{\pi}_t$ exceeds $\alpha$. 
+\end{remark}
+\vspace{-10pt}
 
 \subsection{Mean Change-Point Model}
 \label{sec:smcp}
 
-
-Suppose that we have $T$ observations from (\ref{eq:dgp}) where the sequence of positive definite precision matrices $\boldsymbol{\Lambda}_{1:T}$ is known and given $\gamma$ from (\ref{eq:gamma-cat}) and some known $\tau_0 > 0$, $\boldsymbol{\mu}_{1:T}$ is a random sequence with an underlying piece-wise constant structure generated by the following mean change-point (mean-scp) model:
+Suppose that we have $T$ observations from (\ref{eq:dgp}) where the sequence of positive definite precision matrices $\boldsymbol{\Lambda}_{1:T}$ is known. Given $\tau$ from (\ref{eq:tau-cat}) and a prior precision parameter $\omega_0 > 0$, we place a Gaussian prior on the jump in $\boldsymbol{\mu}_{1:T}$ to complete the mean single change-point (mean-scp) model:
 \begin{align} \label{eq:smcp-start}
-    \boldsymbol{\mu}_t &= \mathbf{b}\mathbbm{1}{\left\{t\geq \gamma \right\}} \\
-    \mathbf{b} &\sim \mathcal{N}_d(\mathbf{0},\tau_0^{-1} \mathbf{I}_d).    
-    \label{eq:smcp-end}
+    \boldsymbol{\mu}_t &= \mathbf{b}\mathbbm{1}{\left\{t\geq \tau \right\}}, \\
+    \mathbf{b} &\sim \mathcal{N}_d(\mathbf{0},\omega_0^{-1} \mathbf{I}_d). \label{eq:smcp-end}
 \end{align}
-Each of the coordinates of $\mathbf{y}_{t}$ start centered at zero and jump by $\mathbf{b}\in\mathbb{R}^d$ at some time $\gamma \in [T]$. For each $t \in [T]$, our choice of conjugate priors results in the following closed form posterior distribution:
+Under (\ref{eq:smcp-start}), the coordinates of $\mathbf{y}_{t}$ begin centered at zero and jump by $\mathbf{b}\in\mathbb{R}^d$ at time $\tau$. Choosing to construct $\boldsymbol{\mu}_{1:T}$ in this way and include time varying precision terms $\boldsymbol{\Lambda}_{1:T}$ may appear convoluted, but this formulation will become key to facilitating multiple change-point inference in Section \ref{sec:mich}. For each $t \in [T]$, we arrive at the following closed forms for the posterior distribution and expectation of $\boldsymbol{\mu}_t$:
 \begin{align}
-    \mathbf{b} \:|\: \gamma = t, \: \mathbf{y}_{1:T} &\sim \mathcal{N}_d\left(\overline{\mathbf{b}}_{t}, \overline{\boldsymbol{\mathcal{T}}}_{t}^{-1}\right) \label{eq:b-smcp}. 
+    \mathbf{b} \:|\: \tau = t, \: \mathbf{y}_{1:T} &\sim \mathcal{N}_d\left(\overline{\mathbf{b}}_{t}, \overline{\boldsymbol{\Omega}}_{t}^{-1}\right), \label{eq:b-smcp} \\ 
+    \E[\boldsymbol{\mu}_{t} \;|\; \mathbf{y}_{1:T}] &= \sum_{t'=1}^t \overline{\mathbf{b}}_{t'} \overline{\pi}_{t'}. \label{eq:mu-post-mean}
 \end{align}
-When appropriate, we will use the notation $\{\mathbf{b},\gamma\} \sim \text{mean-scp}(\{\overline{\mathbf{b}}_t, \overline{\boldsymbol{\mathcal{T}}}_t, \overline{\pi}_t\}_{t=1}^T)$ to mean that $\{\mathbf{b}, \gamma\}$ follows the distribution specified in (\ref{eq:gamma-post-cat1})-(\ref{eq:gamma-post-cat2}) and (\ref{eq:b-smcp}). Even though $\mathbf{b}$ and $\gamma$ are generated independently, we see from the joint posterior that these parameters can exhibit an arbitrary degree of dependence after conditioning on $\mathbf{y}_{1:T}$. When $d = 1$, the model described in (\ref{eq:smcp-start})-(\ref{eq:smcp-end}) is identical to the SER model introduced in \cite{Wang20} when the covariate matrix $\mathbf{X}$ is lower-triangular with the non-zero entries equal to one. Motivated by this connection, we define a \texttt{mean-scp} function that is analogous to the \texttt{SER} function in \cite{Wang20} and takes $\mathbf{y}_{1:T}$ and the model parameters as inputs and returns the posterior parameters as its output: 
+The posterior mean $\overline{\mathbf{b}}_{t}$, precision $\overline{\boldsymbol{\Omega}}_{t}$, and $\overline{\pi}_t$ are calculated as in (\ref{eq:mean-scp-post-omega})-(\ref{eq:mean-scp-post-pi}). When $d = 1$, the mean-scp model is identical to the SER model of \cite{Wang20} applied to a $T\times T$ covariate matrix $\mathbf{X}_T$ with $(\mathbf{X}_T)_{ij} = \mathbbm{1} \{i \geq j\}$. Later, when we generalize to multiple change-points, it will be convenient to define a function that takes $\mathbf{y}_{1:T}$ and the model parameters as inputs and returns the posterior parameters: 
 \begin{align}\label{eq:mean-scp-fn}
-    \texttt{mean-scp}\left(\mathbf{y}_{1:T} \:;\: \boldsymbol{\Lambda}_{1:T}, \tau_0, \boldsymbol{\pi}_{1:T}\right) := \{\overline{\mathbf{b}}_t, \overline{\boldsymbol{\mathcal{T}}}_t, \overline{\pi}_t\}_{t=1}^T.
+    \texttt{mean-scp}\left(\mathbf{y}_{1:T} \:;\: \boldsymbol{\Lambda}_{1:T}, \omega_0, \boldsymbol{\pi}_{1:T}\right) := \{\overline{\mathbf{b}}_t, \overline{\boldsymbol{\Omega}}_t, \overline{\pi}_t\}_{t=1}^T.
 \end{align}
 
 \subsection{Variance Change-Point Model}
 \label{sec:sscp}
 
-For the variance change-point model in this section, we restrict $d = 1$ so that $y_t$ is univariate and $\Var(y_t) := \lambda_t^{-1}$. We assume that $\boldsymbol{\mu}_{1:T} \equiv \mathbf{0}$ and given $\gamma$ from (\ref{eq:gamma-cat}) and some known constants and $\tau_t, u_0, v_0 > 0$, the sequence of precision parameters $\boldsymbol{\lambda}_{1:T}$ is generated by the following variance change-point (var-scp) model: 
+In this section, we restrict $d = 1$ so that $y_t$ is univariate and $\Var(y_t) := \lambda_t^{-1}$. We assume that $\boldsymbol{\mu}_{1:T}$ is known, therefore it is without loss of generality to assume $\mu_{t} \equiv 0$. We now introduce a positive vector $\boldsymbol{\omega}_{1:T}$ that constitutes the known trend component of $\boldsymbol{\lambda}_{1:T}$. The inclusion of $\boldsymbol{\lambda}_{1:T}$ will help facilitate multiple change-point detection in Section \ref{sec:mich}. Given $\tau$ from (\ref{eq:tau-cat}) and prior shape and rate parameters $u_0, v_0 > 0$, we place a gamma prior on the jump in $\boldsymbol{\lambda}_{1:T}$ to complete the variance single change-point (var-scp) model:
 \begin{align}\label{eq:sscp-start}
-    \lambda_t &= \tau_t s^{\mathbbm{1}\{t \geq \gamma\}} \\
+    \lambda_t &= \omega_t s^{\mathbbm{1}\{t \geq \tau\}}, \\
     s &\sim \text{Gamma}(u_0,v_0).
     \label{eq:sscp-end}
 \end{align}
-The model in (\ref{eq:sscp-start})-(\ref{eq:sscp-end}) independently draws the location of the change-point $\gamma$ and the jump in the precision $s$, then scales each precision parameter $\tau_t$ by $s$ if $t \geq \gamma$.\footnote{The inclusion of the parameter $\tau_t$ in the var-scp model allows for variation in $\boldsymbol{\lambda}_{1:T}$ independent of the change-point. This general construction will prove to be useful in Section \ref{sec:mich} when we seek to model multiple change-points.} To see this, suppose that $\gamma > t$, i.e. $t$ is a time before the change-point occurs, then we will have $\mathbbm{1}\{t \geq \gamma\} = 0$ and $s^{\mathbbm{1}\{t \geq \gamma\}} = 1$. On the other hand, if $\gamma \leq t$, then we have $s^{\mathbbm{1}\{t \geq \gamma\}} = s$, so multiplying $\tau_t$ by $s^{\mathbbm{1}\{t \geq \gamma\}}$ gives us the desired scaling effect. This is precisely the  model introduced by \cite{Cappello22} with the following posterior distribution:
+Suppose that $\tau > t$, then $s^{\mathbbm{1}\{t \geq \tau\}} = 1$, and if $\tau \leq t$, then we have $s^{\mathbbm{1}\{t \geq \tau\}} = s$. Thus the construction in (\ref{eq:sscp-start}), decomposes $\lambda_t$ into the known component $\omega_{t}$ and a piecewise constant component equal to one or $s$. When $\omega_t \equiv 1$, then the var-scp model recovers the single variance change-point model of \cite{Cappello22}. Again, the conjugate prior on $s$ results in the following closed forms for the posterior distribution and expectation of $\lambda_t$:
 \begin{align}
-    s \:|\: \gamma = t, \: \mathbf{y}_{1:T} &\sim \text{Gamma}\left(\overline{u}_{t}, \overline{v}_{t}\right). \label{eq:s-sscp} 
+    s \:|\: \tau = t, \: \mathbf{y}_{1:T} &\sim \text{Gamma}\left(\overline{u}_{t}, \overline{v}_{t}\right), \label{eq:s-sscp} \\
+    \E[ \lambda_{t}\;|\;\mathbf{y}_{1:T}] &= \omega_t\left[\sum_{t'=1}^{t} \frac{\overline{u}_{t'}\overline{\pi}_{t'}}{\overline{v}_{t'}}  + \sum_{t'=t+1}^T \overline{\pi}_{t'}\right]. \label{eq:lambda-post-mean}
 \end{align}
-As with the mean-scp model, we use $\{s,\gamma\} \sim \text{var-scp}(\{\overline{u}_t, \overline{v}_t, \overline{\pi}_t\}_{t=1}^T)$ as a shorthand for the distribution (\ref{eq:gamma-post-cat1})-(\ref{eq:gamma-post-cat2}) and (\ref{eq:s-sscp}) and we define a function \texttt{var-scp}: 
+The posterior shape $\overline{u}_{t}$, rate $\overline{v}_{t}$, and $\overline{\pi}_t$ are calculated as in (\ref{eq:var-scp-post-u})-(\ref{eq:var-scp-post-pi}). As with the mean-scp model, we define a function \texttt{var-scp}: 
 \begin{align}\label{eq:var-scp-fn}
-    \texttt{var-scp}\left(\mathbf{y}_{1:T} \:;\: \boldsymbol{\tau}_{1:T}, u_0, v_0, \boldsymbol{\pi}_{1:T}\right) := \{\overline{u}_t, \overline{v}_t, \overline{\pi}_t\}_{t=1}^T.
+    \texttt{var-scp}\left(\mathbf{y}_{1:T} \:;\: \boldsymbol{\omega}_{1:T}, u_0, v_0, \boldsymbol{\pi}_{1:T}\right) := \{\overline{u}_t, \overline{v}_t, \overline{\pi}_t\}_{t=1}^T.
 \end{align}
 
 \subsection{Mean-Variance Change-Point Model}
 \label{sec:smscp}
 
-We now merge the mean-scp and var-scp settings by allowing $\mathbf{y}_{1:T}$ to have a single change-point where both the mean and variance shift simultaneously. We again restrict $d=1$ and assume that we have $T$ observations from (\ref{eq:dgp}). We define $\mu_t$ as in (\ref{eq:smcp-start}) and $\lambda_t$ as in (\ref{eq:sscp-start}), only now $\mu_t$ and $\lambda_t$ share the same $\gamma$ from (\ref{eq:gamma-cat}) and the concurrent jump in the piece-wise constant structure of $\boldsymbol{\mu}_{1:T}$ and $\boldsymbol{\lambda}_{1:T}$ is generated by the following mean-variance change-point (meanvar-scp) model:
+We now merge the mean-scp and var-scp settings by allowing $\mathbf{y}_{1:T}$ to have a single change-point where both the mean and variance shift simultaneously. We again restrict $d=1$ and define $\mu_t$ as in (\ref{eq:smcp-start}) and $\lambda_t$ as in (\ref{eq:sscp-start}), only now $\mu_t$ and $\lambda_t$ share the same $\tau$ from (\ref{eq:tau-cat}) and we place a joint prior on $\{b,s\}$ to specify the mean-variance single change-point (meanvar-scp) model:
 \begin{align}
-    \{b,s\} &\sim \text{Normal-Gamma}(0,\tau_0, u_0, v_0).
+    \{b,s\} &\sim \text{Normal-Gamma}(0,\omega_0, u_0, v_0).
     \label{eq:smscp-end}
 \end{align}
-\textcolor{red}{Oscar: give definition of Normal-Gamma in the Appendix}
-The posterior distribution is given by:
+A version of this model with $\omega_t\equiv 1$ first appeared in \cite{Smith75}, though the constructions (\ref{eq:smcp-start}) and (\ref{eq:sscp-start}) were notably not present. In addition to the posterior distribution of $\{b,s\}$, we provide a closed form for the posterior correlation between $\mu_t$ and $\lambda_t$, given that they are now dependent under the meanvar-scp model:
 \begin{align}
-    \{b,s\} \:|\: \gamma = t, \mathbf{y}_{1:T} &\sim \text{Normal-Gamma}(\overline{b}_t, \overline{\tau}_t, \overline{u}_t, \overline{v}_t). \label{eq:b-smscp}
+    \{b,s\} \:|\: \tau = t, \mathbf{y}_{1:T} &\sim \text{Normal-Gamma}(\overline{b}_t, \overline{\omega}_t, \overline{u}_t, \overline{v}_t), \label{eq:bs-smscp} \\
+   \E[\lambda_t\mu_t\;|\; \mathbf{y}_{1:T}] &= \omega_t\sum_{t'=1}^t \frac{\overline{b}_{t'}\overline{u}_{t'}\overline{\pi}_{t'} }{\overline{v}_{t'}}. \label{eq:mu-lambda-post-mean}
 \end{align}
-As with the previous two models, we use $\{b,s,\gamma\} \sim \text{meanvar-scp}(\{\overline{b}_t, \overline{\tau}_t, \overline{u}_t, \overline{v}_t, \overline{\pi}_t\}_{t=1}^T)$ for the distribution (\ref{eq:gamma-post-cat1})-(\ref{eq:gamma-post-cat2}) and (\ref{eq:b-smscp}) and define a function \texttt{meanvar-scp}: 
+Closed forms for the parameters $\overline{b}_t$, $\overline{\omega}_t$, $\overline{u}_{t}$, $\overline{v}_{t}$, and $\overline{\pi}_t$ are given in (\ref{eq:meanvar-scp-post-omega})-(\ref{eq:meanvar-scp-post-pi}). Note that the posterior means of $\mu_t$ and $\lambda_t$ are of the same form as in (\ref{eq:mu-post-mean}) and (\ref{eq:lambda-post-mean}). As before, we define a function \texttt{meanvar-scp}: 
 \begin{align}\label{eq:meanvar-scp-fn}
-    \texttt{meanvar-scp}\left(\mathbf{y}_{1:T} \:;\: \boldsymbol{\tau}_{1:T}, \tau_0, u_0, v_0, \boldsymbol{\pi}_{1:T}\right) := \{\overline{b}_t, \overline{\tau}_t, \overline{u}_t, \overline{v}_t, \overline{\pi}_t\}_{t=1}^T
+    \texttt{meanvar-scp}\left(\mathbf{y}_{1:T} \:;\: \boldsymbol{\omega}_{1:T}, \omega_0, u_0, v_0, \boldsymbol{\pi}_{1:T}\right) := \{\overline{b}_t, \overline{\omega}_t, \overline{u}_t, \overline{v}_t, \overline{\pi}_t\}_{t=1}^T.
 \end{align}
 
 \subsection{Single Change-Point Theory}
 \label{sec:localization}
-
-Suppose that $t_0 \in [T]$ is the true location of the change-point for one of the SCP models. Then given $\overline{\boldsymbol{\pi}}_{1:T}$ from any of the SCP models, a natural estimator for $t_0$ is the posterior most probable location of $\gamma$, i.e. the maximum \textit{a posteriori} (MAP) estimator:
-\begin{align}\label{eq:map}
-    \hat{t}_{\text{MAP}} := \argmax{1 \leq t \leq T} \; \overline{\pi}_t.
-\end{align}
-In this section, we supplement the Bayesian perspective of the SCP models by studying the asymptotic behavior of $\hat{t}_{\text{MAP}}$. In particular, we show that under mild regularity conditions, $\hat{t}_{\text{MAP}}$ is consistent in the sense that there exists some error bound $\epsilon_T$, where:
+ 
+In this section, we study the asymptotic behavior of $\hat{t}_{\text{MAP}}$ as defined in (\ref{eq:map}) for each of the SCP models. Suppose that $t_0 \in [T]$ is the true location of the change-point and define the \textit{minimum spacing condition} $\Delta_T := \min\{t_0,T-t_0 + 1\}$. Our goal is to characterize a sequence $\{\epsilon_T\}_{T\geq 1}$ as well as conditions on $\Delta_T$ and size of the breaks in the mean and variance of $\mathbf{y}_{1:T}$ so that $\hat{t}_{\text{MAP}}$ is consistent in following sense:
 \begin{align}
-    \lim_{T\to\infty} \Pr\left(|t_0 - \hat{t}_{\text{MAP}}| \leq \epsilon_T\right) = 1 \text{ and } \lim_{T\to\infty} \frac{\epsilon_T}{T} = 0. \label{def:loc-rate}
+    \lim_{T\to\infty} \Pr\left(|t_0 - \hat{t}_{\text{MAP}}| \leq \epsilon_T\right) = 1 \text{ and } \lim_{T\to\infty} \frac{\epsilon_T}{\Delta_T} = 0. \label{def:loc-rate}
 \end{align}
-Throughout this article we refer to $\epsilon_T$ as the \textit{localization rate}. Our aim is to find the smallest localization rate that satisfies (\ref{def:loc-rate}). We begin by making the following assumption:
+We refer to $\epsilon_T$ as the \textit{localization error} and $\Delta_T^{-1}\epsilon_T$ as the \textit{localization rate}. To characterize these quantities for each SCP model, we make the following assumptions:
 \begin{assumption}\label{assumption:1}
     Let $t_0 \in [T]$ be the time such that $y_t \sim F_0$ for $t < t_0$ and $y_t \sim F_1$ for $t_0 \geq t$. Assume that: \vspace{-10pt}
-    \begin{enumerate}[label=(\roman*)]
-        \item (Minimum Spacing) $\min\{t_0,T-t_0 + 1\} > \log^{1+\varepsilon} T$ for some $\varepsilon > 0$. 
-        \item (Proper Prior) The hyper-parameters in the SCP models are chosen so that $\tau_0, u_0, v_0 > 0$.
-        \item (Bounded Prior) The prior distribution for the change-point location, $\pi_t := \Pr(\gamma = t \:; \boldsymbol{\pi}_{1:T})$, is chosen so that $\min_{t\in[T]} |\log \pi_{t}| \leq C_\pi \log T$ for some $C_\pi > 0$ that does not depend on $T$.
+    \begin{enumerate}[label=\normalfont(\roman*)]
+        \item (Minimum Spacing) $\Delta_T:=\min\{t_0,T-t_0 + 1\} \gtrsim \log T$. \vspace{-5pt}
+        \item (Proper Prior) The hyper-parameters in the SCP models are constants chosen so that $\omega_0, u_0, v_0 > 0$. \vspace{-5pt}
+        \item (Bounded Prior) $\min_{t\in[T]} |\log \pi_{t}| \leq C_\pi \log T$ for some universal constant $C_\pi > 0$.
     \end{enumerate}
 \end{assumption}
 \vspace{-10pt}
+Assumption \ref{assumption:1} (i) simply bounds $t_0$ away from the end-points of $[T]$, but in the multiple change-points context, $\Delta_T \gtrsim \log T$ allows the number of changes to diverge with $T$. Assumption \ref{assumption:1} (ii) ensures that the priors for the SCP models are non-degenerate and that the posteriors are proper distributions. Lastly, Assumption \ref{assumption:1} (iii) guarantees that our choice of $\boldsymbol{\pi}_{1:T}$ does not overwhelm the evidence in the data. This last assumption is trivially satisfied if each time is equally likely to be the location of the change \textit{a priori}, i.e. $\pi_t = T^{-1}$. We discuss the choice of $\boldsymbol{\pi}_{1:T}$ in greater detail in Appendix \ref{app:prior}. 
 
-In the context of multiple CPD, Assumption \ref{assumption:1} (i) can be interpreted as a minimum spacing condition, i.e. two consecutive change-points must be separated by an interval of minimum length $\log^{1+\varepsilon} T$. \textcolor{red}{Oscar: you can check the EJS paper by Daren Wang, they have lower bounds involving minimum spacing  }As per Table 1 in \cite{Cho15}, this appears to be smallest minimum spacing condition under which other state-of-the-art methods can consistently recover $t_0$. Assumption \ref{assumption:1} (ii) simply requires that the parameters in the SCP models are chosen so that the priors are non-degenerate and we have proper posterior distributions. Lastly, Assumption \ref{assumption:1} (iii) ensures that our choice of $\boldsymbol{\pi}_{1:T}$ does not overwhelm the evidence in the data. This last assumption is trivially satisfied if we set $\pi_t = T^{-1}$ so that each $t \in [T]$ is equally likely to be the location of the change-point \textit{a priori}. We leave a more detailed discussion of the choice of $\boldsymbol{\pi}_{1:T}$ for Appendix \ref{app:prior}. 
+\subsubsection{Mean-SCP Localization Rate in High-Dimensions}
 
-\subsubsection{Mean-SCP Localization Rate for Fixed- and High-Dimensions}
-
-Suppose that $\boldsymbol{\mu}_{1:T}$ jumps by $\mathbf{b}_0\in\mathbb{R}^d$ at time $t_0$, then the conditions in Assumption \ref{assumption:1} will be sufficient for the SCP models to detect this change provided that the aggregated jump-size as measured by $\lVert \mathbf{b}_0 \rVert_2$ is large enough. Assumption \ref{assumption:mean} formalizes this condition:
+Suppose that $\boldsymbol{\mu}_{1:T}$ jumps by $\mathbf{b}_0\in\mathbb{R}^d$ at time $t_0$, then under the conditions of Assumption \ref{assumption:1}, the mean-scp model can detect this change provided that the aggregated jump-size is large enough as measured by $\sqrt\Delta_T\lVert \mathbf{b}_0 \rVert_2$. Assumption \ref{assumption:mean} formalizes this condition:
 
 \begin{assumption}[Detectable Mean Change]\label{assumption:mean}  
-    Suppose $\E[\mathbf{y}_t] = \mathbf{b}_0\mathbbm{1}\{t \geq t_0\}$ for some $t_0 \in [T]$. Assume that $\lVert \mathbf{b}_0 \rVert^2_2 \gtrsim d$ and $\lVert\mathbf{b}_0\rVert_\infty < \infty$.
+    Suppose $\E[\mathbf{y}_t] = \mathbf{b}_0\mathbbm{1}\{t \geq t_0\}$ for some $t_0 \in [T]$ and $\mathbf{b}_0\in\mathbb{R}^d$. Assume that $\Delta_T\lVert \mathbf{b}_0 \rVert^2_2 \gg d\log T$ and $\lVert\mathbf{b}_0\rVert_\infty = \mathcal{O}(1)$.
 \end{assumption}
 \vspace{-5pt}
 
-\begin{remark}[Vanishing Mean]\label{rmk:vanishing-signal}
-    When $\normalfont{\Var}(\mathbf{y}_t) = \boldsymbol{\Lambda}^{-1}$ for all $t \in [T]$, we can weaken Assumption \ref{assumption:mean} to $\lVert \boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2 \gtrsim d$, where $\lVert \boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2$ is the multivariate signal to noise ratio. This condition is implied in Theorem \ref{theorem:smcp} since $\lVert \boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2 \geq \lambda_{\min} \lVert \mathbf{b}_0\rVert_2^2$, where $\lambda_{\min}$ is the smallest eigenvalue of $\boldsymbol{\Lambda}$. Additionally, if Assumption \ref{assumption:1} (i) holds for $\varepsilon > 0$, then we can weaken Assumption \ref{assumption:mean} further to to $\lVert \mathbf{b}_0 \rVert^2_2 \gtrsim d\log^{-\xi} T$ for some $\xi < \min\{\varepsilon, 1/2\}$. For fixed $d$, this weaker assumption permits the signal $\mathbf{b}_0$ to vanish at the rate $\log^{\xi} T$.
-\end{remark}
-\vspace{-10pt}
+The assumption that $\E[\mathbf{y}_t] = \mathbf{0}$ for $t < t_0$ is made out of notational convenience. In reality, only the magnitude of the jump at $t_0$ matters and the results in this section still hold if $\E[\mathbf{y}_{t_0-1}]\neq \mathbf{0}$ and we replace $\mathbf{b}_0$ with $\E[\mathbf{y}_{t_0} -\mathbf{y}_{t_0-1}]$ in Assumption \ref{assumption:mean}. Additionally, when $\normalfont{\Var}(\mathbf{y}_t) = \boldsymbol{\Lambda}^{-1}$ for all $t \in [T]$, we can directly control the multivariate signal-to-noise ratio by replacing $\lVert \mathbf{b}_0\rVert_2$ with $\lVert \boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2$. When $d=1$, \cite{Wang20} showed that consistent localization in the (\ref{def:loc-rate}) sense is not possible if $\Delta_T\lVert \mathbf{b}_0 \rVert^2_2 \lesssim\log T$, making Assumption \ref{assumption:mean} a necessary condition for detection when only the mean of $\mathbf{y}_{1:T}$ changes.
 
-The assumption that $\E[\mathbf{y}_t] = \mathbf{0}$ for $t < t_0$ is made out of notational convenience. In reality, only the magnitude of the jump at $t_0$ matters and the theoretical results in this section still hold if $\E[\mathbf{y}_1] \neq \mathbf{0}$. Regarding the magnitude of $\lVert \mathbf{b}_0 \rVert_2$, when $d$ grows with $T$, Assumption \ref{assumption:mean} implies a non-sparse condition on $\mathbf{b}_0$. For example, if some proportion $\alpha \in (0,1)$ of the elements of $\mathbf{b}_0$ are equal to $b_0 > 0$ and the rest are equal to zero, then the Assumption \ref{assumption:mean} is met since $(b^2_0\alpha)^{-1/2}\lVert \mathbf{b}_0 \rVert_2 = \sqrt{d}$. Assumptions of this form are standard in the high-dimensional CPD for methods that depend on $\ell_2$-based aggregation of the signal (see e.g. \citealp{Bai10, Horváth12, Li23}). The sparse signal setting is inherently challenging in high-dimensions. If $\lVert \mathbf{b}_0\rVert_1 = o(d)$, then as $d$ grows, we are adding more noise with each new series, potentially drowning out the signal (for more on high-dimensional CPD with a sparse signal, see \citealp{Cho15, Jirak15, Wang17, Yu21, Chen22}). On the other hand, if $d$ is fixed, then Assumption \ref{assumption:mean} simply implies $\mathbf{b}_0$ is bounded away from the origin.
+When $\min\{d,T\}\to\infty$, Assumption \ref{assumption:mean} places a non-sparsity condition on $\mathbf{b}_0$. To see this, suppose that $\mathbf{b}_0$ is sparse in the sense that $\lVert\mathbf{b}_0\rVert_0 \leq d_0$ for some $d_0 = o(d)$ and $\Delta_T = \log^{1+\varepsilon} T$ for some $\varepsilon > 0$. Since $\lVert \mathbf{b}_0\rVert_\infty$ is bounded, then $\Delta_T\lVert \mathbf{b}_0 \rVert^2_2 \lesssim d_0\log^{1+\varepsilon}T$, meaning that Assumption \ref{assumption:mean} cannot be met even for relatively weak sparsity $d_0 = \mathcal{O}(d\log^{-\varepsilon} T)$. On the other hand, Assumption \ref{assumption:mean} is met when $\mathbf{b}_0$ is dense in the sense that many coordinates undergo a change, even when $\lim_{T\to\infty}\lVert \mathbf{b}_0\rVert_\infty = 0$. For example, if some constant fraction of the coordinates of $\mathbf{b}_0$ are equal to $\log^{-\varepsilon/2}T$ and $\Delta_T \geq \log^{1+\varepsilon}T$. Such signal density assumptions are standard in the analysis of $\ell_2$-based methods (\citealp{Bai10, Horváth12, Li23}).
 
 \begin{theorem}[Mean-SCP Localization Rate]\label{theorem:smcp}
-    Let $\{\mathbf{y}_t\}_{t=1}^T$ be a sequence of independent, sub-Gaussian random vectors with $\mathbf{y}_t \in \mathbb{R}^d$, $\normalfont{\Var}(\mathbf{y}_t) = \boldsymbol{\Lambda}^{-1}$ for all $t \in [T]$, and $\sup_{t \geq 1, d \geq 1} \lVert \mathbf{y}_t\rVert_{\psi_2} < \infty$. Let $\lambda_{\max}$ and $\lambda_{\min}$ be the largest and smallest eigenvalues of $\boldsymbol{\Lambda}$ respectively and assume that $\sup_{d\geq 1}  \lambda_{\max} < \infty$ and $\inf_{d\geq 1} \lambda_{\min} > 0$. Additionally, suppose that for some $\varepsilon >0$, Assumptions \ref{assumption:1} and \ref{assumption:mean} hold. If we construct $\hat{t}_{\normalfont \text{MAP}}$ as in (\ref{eq:map}) by fitting the mean-scp model in (\ref{eq:gamma-post-cat1})-(\ref{eq:gamma-post-cat2}) and (\ref{eq:b-smcp}), then there exists some universal constant $C > 0$ so that:
+    Let $\{\mathbf{y}_t\}_{t=1}^T$ be a sequence of independent, sub-Gaussian random vectors with $\mathbf{y}_t \in \mathbb{R}^d$, $\normalfont{\Var}(\mathbf{y}_t) = \boldsymbol{\Lambda}^{-1}$ for all $t \in [T]$, and $\lVert \mathbf{y}_t\rVert_{\psi_2} =\mathcal{O}(1)$. Let $\lambda_{\max}$ and $\lambda_{\min}$ be the largest and smallest eigenvalues of $\boldsymbol{\Lambda}$ and assume that $\max\{\lambda_{\max}, \lambda^{-1}_{\min}\} = \mathcal{O}(1)$. Define $\hat{t}_{\normalfont \text{MAP}}$ as in (\ref{eq:map}) by fitting the mean-scp model in (\ref{eq:gamma-post-cat1}) and (\ref{eq:b-smcp}). For any $\beta > 0$, if Assumptions \ref{assumption:1} and \ref{assumption:mean} hold, then there exists universal constants $C,C_\beta > 0$ so that:
     \vspace{-5pt}
     \begin{align}
-        \lim_{T\to\infty}\Pr\left(|t_0 - \hat{t}_{\normalfont \text{MAP}}| \leq \frac{C \log T}{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2}\right) = 1. \label{eq:thm-1}
+        \Pr\left(|t_0 - \hat{t}_{\normalfont \text{MAP}}| \leq \frac{C_\beta \log T}{\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2}\right) \geq 1-CT^{-\beta}. \label{eq:thm-1}
     \end{align}
 \end{theorem}
 \vspace{-5pt}
 
 \begin{remark}[Bounded Orlicz Norm]\label{rmk:sub-g}
-    When $d$ is allowed to grow with $T$, then the assumption that $\lVert \mathbf{y}_t\rVert_{\psi_2}$ is uniformly bounded restricts the strength of the dependence between the $d$ time-series. Two sufficient conditions under which this restriction holds include: i) each entry of $\mathbf{y}_t$ is independent and $\mathcal{SG}(\sigma)$ for some $\sigma < \infty$, and ii) $\mathbf{y}_t \sim \mathcal{N}_d(\boldsymbol{\mu}_t, \boldsymbol{\Lambda}^{-1})$ and $\inf_{d\geq 1}  \lambda_{\min} > 0$ as in Theorem \ref{theorem:smcp}. When $d$ is fixed, the coordinates of $\mathbf{y}_t$ can display arbitrary levels of dependence so long as they are sub-Gaussian. See Appendix \ref{app:thm1-events} for more detail.
+    When $\min\{d,T\}\to\infty$, then the assumption that $\lVert \mathbf{y}_t\rVert_{\psi_2}$ is uniformly bounded restricts the strength of the dependence between the $d$ time-series. Two sufficient conditions under which this restriction holds include: i) each entry of $\mathbf{y}_t$ is independent and $\mathcal{SG}(\sigma)$ for some $\sigma < \infty$, and ii) $\mathbf{y}_t \sim \mathcal{N}_d(\boldsymbol{\mu}_t, \boldsymbol{\Lambda}^{-1})$ and $\lambda^{-1}_{\min} = \mathcal{O}(1)$ as in Theorem \ref{theorem:smcp}. When $d$ is fixed, the coordinates of $\mathbf{y}_t$ can display arbitrary levels of dependence so long as they are sub-Gaussian. See Appendix \ref{app:thm1-events} for more detail.
 \end{remark}
 \vspace{-5pt}
-%The proof of Theorem \ref{theorem:smcp} is given in Appendix \ref{app:localization-smcp}. 
+Under the conditions of Theorem \ref{theorem:smcp}, $\Delta_T\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2 \gtrsim \Delta_T\lVert\mathbf{b}_0\rVert_2^2 \gg d\log T$. So given the localization error $\epsilon_T$ in (\ref{eq:thm-1}), the localization rate $\Delta_T^{-1}\epsilon_T$ is converging to zero. This rate is in fact optimal in a minimax sense.
+\begin{remark}[Minimax Rate]\label{rmk:thm-1-minimax}
+    Under the settings of Theorem \ref{theorem:smcp}, \cite{Wang17} and \cite{Wang2020_localization} have shown that the minimax optimal localization rate is proportional to $\Delta^{-1}_T\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^{-2}$. Theorem \ref{theorem:smcp} establishes that the localization rate for the mean-scp model is minimax optimal aside from a $\log T$ factor. 
+\end{remark}
+\vspace{-5pt}
 
-In light of Assumption \ref{assumption:mean}, we have $d^{-1}\log T \gtrsim \lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^{-2}\log T$, so Theorem \ref{theorem:smcp} establishes that the localization rate for the mean-scp model is of order $\mathcal{O}(d^{-1} \log T)$. The quantity $\lVert \boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{b}_0\rVert_2^2$ is the multivariate signal to noise ratio, so by Lemma 2 of \cite{Wang2020_localization} this rate minimax optimal aside from a $\log T$ factor when $d$ is fixed. On the other hand, if $d$ is allowed to grow with $T$, then Theorem \ref{theorem:smcp} shows a phase change occurs when $d\gtrsim \log^{1+\epsilon}T$ for some $\epsilon > 0$. In this case, the localization rate is itself converging to zero and we get $\lim_{T\to\infty}\Pr(\hat{t}_{\normalfont \text{MAP}} = t_0) = 1$. Therefore, in high-dimensions our model is the first Bayesian method to recover the consistency result of the least-squares estimator introduced by \cite{Bai10}. 
+Theorem \ref{theorem:smcp} also shows that the localization error in (\ref{eq:thm-1}) vanishes if $\lVert\boldsymbol{\Lambda}^{\frac{1}{2}}\mathbf{b}_0\rVert_2^2 \gg \log T$. By assumption $\lVert\mathbf{b}_0\rVert_\infty$ is uniformly bounded and $\lVert\boldsymbol{\Lambda}^{1/2}\mathbf{b}_0\rVert_2^2 \lesssim \lVert\mathbf{b}_0\rVert_2^2 \leq d\lVert\mathbf{b}_0\rVert_\infty^2$, so exact recovery of $t_0$ is only possible in the high-dimensional regime when $d \gg \log T$ (see Appendix \ref{app:localization-smcp} for more detail). When $\min\{d,\lVert\mathbf{b}_0\rVert_2^2\}  \gg \log T$, then our model recovers the consistency result of Theorem 3.2 in \cite{Bai10}. 
 
 % The precision matrix $\boldsymbol{\Lambda}$ is taken as known in Theorem \ref{theorem:smcp}. Corollary \ref{cor:lambda-hat} shows that under certain conditions on the growth of $d$ and $\lVert \mathbf{b}_0\rVert_0$, it is possible to construct a consistent estimator $\hat{\boldsymbol{\Lambda}}$ and use the normalized observations $\hat{\boldsymbol{\Lambda}}^{\frac{1}{2}}\mathbf{y}_t$ to localize $t_0$.
 %
@@ -137,38 +141,35 @@ In light of Assumption \ref{assumption:mean}, we have $d^{-1}\log T \gtrsim \lVe
 %     \label{cor:lambda-hat}
 % \end{corollary}
 
-\subsubsection{Var-SCP and MeanVar-SCP Localization Rate for Univariate Data}
+\subsubsection{Var-SCP and MeanVar-SCP Localization Rates for Univariate Data}
 
-To analyze the localization rates for the var-scp and meanvar-scp models, we restrict our attention to the univariate case. For these models, we are concerned with detecting a change in the variance of $\mathbf{y}_{1:T}$. Analogous to Assumption \ref{assumption:mean}, we require that the change in variance is bounded away from zero:
+To analyze the localization rates of the var-scp and meanvar-scp models, we once again restrict $d=1$ so that we are dealing with a univariate sequence. For a change in the variance of $\mathbf{y}_{1:T}$ to be detectable, we require an assumption on the strength of the signal analogous to Assumption \ref{assumption:mean}.
 \begin{assumption}[Detectable Scale Change]\label{assumption:scale}
-   Suppose $\normalfont{\Var}(y_t) = (s_0^2)^{\mathbbm{1}\{t\geq t_0\}}$ for some $t_0 \in [T]$. Assume that there exist some compact intervals $I_1 \subseteq(0, 1)$ and $I_2 \subseteq(1, \infty)$ such that $s_0^2 \in I_1 \cup I_2$. 
+    Suppose $\normalfont{\Var}(y_t) = (s_0^2)^{\mathbbm{1}\{t\geq t_0\}}$ for some $t_0 \in [T]$ and some finite $s_0 > 0$. Define the functions:
+    \begin{align}
+        f_1(s_0^2) &:= s_0^2 - \log (s_0^2) - 1, \label{eq:f1-signal-fn} \\
+        f_2(s_0^2) &:= \frac{1}{s_0^2} + \log (s_0^2) - 1.\label{eq:f2-signal-fn}
+    \end{align}
+    and assume that $\Delta_T\min\{f_1(s_0^2),f_2(s_0^2)\} \gg \log T$. 
 \end{assumption}
 \vspace{-5pt}
-The magnitude of $s_0^2$ does not directly measure the signal strength for a change in the variance of $\mathbf{y}_{1:T}$. In fact, a smaller value of $s_0^2$ will reduce the level of noise in the data and should correspond to a stronger signal. We introduce two functions functions that measure the strength of the signal contained in $s_0^2$:
-\begin{align}
-    f_1(s_0^2) &:= s_0^2 - \log (s_0^2) - 1 \label{eq:f1-signal-fn} \\
-    f_2(s_0^2) &:= \frac{1}{s_0^2} + \log (s_0^2) - 1\label{eq:f2-signal-fn}
-\end{align}
-
-\begin{remark}[Vanishing Variance]\label{rmk:var-signal}
-Both $f_1$ and $f_2$ are non-negative on $\mathbb{R}_+$ and achieve unique minima at $f_1(1) = f_2(1) = 0$, and thus $\min\{f_1(s_0^2), f_2(s_0^2)\} > 0$ when Assumption \ref{assumption:scale} holds. The function $f_2$ is of particular note as it appeared previously in \cite{Bai10} where it is also used to control the signal strength of the variance changes in Theorem 5.1. Both $f_1$ and $f_2$ increase much more rapidly on $(0,1)$ than on $(1,\infty)$, which matches our intuition that less noise in the data, i.e. smaller values of $s_0^2$, corresponds to a stronger signal. Analogous to Remark \ref{rmk:vanishing-signal}, we can weaken Assumption \ref{assumption:scale} to allow $s_0^2 \to 1$ as $T \to \infty$ so long as there is some $\xi < \min\{\varepsilon, 1/2\}$ so that $\min\{f_1(s_0^2),f_2(s_0^2)\} \geq \log^{-\xi} T$. 
-\end{remark}
-\vspace{-5pt}
-
-Along with Assumption \ref{assumption:1}, if Assumption \ref{assumption:scale} holds then the var-scp model can consistently estimate $t_0$ with a localization rate proportional to the signal strength functions $f_1$ and $f_2$: 
+Again, the assumption that $\Var(y_t) =1$ for $t < t_0$ is for notational convenience. The results in this section continue to hold if $\Var(y_{t_0-1}) \neq 1$ and we replace $s_0^2$ with $\Var(y_{t_0}) / \Var(y_{t_0-1})$ in Assumption \ref{assumption:scale}. The functions $f_1$ and $f_2$ quantify the signal strength of the scaling factor $s_0^2$.\footnote{The function $f_2$ is of particular note as it also appeared as a measure of signal strength for variance changes in \cite{Bai10}.} To see this, note that $f_1$ and $f_2$ decrease on $(0,1)$, increase on $(1,\infty)$, and achieve unique minima at $f_1(1) = f_2(1) = 0$ (see Figure ). Thus, $f_1$ and $f_2$ increase as we move away from the null scenario of $s_0^2 = 1$. Intuitively, $t_0$ should be easier to detect for smaller values of $s_0^2$, as the relative noise in $\mathbf{y}_{t_0:T}$ decreases as $s_0^2$ approaches zero. The functions $f_1$ and $f_2$ embody this intuition, as they behave sublinearly on $(1,\infty)$ and superlinearly on $(0,1)$, so values of $s_0^2$ closer to zero correspond to stronger signals. Lastly, we note that Assumption \ref{assumption:scale} allows for a vanishing signal, e.g. if $\Delta_T = \log^{1+\varepsilon} T$ for some $\varepsilon > 0$ and $s_0^2 \to 1$ at a rate such that $\min\{f_1(s_0^2),f_2(s_0^2)\} \geq \log^{-\varepsilon/2} T$.
+ 
 \begin{theorem}[Var-SCP Localization Rate]\label{theorem:sscp}
     Let $\{y_t\}_{t=1}^T$ be a sequence of independent, sub-Gaussian random variables with $\E[y_t]=0$, and $\sup_{t \geq 1} \lVert y_t\rVert_{\psi_2} < \infty$. Additionally, suppose that for some $\varepsilon >0$, Assumptions \ref{assumption:1} and \ref{assumption:scale} hold. If we construct $\hat{t}_{\normalfont \text{MAP}}$ as in (\ref{eq:map}) by fitting the var-scp model in (\ref{eq:gamma-post-cat1})-(\ref{eq:gamma-post-cat2}) and (\ref{eq:s-sscp}) with the restriction that $\hat{t}_{\normalfont \text{MAP}}$ belongs to $[T - \lfloor \log^\varepsilon T\rfloor]$, then there exists some universal constant $C > 0$ such that:
-    \vspace{-5pt}
+    \vspace{-2.5pt}
     \begin{align}
         \lim_{T\to\infty}\Pr\left(|t_0 - \hat{t}_{\normalfont \text{MAP}}| \leq \frac{C \log T}{\min\{f_1(s_0^2),f_2(s_0^2)\}} \right) = 1. \label{eq:thm-2}
     \end{align}
 \end{theorem}
 \vspace{-5pt}
 
-Theorem \ref{theorem:sscp} improves the localization rate of Theorem 1 of \cite{Cappello22} from order $\mathcal{O}(\sqrt{T\log T})$ to $\mathcal{O}(\log T)$ and does so under the weaker assumption of sub-Gaussian data and the minimum spacing condition in Assumption \ref{assumption:1}. Theorem \ref{theorem:sscp} does require that at least $\log T$ points accumulate between times $\hat{t}_{\normalfont \text{MAP}}$ and $T$, but in light of Assumption \ref{assumption:1} (i) this is a very weak condition. As was the case with the mean-scp model, in the single change-point setting the var-scp model matches the minimax optimal rate achieved by the WBSIP method from \cite{Wang21}. The meanvar-scp model combines the mean-scp and var-scp models respective abilities to detect changes in the mean and variance of $\mathbf{y}_{1:T}$. Theorem \ref{theorem:smscp} shows that the meanvar-scp combines the signal strength from both the mean and variance changes and can localize either kind of change, so long as either Assumption \ref{assumption:mean} or \ref{assumption:scale} holds:
+Theorem \ref{theorem:sscp} improves the localization rate of Theorem 1 of \cite{Cappello22} from order $\mathcal{O}(\sqrt{T\log T})$ to $\mathcal{O}(\log T)$ and does so under the weaker assumption of sub-Gaussian data and the minimum spacing condition in Assumption \ref{assumption:1}. Theorem \ref{theorem:sscp} does require that at least $\log T$ points accumulate between times $\hat{t}_{\normalfont \text{MAP}}$ and $T$, but in light of Assumption \ref{assumption:1} (i) this is a very weak condition. As was the case with the mean-scp model, in the single change-point setting the var-scp model matches the minimax optimal rate achieved by the WBSIP method from \cite{Wang21}. 
+
+The meanvar-scp model looks for changes in both the mean and variance of $\mathbf{y}_{1:T}$. Naturally, we require that a change occurs in at least one of $\boldsymbol{\mu}_{1:T}$ or $\boldsymbol{\lambda}_{1:T}$, and that the signal from this change is strong enough for the model to detect. This amounts to assuming at least one of Assumptions \ref{assumption:mean} or \ref{assumption:scale} holds.
 
 \begin{theorem}[MeanVar-SCP Localization Rate]\label{theorem:smscp}
-Let $\{y_t\}_{t=1}^T$ be a sequence of independent, sub-Gaussian random variables with $\sup_{t \geq 1} \lVert y_t\rVert_{\psi_2} < \infty$. Additionally, suppose that for some $\varepsilon >0$, Assumption \ref{assumption:1} and either Assumption \ref{assumption:mean} or \ref{assumption:scale} holds so that $\E[y_t] = b_0\mathbbm{1}\{t\geq t_0\}$ and $\normalfont{\Var}(y_t) = (s_0^2)^{\mathbbm{1}\{t\geq t_0\}}$. If we construct $\hat{t}_{\normalfont \text{MAP}}$ as in (\ref{eq:map}) by fitting the meanvar-scp model in (\ref{eq:gamma-post-cat1})-(\ref{eq:gamma-post-cat2}) and (\ref{eq:b-smscp}) with the restriction that $\hat{t}_{\normalfont \text{MAP}}$ belongs to $[T - \lfloor \log^\varepsilon T\rfloor]$, then there exists some universal constant $C > 0$ such that:
+Let $\{y_t\}_{t=1}^T$ be a sequence of independent, sub-Gaussian random variables with $\sup_{t \geq 1} \lVert y_t\rVert_{\psi_2} < \infty$. Additionally, suppose that for some $\varepsilon >0$, Assumption \ref{assumption:1} and either Assumption \ref{assumption:mean} or \ref{assumption:scale} holds so that $\E[y_t] = b_0\mathbbm{1}\{t\geq t_0\}$ and $\normalfont{\Var}(y_t) = (s_0^2)^{\mathbbm{1}\{t\geq t_0\}}$. If we construct $\hat{t}_{\normalfont \text{MAP}}$ as in (\ref{eq:map}) by fitting the meanvar-scp model in (\ref{eq:gamma-post-cat1})-(\ref{eq:gamma-post-cat2}) and (\ref{eq:bs-smscp}) with the restriction that $\hat{t}_{\normalfont \text{MAP}}$ belongs to $[T - \lfloor \log^\varepsilon T\rfloor]$, then there exists some universal constant $C > 0$ such that:
     \vspace{-5pt}
     \begin{align}
         \lim_{T\to\infty}\Pr\left(|t_0 - \hat{t}_{\normalfont \text{MAP}}| \leq \frac{C \log T}{b_0^2 + \min\{f_1(s_0^2),f_2(s_0^2)\}} \right) = 1. \label{eq:thm-3}
@@ -183,8 +184,8 @@ Thus far we have exclusively considered sequences of independent observations. W
 \begin{assumption}\label{assumption:alpha-mixing}
     Given the stochastic process $\{y_t\}_{t\geq 1}$, assume that for any $t_0 \in \mathbb{N}$, and some distributions $F_0$ and $F_1$, there are stochastic processes $\{y_{0,t}\}_{t \geq 1}$ and $\{y_{1,t}\}_{t \geq 1}$ such that $y_{0,t} \sim F_0$, and $y_{1,t} \sim F_1$, and $y_t := y_{0,t} \mathbbm{1}\{t < t_0\}  + y_{1,t}\mathbbm{1}\{t \geq t_0\}$. Additionally, assume that:
     \vspace{-10pt}
-    \begin{enumerate}[label=(\roman*)]
-        \item $\{y_{0,t}\}_{t \geq 1}$ and $\{y_{1,t}\}_{t \geq 1}$ are $\alpha$-mixing processes with respective coefficients $\{\alpha_{0,k}\}_{k\geq 1}$ and $\{\alpha_{1,k}\}_{k\geq 1}$ that satisfy $\max\{\alpha_{0,k}, \alpha_{1,k}\} \leq e^{-C k}$ for some $C > 0$.
+    \begin{enumerate}[label=\normalfont(\roman*)]
+        \item $\{y_{0,t}\}_{t \geq 1}$ and $\{y_{1,t}\}_{t \geq 1}$ are $\alpha$-mixing processes with respective coefficients $\{\alpha_{0,k}\}_{k\geq 1}$ and $\{\alpha_{1,k}\}_{k\geq 1}$ that satisfy $\max\{\alpha_{0,k}, \alpha_{1,k}\} \leq e^{-C k}$ for some $C > 0$. \vspace{-5pt}
         \item There exist constants $\delta_1, D_1 > 0$ such that $\sup_{t \geq 1} \max\{\E\left[|y_{0,t}|^{4+\delta_1}\right],\;\E\left[|y_{1,t}|^{4+\delta_1}\right]\}\leq D_1.$  
     \end{enumerate}
 \end{assumption}
@@ -192,9 +193,9 @@ Under Assumption \ref{assumption:alpha-mixing} and a slight strengthening of Ass
 \begin{theorem}[$\alpha$-Mixing Localization Rate]\label{theorem:alpha-mixing}
     Let $\{y_t\}_{t \geq 1}$ be a univariate stochastic process satisfying Assumption \ref{assumption:alpha-mixing}. For $T \in \mathbb{N}$, assume that $\min\{t_0, T-t_0+1\} > \log^{2+\varepsilon} T$ for some $\varepsilon > 0$ and $\min_{t\in[T]} |\log \pi_{t}| \leq C_\pi \log^2 T$ for some $C_\pi > 0$ that does not depend on $T$.  For any $\delta \in (0,\varepsilon/2)$, suppose we use the subsequence $\{y_t\}_{t = 1}^T \subset \{y_t\}_{t \geq 1}$ to construct $\hat{t}_{\normalfont \text{MAP}}$ with the restriction that $\hat{t}_{\normalfont \text{MAP}}$ belongs to $[T - \lfloor \log^{2+\delta} T\rfloor]$.
     \vspace{-10pt}
-    \begin{enumerate}[label=(\roman*)]
-        \item If we fit $\hat{t}_{\normalfont \text{MAP}}$ using the mean-scp model and Assumption \ref{assumption:mean} holds, then the localization rate of $\hat{t}_{\normalfont \text{MAP}}$ is the same as in (\ref{eq:thm-1}) with the $\log T$ term replaced by $\log^{2+\delta} T$.
-        \item If we fit $\hat{t}_{\normalfont \text{MAP}}$ using  the var-scp model and Assumption \ref{assumption:scale} holds, then the localization rate of $\hat{t}_{\normalfont \text{MAP}}$ is the same as in (\ref{eq:thm-2}) with the $\log T$ term replaced by $\log^{2+\delta} T$.
+    \begin{enumerate}[label=\normalfont(\roman*)]
+        \item If we fit $\hat{t}_{\normalfont \text{MAP}}$ using the mean-scp model and Assumption \ref{assumption:mean} holds, then the localization rate of $\hat{t}_{\normalfont \text{MAP}}$ is the same as in (\ref{eq:thm-1}) with the $\log T$ term replaced by $\log^{2+\delta} T$. \vspace{-5pt}
+        \item If we fit $\hat{t}_{\normalfont \text{MAP}}$ using  the var-scp model and Assumption \ref{assumption:scale} holds, then the localization rate of $\hat{t}_{\normalfont \text{MAP}}$ is the same as in (\ref{eq:thm-2}) with the $\log T$ term replaced by $\log^{2+\delta} T$. \vspace{-5pt}
         \item If we fit $\hat{t}_{\normalfont \text{MAP}}$ using the meanvar-scp model and either Assumption \ref{assumption:mean} or Assumption \ref{assumption:scale} holds, then the localization rate of $\hat{t}_{\normalfont \text{MAP}}$ is the same as in (\ref{eq:thm-3}) with the $\log T$ term replaced by $\log^{2+\delta} T$.
     \end{enumerate}
 \end{theorem}
@@ -203,18 +204,10 @@ Under Assumption \ref{assumption:alpha-mixing} and a slight strengthening of Ass
 \subsection{Credible Sets and Detection Rule}
 \label{sec:cred-sets}
 
-In addition to generating the point estimate $\hat{t}_\text{MAP}$, we can use the posterior probabilities $\overline{\boldsymbol{\pi}}_{1:T}$ returned by each of the SCP models to construct $\alpha$-level credible sets around $t_0$ by solving:
-\begin{align}\label{eq:cs}
-    \mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T}) := \argmin{S \subseteq[T]} |S| \;\text{ s.t. } \sum_{t \in S} \overline{\pi}_t \geq \alpha.
-\end{align}
-\begin{remark}[Knapsack Problem]\label{rmk:knapsack}
-    The optimization task (\ref{eq:cs}) is equivalent to solving the integer program $\mathbf{z} := \text{\normalfont arg min}_{\mathbf{x}\in\{0,1\}^T} \; \langle\mathbf{1}, \mathbf{x}\rangle \text{ s.t. } \langle \overline{\boldsymbol{\pi}}_{1:T}, \mathbf{x}\rangle \geq \alpha$, and setting $\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T}) := \{t \in [T]: z_t = 1\}$. This is an example of a knapsack problem (\citealp{Santini24}), which we solve by adding indices to $\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T})$ in decreasing order of the value of $\overline{\boldsymbol{\pi}}_{1:T}$ until $\sum_{t \in \mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T})} \overline{\pi}_t$ excedes $\alpha$. 
-\end{remark}
-\vspace{-5pt}
+Even in the absence of a change-point, $\hat{t}_{\normalfont \text{MAP}}$ is well-defined as per (\ref{eq:map}). Therefore, we require some detection criterion to indicate whether $\hat{t}_{\normalfont \text{MAP}}$ does in fact identify a change-point. Figure \ref{fig:post-probs-plot} in Appendix \ref{app:prior} shows that the elements $\overline{\boldsymbol{\pi}}_{1:T}$ tend to be quite diffuse under the null model with no change to $\boldsymbol{\mu}_{1:T}$ or $\boldsymbol{\lambda}_{1:T}$. By this we mean that for any fixed index set $\mathcal{T} \subseteq[T]$, $\lim_{T\to\infty} \sum_{t\in\mathcal{T}} \overline{\pi}_t = 0$, meaning that credible sets constructed according to (\ref{eq:cs}) will contain a large subset of $[T]$. This observation motivated \cite{Cappello22} to declare a detection if $|\mathcal{CS}(\alpha,\overline{\boldsymbol{\pi}}_{1:T})| \leq T/2$. This rule is somewhat ad-hoc and can lead to an inflated false positive rate in practice. To develop a more theoretically justified detection rule, we begin by noting that the appropriate localization error bounds the size of $\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T})$:
 
-Figure \ref{fig:post-probs-plot} in Appendix \ref{app:prior} shows that for each of the SCP models, the elements $\overline{\boldsymbol{\pi}}_{1:T}$ tend to be quite diffuse in the null model where no actual change occurs, and credible sets constructed according to (\ref{eq:cs}) will contain a large subset of $[T]$. This observation motivated \cite{Cappello22} to adopt the detection rule that $\mathcal{CS}(\alpha,\overline{\boldsymbol{\pi}}_{1:T})$ contains a change-point if $|\mathcal{CS}(\alpha,\overline{\boldsymbol{\pi}}_{1:T})| \leq T/2$. This rule is somewhat ad-hoc and can lead to an inflated false positive rate in practice. To develop a more theoretically justified detection rule, we begin by noting that the appropriate localization $\epsilon_T$ bounds the size of $\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T})$:
 \begin{corollary} \label{cor:cred-sets}
-Let $\epsilon_T$ be the localization rate corresponding to one of Theorems \ref{theorem:smcp}, \ref{theorem:sscp}, \ref{theorem:smscp}, or \ref{theorem:alpha-mixing}, then under the respective conditions of the these theorems, for any $\alpha > 0$, $\lim_{T \to \infty} \Pr\left(|\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T})| \leq 2 \epsilon_T \right) = 1.$
+    Let $\epsilon_T$ be the localization error corresponding to one of Theorems \ref{theorem:smcp}, \ref{theorem:sscp}, \ref{theorem:smscp}, or \ref{theorem:alpha-mixing}, then under the respective conditions of the these theorems, for any $\alpha > 0$, $\lim_{T \to \infty} \Pr\left(|\mathcal{CS}(\alpha, \overline{\boldsymbol{\pi}}_{1:T})| \leq 2 \epsilon_T \right) = 1.$
 \end{corollary}
 %The proof of Corollary \ref{cor:cred-sets} is given in Appendix \ref{app:cor-cred-sets}. 
-For some suitably small $\delta > 0$, each of the localization rates from Section \ref{sec:localization} is dominated by $\log^{2+\delta} T$. If we make our detection criteria $|\mathcal{CS}(\alpha,\overline{\boldsymbol{\pi}}_{1:T})| \leq \log^{2+\delta} T$, then Corollary \ref{cor:cred-sets} states the false negative rate will converge to zero with high probability as $T \to \infty$. At the same time, $\log^{2+\delta} T \ll T / 2$, even for moderate $T$, which results in fewer false positives. 
+For some suitably small $\delta > 0$, each of the localization errors from Section \ref{sec:localization} is dominated by $\log^{2+\delta} T$. If we make our detection criteria $|\mathcal{CS}(\alpha,\overline{\boldsymbol{\pi}}_{1:T})| \leq \log^{2+\delta} T$, then Corollary \ref{cor:cred-sets} states the false negative rate will converge to zero with high probability as $T \to \infty$. At the same time, $\log^{2+\delta} T \ll T / 2$, which will result in fewer false positives, even for moderately large $T$. 
