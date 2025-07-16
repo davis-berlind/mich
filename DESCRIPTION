@@ -3,14 +3,11 @@ Title: Bayesian Change-Point Detection with Credible Sets
 Version: 0.0.0.9000
 Authors@R: 
     person("Davis", "Berlind", , "davis.berlind@gmail.com", role = c("aut", "cre"))
-Description: Implementation of Berlind, Cappello, and Madrid Padilla (2025). Variational
-    Bayesian inference for change-point detection problems. Our main algorithm, MICH, estimates
-    change-points and provides uncertainty quantification by returning alpha-level credible sets
-    around each identified change-point.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Description: Implementation of the MICH model from Berlind, Cappello, and Madrid Padilla (2025). MICH provides Variational Bayesian inference for change-point detection problems. MICH can estimate the locations of mean and variance change-points and provide uncertainty quantification in the form of alpha-level credible sets around each identified change-point.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Imports: Rcpp (>= 1.0.13)
+Imports: 
+  Rcpp
 LinkingTo: Rcpp
