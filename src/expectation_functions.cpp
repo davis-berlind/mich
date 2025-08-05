@@ -10,6 +10,8 @@ using namespace Rcpp;
 //' `multi_mu_bar_fn()` calculates \eqn{E[\mathbf{b}I(t\geq \tau)]} as
 //' \eqn{\Sigma_{t'=1}^t \bar{\mathbf{b}}_{t'}\pi_{t'}}.
 //'
+//' @keywords internal
+//'
 //' @param b A numeric matrix. \eqn{T\times d} matrix of conditional mean
 //'   parameters.
 //' @param prob A numeric vector. Vector of change-point location probabilities.
@@ -17,6 +19,7 @@ using namespace Rcpp;
 //' @return A numeric matrix. A \eqn{T\times d} matrix of
 //' \eqn{E[\mathbf{b}I(t\geq \tau)]}.
 //'
+// [[Rcpp::export]]
 NumericMatrix multi_mu_bar_fn(NumericMatrix b, NumericVector prob) {
   int T = prob.length();
   int d = b.ncol();
@@ -40,6 +43,8 @@ NumericMatrix multi_mu_bar_fn(NumericMatrix b, NumericVector prob) {
 //' `multi_mu2_bar_fn()` calculates \eqn{E[b_i^2I(t\geq \tau)]} as
 //' \eqn{\Sigma_{t'=1}^t (\bar{b}^2_{it'} + 1/\bar{\omega}_{it'}) \pi_{t'}}.
 //'
+//' @keywords internal
+//'
 //' @param b A numeric matrix. \eqn{T\times d} matrix of conditional mean
 //'   parameters.
 //' @param omega A numeric vector. Length \eqn{T} vector of conditional variance
@@ -49,6 +54,7 @@ NumericMatrix multi_mu_bar_fn(NumericMatrix b, NumericVector prob) {
 //' @return A numeric matrix. A \eqn{T\times d} matrix of
 //' \eqn{E[b^2_iI(t\geq \tau)]}.
 //'
+// [[Rcpp::export]]
 NumericMatrix multi_mu2_bar_fn(NumericMatrix b, NumericVector omega, NumericVector prob) {
   int T = prob.length();
   int d = b.ncol();
@@ -70,12 +76,15 @@ NumericMatrix multi_mu2_bar_fn(NumericMatrix b, NumericVector omega, NumericVect
 //' and \eqn{\bar{b}_t=E[b|\tau=t]}, `mu_bar_fn()` calculates \eqn{E[\mu_t]} as
 //' \eqn{\Sigma_{t'=1}^t \bar{b}_{t'}\pi_{t'}}.
 //'
+//' @keywords internal
+//'
 //' @param b A numeric vector. Length \eqn{T} vector of conditional mean
 //'   parameters.
 //' @param prob A numeric vector. Vector of change-point location probabilities.
 //'
 //' @return A numeric vector. A length \eqn{T} vector of \eqn{E[\mu_t]}.
 //'
+// [[Rcpp::export]]
 NumericVector mu_bar_fn(NumericVector b, NumericVector prob) {
   int T = prob.length();
   double fwd_sum = 0.0;
@@ -95,6 +104,8 @@ NumericVector mu_bar_fn(NumericVector b, NumericVector prob) {
 //' `mu2_bar_fn()` calculates \eqn{E[\mu^2_t]} as
 //' \eqn{\Sigma_{t'=1}^t (\bar{b}^2_{t'} + 1 / \bar{\omega}_{t'})\pi_{t'}}.
 //'
+//' @keywords internal
+//'
 //' @param b A numeric vector. Length \eqn{T} vector of conditional mean
 //'   parameters.
 //' @param omega A numeric vector. Length \eqn{T} vector of conditional variance
@@ -103,6 +114,7 @@ NumericVector mu_bar_fn(NumericVector b, NumericVector prob) {
 //'
 //' @return A numeric vector. A length \eqn{T} vector of \eqn{E[\mu_t]}.
 //'
+// [[Rcpp::export]]
 NumericVector mu2_bar_fn(NumericVector b, NumericVector omega, NumericVector prob) {
   int T = prob.length();
   double fwd_sum = 0.0;
@@ -122,6 +134,8 @@ NumericVector mu2_bar_fn(NumericVector b, NumericVector omega, NumericVector pro
 //' `lambda_bar_fn()` calculates \eqn{E[\lambda_t]} as
 //' \eqn{1 - \Sigma_{t'=1}^t \pi_{t'}(1 - \bar{v}_{t'} / \bar{u}_{t'})}.
 //'
+//' @keywords internal
+//'
 //' @param u A numeric vector. Length \eqn{T} vector of conditional shape
 //'   parameters
 //' @param v A numeric vector. Length \eqn{T} vector of conditional rate
@@ -130,6 +144,7 @@ NumericVector mu2_bar_fn(NumericVector b, NumericVector omega, NumericVector pro
 //'
 //' @return A numeric vector. A length \eqn{T} vector of \eqn{E[\lambda_t]}.
 //'
+// [[Rcpp::export]]
 NumericVector lambda_bar_fn(NumericVector u, NumericVector v, NumericVector prob) {
   int T = prob.length();
   double fwd_sum = 0.0, rev_sum = 1.0;
@@ -152,6 +167,8 @@ NumericVector lambda_bar_fn(NumericVector u, NumericVector v, NumericVector prob
 //' `mu_lambda_fn()` calculates \eqn{E[\mu_t\lambda_t]} as
 //' \eqn{\Sigma_{t'=1}^t \bar{b}_{t'}\bar{v}_{t'} \pi_{t'}/ \bar{u}_{t'}}.
 //'
+//' @keywords internal
+//'
 //' @param b A numeric vector. Length \eqn{T} vector of conditional mean
 //'   parameters.
 //' @param u A numeric vector. Length \eqn{T} vector of conditional shape
@@ -163,6 +180,7 @@ NumericVector lambda_bar_fn(NumericVector u, NumericVector v, NumericVector prob
 //' @return A numeric vector. A length \eqn{T} vector of
 //' \eqn{E[\mu_t\lambda_t]}.
 //'
+// [[Rcpp::export]]
 NumericVector mu_lambda_fn(NumericVector b, NumericVector u, NumericVector v,
                            NumericVector prob) {
   int T = prob.length();
@@ -185,6 +203,8 @@ NumericVector mu_lambda_fn(NumericVector b, NumericVector u, NumericVector v,
 //' `mu_lambda_fn()` calculates \eqn{E[\mu^2_t\lambda_t]} as
 //' \eqn{\Sigma_{t'=1}^t \pi_{t'}(\bar{b}^2_{t'}\bar{v}_{t'} / \bar{u}_{t'} + 1/\bar{\omega}_{t'})}.
 //'
+//' @keywords internal
+//'
 //' @param b A numeric vector. Length \eqn{T} vector of conditional mean
 //'   parameters.
 //' @param u A numeric vector. Length \eqn{T} vector of conditional shape
@@ -198,6 +218,7 @@ NumericVector mu_lambda_fn(NumericVector b, NumericVector u, NumericVector v,
 //' @return A numeric vector. A length \eqn{T} vector of
 //' \eqn{E[\mu^2_t\lambda_t]}.
 //'
+// [[Rcpp::export]]
 NumericVector mu2_lambda_fn(NumericVector b, NumericVector omega, NumericVector u,
                             NumericVector v, NumericVector prob) {
   int T = prob.length();

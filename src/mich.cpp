@@ -8,7 +8,7 @@ using namespace Rcpp;
 //' MICH Algorithm
 //'
 //' @description
-//' Implementation of Algorithm 1 & 2 from Berlind, Cappello, and Madrid Padilla
+//' Implementation of Algorithms 1 & 2 in Berlind, Cappello, and Madrid Padilla
 //' (2025). This algorithm takes a sequence of \eqn{T} observations
 //' \eqn{\mathbf{y}_{1:T}}, and iteratively fits \eqn{L} mean-scp models,
 //' \eqn{K} var-scp models, and \eqn{J} meanvar-scp models resulting in a
@@ -18,41 +18,93 @@ using namespace Rcpp;
 //' ELBO falls below `tol`.
 //'
 //' @param y A numeric vector. Length \eqn{T} vector of observations.
-//' @param mu_0 A numeric vector. Vector of intercept parameters.
+//' @param L,K,J Integers. The number of mean, variance, and mean-variance
+//'   change-points to include in the model.
+//' @param mu_0 A scalar. Intercept parameter initialization.
+//' @param lambda_0 A scalar. Baseline scale parameter initialization.
 //' @param fit_intercept A logical. If `fit_intercept == TRUE`, then an
 //'   intercept is estimated and `mu_0` gets updated.
+//' @param fit_scale A logical. If `fit_scale == TRUE`, then an initial scale is
+//'   estimated and `lambda_0` gets updated.
 //' @param refit A logical. If `refit == TRUE`, then the MICH algorithm is
-//'   initialized by the fit provided in `post_params`, otherwise the null
-//'   model \eqn{\boldsymbol{\mu}_t = \mathbf{0}} and
-//'   \eqn{\bar{\pi}_{\ell t} = 1/T} is used as the initialization.
+//'   initialized using the provided posterior parameters, otherwise the null
+//'   model \eqn{\mu_t = 0}, \eqn{\lambda_t = 1} and
+//'   \eqn{\bar{\pi}_{\ell t} = \bar{\pi}_{k t} = \bar{\pi}_{j t}  = 1/T} is
+//'   used as the initialization.
 //' @param max_iter An integer. Maximum number of iterations. If ELBO does not
 //'   converge before `max_iter` is reached, then `converged == FALSE` in the
 //'   returned fit object.
-//' @param tol A scalar. Convergence tolerance for relative increase in ELBO.
 //' @param verbose A logical. If `verbose == TRUE`, then value of the ELBO is
 //'   printed every 5000th iteration.
-//' @param omega_bar_l,log_omega_bar_l Numeric vectors. Vector of posterior
-//'   precision parameters \eqn{\{\bar{\omega}_t\}_{t=1}^T} and log evaluations
-//'   such that \eqn{V(\mathbf{b}_\ell|\tau=t) = \bar{\omega}_t\mathbf{I}_d}.
-//' @param post_params A list. A length \eqn{L} list of the posterior parameters
-//'   of each mean-scp component. Each element of the list is a list containing
-//'   a \eqn{T\times L} matrix of posterior mean parameters and length \eqn{T}
-//'   vectors of posterior change-point location probabilities and their log
-//'   evaluations.
+//' @param tol A scalar. Convergence tolerance for relative increase in ELBO.
+//' @param omega_j,u_j,v_j Scalars. Prior precision, shape, and rate parameters
+//'   for meanvar-scp components of model.
+//' @param log_pi_j A numeric matrix. A \eqn{T \times J} matrix of prior log
+//'   change-point location probabilities for each of the \eqn{J} mean-variance
+//'   change-points.
+//' @param pi_bar_j,log_pi_bar_j Numeric matrices. \eqn{T \times J} matrices of
+//'   initialized posterior change-point location probabilities and their log
+//'   evaluations for the \eqn{J} mean-variance change-points.
+//' @param b_bar_j A numeric matrix. A \eqn{T \times J} matrix of initialized
+//'   posterior mean parameters of the \eqn{J} mean-variance change-points.
+//' @param omega_bar_j A numeric matrix. A \eqn{T\times J} matrix of initialized
+//'   posterior precision parameters of the \eqn{J} mean-variance change-points.
+//' @param v_bar_j A numeric matrix. A \eqn{T \times J} matrix of initialized
+//'   posterior rate parameters for the \eqn{J} mean-variance change-points.
+//' @param u_bar_j,lgamma_u_bar_j,digamma_u_bar_j Numeric vectors. Length
+//'   \eqn{T} vectors of posterior shape parameters for the meanvar-scp model
+//'   components and their log-gamma and digamma evaluations.
+//' @param omega_l A scalar. Prior precision parameter for mean-scp components
+//'   of model.
+//' @param log_pi_l A numeric matrix. A \eqn{T \times L} matrix of prior log
+//'   change-point location probabilities for each of the \eqn{L} mean
+//'   change-points.
+//' @param pi_bar_l,log_pi_bar_l Numeric matrices. \eqn{T \times L} matrices of
+//'   initialized posterior change-point location probabilities and their log
+//'   evaluations for the \eqn{L} mean change-points.
+//' @param b_bar_l A numeric matrix. A \eqn{T \times L} matrix of initialized
+//'   posterior mean parameters of the \eqn{L} mean change-points.
+//' @param omega_bar_l A numeric matrix. A \eqn{T\times L} matrix of initialized
+//'   posterior precision parameters of the \eqn{L} mean change-points.
+//' @param u_k,v_k Scalars. Prior shape and rate parameters for var-scp
+//'   components of model.
+//' @param log_pi_k A numeric matrix. A \eqn{T \times K} matrix of prior log
+//'   change-point location probabilities for each of the \eqn{K} variance
+//'   change-points.
+//' @param pi_bar_k,log_pi_bar_k Numeric matrices. \eqn{T \times K} matrices of
+//'   initialized posterior change-point location probabilities and their log
+//'   evaluations for the \eqn{K} variance change-points.
+//' @param v_bar_k A numeric matrix. A \eqn{T \times K} matrix of initialized
+//'   posterior rate parameters for the \eqn{K} variance change-points.
+//' @param u_bar_k,lgamma_u_bar_k,digamma_u_bar_k Numeric vectors. Length
+//'   \eqn{T} vectors of posterior shape parameters for the var-scp model
+//'   components and their log-gamma and digamma evaluations.
 //'
 //' @return A List. Parameters of the variational approximation the MICH
 //' posterior distribution, including:
+//'   * `y`: A numeric vector. Original data set.
 //'   * `residual`: A numeric vector. Residual \eqn{\mathbf{r}_{1:T}} after
-//'     subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
-//'     \eqn{\mathbf{y}_{1:T}}.
-//'   * `mu`: A numeric matrix. Posterior estimate of
-//'     \eqn{\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}]}.
-//'   * `mu_0`: A numeric vector. Estimate of the intercept.
-//'   * `post_params`: A list. List of posterior parameters for each mean-scp
-//'     component.
-//'   * `elbo`: A numeric vector. Value of the ELBO after each iteration.
+//'     subtracting out each \eqn{E[\mu_{\ell t}]} and \eqn{E[\lambda_{j t} \mu_{j t}]/E[\lambda_{j t}]}
+//'     from \eqn{\mathbf{y}_{1:T}}.
+//'   * `mu`: A numeric vector. Posterior estimate of
+//'     \eqn{\Sigma_{\ell=1}^L E[\mu_{\ell,1:T}|\mathbf{y}_{1:T}] + \Sigma_{j=1}^J E[\mu_{j,1:T}|\mathbf{y}_{1:T}]}.
+//'   * `lambda`: A numeric vector. Posterior estimate of
+//'     \eqn{\Pi_{\\k=1}^K E[\lambda_{k,1:T}|\mathbf{y}_{1:T}] \times \Pi_{j=1}^J E[\lambda_{j,1:T}|\mathbf{y}_{1:T}]}.
+//'   * `delta`: A numeric vector. Posterior variance correction term (see
+//'     (B.6) or Berlind, Cappello, and Madrid Padilla (2025)).
 //'   * `converged`: A logical. Indicates whether relative increase in the ELBO
 //'     is less than `tol`.
+//'   * `elbo`: A numeric vector. Value of the ELBO after each iteration.
+//'   * `mu_0`: A scalar. Estimate of the intercept.
+//'   * `lambda_0`: A scalar. Estimate of the initial precision.
+//'   * `J`, `L`, `K`: Integers. number of mean, variance, and mean-variance
+//'     components.
+//'   * `J_model`: A list. A list of the posterior parameters for each of the
+//'     \eqn{J} meanvar-scp components (only included in `J > 0`).
+//'   * `L_model`: A list. A list of the posterior parameters for each of the
+//'     \eqn{L} mean-scp components (only included in `L > 0`).
+//'   * `K_model`: A list. A list of the posterior parameters for each of the
+//'     \eqn{K} var-scp components (only included in `K > 0`).
 //'
 // [[Rcpp::export]]
 List mich_cpp(NumericVector y,

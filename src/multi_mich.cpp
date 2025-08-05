@@ -15,7 +15,9 @@ using namespace Rcpp;
 //' the \eqn{L} mean change-points. The algorithm terminates once the
 //' percentage increase in the ELBO falls below `tol`.
 //'
-//' @param y A numeric matrix. \eqn{T \times N} matrix of observations.
+//' @keywords internal
+//'
+//' @param y A numeric matrix. \eqn{T \times d} matrix of observations.
 //' @param mu_0 A numeric vector. Vector of intercept parameters.
 //' @param fit_intercept A logical. If `fit_intercept == TRUE`, then an
 //'   intercept is estimated and `mu_0` gets updated.
@@ -27,8 +29,13 @@ using namespace Rcpp;
 //'   converge before `max_iter` is reached, then `converged == FALSE` in the
 //'   returned fit object.
 //' @param tol A scalar. Convergence tolerance for relative increase in ELBO.
-//' @param verbose A logical. If `verbose == TRUE`, then value of the ELBO is
-//'   printed every 5000th iteration.
+//' @param verbose A logical. If `verbose == TRUE`, then the value of the ELBO
+//'   is printed every 5000th iteration.
+//' @param omega_l A scalar. Prior precision parameter for mean-scp components
+//'   of model.
+//' @param log_pi_l A numeric matrix. A \eqn{T \times L} matrix of prior log
+//'   change-point location probabilities for each of the \eqn{L} mean
+//'   change-points.
 //' @param omega_bar_l,log_omega_bar_l Numeric vectors. Vector of posterior
 //'   precision parameters \eqn{\{\bar{\omega}_t\}_{t=1}^T} and log evaluations
 //'   such that \eqn{V(\mathbf{b}_\ell|\tau=t) = \bar{\omega}_t\mathbf{I}_d}.
@@ -40,7 +47,8 @@ using namespace Rcpp;
 //'
 //' @return A List. Parameters of the variational approximation the MICH
 //' posterior distribution, including:
-//'   * `residual`: A numeric vector. Residual \eqn{\mathbf{r}_{1:T}} after
+//'   * `L`: An integer. Number of components included in model.
+//'   * `residual`: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
 //'     subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
 //'     \eqn{\mathbf{y}_{1:T}}.
 //'   * `mu`: A numeric matrix. Posterior estimate of

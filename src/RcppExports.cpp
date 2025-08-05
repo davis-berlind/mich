@@ -10,6 +10,98 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// multi_mu_bar_fn
+NumericMatrix multi_mu_bar_fn(NumericMatrix b, NumericVector prob);
+RcppExport SEXP _mich_multi_mu_bar_fn(SEXP bSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_mu_bar_fn(b, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multi_mu2_bar_fn
+NumericMatrix multi_mu2_bar_fn(NumericMatrix b, NumericVector omega, NumericVector prob);
+RcppExport SEXP _mich_multi_mu2_bar_fn(SEXP bSEXP, SEXP omegaSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_mu2_bar_fn(b, omega, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mu_bar_fn
+NumericVector mu_bar_fn(NumericVector b, NumericVector prob);
+RcppExport SEXP _mich_mu_bar_fn(SEXP bSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(mu_bar_fn(b, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mu2_bar_fn
+NumericVector mu2_bar_fn(NumericVector b, NumericVector omega, NumericVector prob);
+RcppExport SEXP _mich_mu2_bar_fn(SEXP bSEXP, SEXP omegaSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(mu2_bar_fn(b, omega, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lambda_bar_fn
+NumericVector lambda_bar_fn(NumericVector u, NumericVector v, NumericVector prob);
+RcppExport SEXP _mich_lambda_bar_fn(SEXP uSEXP, SEXP vSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type u(uSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type v(vSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(lambda_bar_fn(u, v, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mu_lambda_fn
+NumericVector mu_lambda_fn(NumericVector b, NumericVector u, NumericVector v, NumericVector prob);
+RcppExport SEXP _mich_mu_lambda_fn(SEXP bSEXP, SEXP uSEXP, SEXP vSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type u(uSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type v(vSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(mu_lambda_fn(b, u, v, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mu2_lambda_fn
+NumericVector mu2_lambda_fn(NumericVector b, NumericVector omega, NumericVector u, NumericVector v, NumericVector prob);
+RcppExport SEXP _mich_mu2_lambda_fn(SEXP bSEXP, SEXP omegaSEXP, SEXP uSEXP, SEXP vSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type u(uSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type v(vSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(mu2_lambda_fn(b, omega, u, v, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mich_cpp
 List mich_cpp(NumericVector y, int J, int L, int K, double mu_0, double lambda_0, bool fit_intercept, bool fit_scale, bool refit, double max_iter, bool verbose, double tol, double omega_j, double u_j, double v_j, NumericMatrix log_pi_j, NumericMatrix pi_bar_j, NumericMatrix log_pi_bar_j, NumericMatrix b_bar_j, NumericMatrix omega_bar_j, NumericVector u_bar_j, NumericMatrix v_bar_j, NumericVector lgamma_u_bar_j, NumericVector digamma_u_bar_j, double omega_l, NumericMatrix log_pi_l, NumericMatrix pi_bar_l, NumericMatrix log_pi_bar_l, NumericMatrix b_bar_l, NumericMatrix omega_bar_l, double u_k, double v_k, NumericMatrix log_pi_k, NumericMatrix pi_bar_k, NumericMatrix log_pi_bar_k, NumericVector u_bar_k, NumericMatrix v_bar_k, NumericVector lgamma_u_bar_k, NumericVector digamma_u_bar_k);
 RcppExport SEXP _mich_mich_cpp(SEXP ySEXP, SEXP JSEXP, SEXP LSEXP, SEXP KSEXP, SEXP mu_0SEXP, SEXP lambda_0SEXP, SEXP fit_interceptSEXP, SEXP fit_scaleSEXP, SEXP refitSEXP, SEXP max_iterSEXP, SEXP verboseSEXP, SEXP tolSEXP, SEXP omega_jSEXP, SEXP u_jSEXP, SEXP v_jSEXP, SEXP log_pi_jSEXP, SEXP pi_bar_jSEXP, SEXP log_pi_bar_jSEXP, SEXP b_bar_jSEXP, SEXP omega_bar_jSEXP, SEXP u_bar_jSEXP, SEXP v_bar_jSEXP, SEXP lgamma_u_bar_jSEXP, SEXP digamma_u_bar_jSEXP, SEXP omega_lSEXP, SEXP log_pi_lSEXP, SEXP pi_bar_lSEXP, SEXP log_pi_bar_lSEXP, SEXP b_bar_lSEXP, SEXP omega_bar_lSEXP, SEXP u_kSEXP, SEXP v_kSEXP, SEXP log_pi_kSEXP, SEXP pi_bar_kSEXP, SEXP log_pi_bar_kSEXP, SEXP u_bar_kSEXP, SEXP v_bar_kSEXP, SEXP lgamma_u_bar_kSEXP, SEXP digamma_u_bar_kSEXP) {
@@ -144,6 +236,13 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_mich_multi_mu_bar_fn", (DL_FUNC) &_mich_multi_mu_bar_fn, 2},
+    {"_mich_multi_mu2_bar_fn", (DL_FUNC) &_mich_multi_mu2_bar_fn, 3},
+    {"_mich_mu_bar_fn", (DL_FUNC) &_mich_mu_bar_fn, 2},
+    {"_mich_mu2_bar_fn", (DL_FUNC) &_mich_mu2_bar_fn, 3},
+    {"_mich_lambda_bar_fn", (DL_FUNC) &_mich_lambda_bar_fn, 3},
+    {"_mich_mu_lambda_fn", (DL_FUNC) &_mich_mu_lambda_fn, 4},
+    {"_mich_mu2_lambda_fn", (DL_FUNC) &_mich_mu2_lambda_fn, 5},
     {"_mich_mich_cpp", (DL_FUNC) &_mich_mich_cpp, 39},
     {"_mich_multi_mich_cpp", (DL_FUNC) &_mich_multi_mich_cpp, 12},
     {"_mich_mean_scp", (DL_FUNC) &_mich_mean_scp, 4},

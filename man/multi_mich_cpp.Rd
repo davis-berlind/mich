@@ -20,7 +20,7 @@ multi_mich_cpp(
 )
 }
 \arguments{
-\item{y}{A numeric matrix. \eqn{T \times N} matrix of observations.}
+\item{y}{A numeric matrix. \eqn{T \times d} matrix of observations.}
 
 \item{mu_0}{A numeric vector. Vector of intercept parameters.}
 
@@ -38,8 +38,15 @@ returned fit object.}
 
 \item{tol}{A scalar. Convergence tolerance for relative increase in ELBO.}
 
-\item{verbose}{A logical. If \code{verbose == TRUE}, then value of the ELBO is
-printed every 5000th iteration.}
+\item{verbose}{A logical. If \code{verbose == TRUE}, then the value of the ELBO
+is printed every 5000th iteration.}
+
+\item{omega_l}{A scalar. Prior precision parameter for mean-scp components
+of model.}
+
+\item{log_pi_l}{A numeric matrix. A \eqn{T \times L} matrix of prior log
+change-point location probabilities for each of the \eqn{L} mean
+change-points.}
 
 \item{omega_bar_l, log_omega_bar_l}{Numeric vectors. Vector of posterior
 precision parameters \eqn{\{\bar{\omega}_t\}_{t=1}^T} and log evaluations
@@ -55,7 +62,8 @@ evaluations.}
 A List. Parameters of the variational approximation the MICH
 posterior distribution, including:
 \itemize{
-\item \code{residual}: A numeric vector. Residual \eqn{\mathbf{r}_{1:T}} after
+\item \code{L}: An integer. Number of components included in model.
+\item \code{residual}: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
 subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
 \eqn{\mathbf{y}_{1:T}}.
 \item \code{mu}: A numeric matrix. Posterior estimate of
@@ -76,3 +84,4 @@ resulting in a variational approximation to the posterior distribution of
 the \eqn{L} mean change-points. The algorithm terminates once the
 percentage increase in the ELBO falls below \code{tol}.
 }
+\keyword{internal}
