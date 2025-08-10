@@ -103,8 +103,8 @@ change-point location probabilities for each of the \eqn{L} mean
 change-points.}
 }
 \value{
-A List. Parameters of the variational approximation the MICH
-posterior distribution, including:
+A mich object. A List of the parameters of the variational
+approximation of the MICH posterior distribution, including:
 \itemize{
 \item \code{y}: A numeric matrix. Original data.
 \item \code{Sigma}: A numeric matrix. Estimate of \eqn{\Lambda^{-1}} if

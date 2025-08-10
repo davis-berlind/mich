@@ -62,8 +62,8 @@
 #'   change-point location probabilities for each of the \eqn{L} mean
 #'   change-points.
 #'
-#' @return A List. Parameters of the variational approximation the MICH
-#' posterior distribution, including:
+#' @return A mich object. A List of the parameters of the variational
+#' approximation of the MICH posterior distribution, including:
 #'   * `y`: A numeric matrix. Original data.
 #'   * `Sigma`: A numeric matrix. Estimate of \eqn{\Lambda^{-1}} if
 #'     `fit_scale == TRUE`.
@@ -493,6 +493,7 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
   }
 
   #### return model ####
+  class(fit) <- "mich"
   fit$y <- y_raw
 
   # rescale data
