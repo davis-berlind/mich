@@ -7,19 +7,20 @@
 #'
 #' @param y A numeric matrix. \eqn{T \times d} matrix of observations.
 #' @param fit_intercept A logical. If `fit_intercept == TRUE`, then an
-#'   intercept is estimated and `mu_0` gets updated, otherwise it is assumed
-#'   that \eqn{\boldsymbol{\mu}_0 = \mathbf{0}}.
+#'   intercept is estimated, otherwise it is assumed  that
+#'   \eqn{\boldsymbol{\mu}_0 = \mathbf{0}}.
 #' @param fit_scale A logical. If `fit_scale == TRUE`, then the precision matrix
 #'   \eqn{\Lambda = E[\mathbf{y}_t\mathbf{y}'_t]^{-1}} is estimated using
 #'   \eqn{\hat{\Lambda}^{-1} = \frac{1}{2(T-1)} \Sigma_{t=1}^{T-1} (\mathbf{y}_{t+1} - \mathbf{y}_{t})(\mathbf{y}_{t+1} - \mathbf{y}_{t})'},
 #'   otherwise it is assumed that \eqn{\Lambda = \mathbf{I}_d}.
+#' @param standardize A logical. If `standardize == TRUE`, then `y` is centered
+#'    and rescaled before fitting.
 #' @param L An integer. Number of mean-scp components included in model. If
-#'   `L_auto == TRUE` then `L` lower bounds the number of change-points and
-#'   `mich_matrix()` searches for the \eqn{L^*} between `L` and `L_max` that
-#'   maximizes the ELBO.
-#' @param L_auto A logical. If `fit_scale == TRUE`, then `mich_matrix()` returns
-#'   the \eqn{L^*} between `L` and `L_max` that maximizes the ELBO (see Appendix
-#'   C.4 of Berlind, Cappello, Madrid Padilla (2025))..
+#'   `L_auto == TRUE` then `L` lower bounds the number of change-points in the
+#'   model.
+#' @param L_auto A logical. If `L_auto == TRUE`, then `mich_matrix()` returns
+#'   the \eqn{L} between `L` and `L_max` that maximizes the ELBO (see Appendix
+#'   C.4 of Berlind, Cappello, Madrid Padilla (2025)).
 #' @param L_max L An integer. If `L_auto == TRUE` then `L_max` upper bounds the
 #'   number of change-points included in the model.
 #' @param pi_l_weighted A logical. If `pi_l_weighted == TRUE`, then the weighted
@@ -47,8 +48,8 @@
 #'   criterion. If the posterior probability that two components identify the
 #'   same change is greater than `merge_level`, then those components are merged
 #'   (see Appendix C.3 of Berlind, Cappello, Madrid Padilla (2025)).
-#' @param restart  A logical. If `restart == TRUE` and `L_auto == TRUE` then
-#'   after  `n_search` increments of `L`, if the ELBO has not increased,
+#' @param restart A logical. If `restart == TRUE` and `L_auto == TRUE` then
+#'   after `n_search` increments of `L`, if the ELBO has not increased,
 #'   `mich_matrix()` will restart by setting the `L` components to the null
 #'   model initialization (except for the components with maximum posterior
 #'   probabilities > 0.9) then refit and begin the search again.
@@ -62,14 +63,14 @@
 #'   change-point location probabilities for each of the \eqn{L} mean
 #'   change-points.
 #'
-#' @return A mich object. A List of the parameters of the variational
-#' approximation of the MICH posterior distribution, including:
+#' @return A list. Parameters of the variational approximation the MICH
+#' posterior distribution, including:
 #'   * `y`: A numeric matrix. Original data.
 #'   * `Sigma`: A numeric matrix. Estimate of \eqn{\Lambda^{-1}} if
 #'     `fit_scale == TRUE`.
 #'   * `L`: An integer. Number of components included in model.
 #'   * `pi_bar`: A numeric matrix. A  \eqn{T \times L} matrix of posterior
-#'     change-point location probabilities.
+#'     change-point location probabilites.
 #'   * `residual`: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
 #'     subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
 #'     \eqn{\mathbf{y}_{1:T}}.
@@ -82,7 +83,7 @@
 #'   * `converged`: A logical. Indicates whether relative increase in the ELBO
 #'     is less than `tol`.
 #'
-mich_matrix <- function(y, fit_intercept, fit_scale,
+mich_matrix <- function(y, fit_intercept, fit_scale, standardize,
                         L, L_auto, L_max, pi_l_weighted,
                         tol, verbose, max_iter, reverse,
                         detect, merge_level, merge_prob,
@@ -106,16 +107,17 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
   # max times to merge
   merge_counter = log(T) %/% 2
 
-  # estimate precision matrix
-  if (fit_scale) {
+  #### standardize data ####
+  if (fit_scale | standardize) {
+    # estimate precision matrix
     y_diff <- diff(y)
     y_diff_norm <- sqrt(rowSums(y_diff^2))
 
     # remove outliers due to big mean changes
-    y_diff <- y_diff[y_diff_norm <= stats::quantile()(y_diff_norm, p = 0.75) +  1.5 * stats::IQR(y_diff_norm), ]
+    y_diff <- y_diff[y_diff_norm <= quantile(y_diff_norm, p = 0.75) +  1.5 * IQR(y_diff_norm), ]
 
     # estimate variance
-    Sigma <- stats::var(y_diff) / 2
+    Sigma <- var(y_diff) / 2
     Sigma_eigen <- eigen(Sigma)
     if (any(Sigma_eigen$values == 0)) {
       warning("Var(y) is singular. Consider removing collinear columns.")
@@ -123,16 +125,22 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
     }
     Lambda_sqrt <- Sigma_eigen$vectors %*% diag(1 / sqrt(Sigma_eigen$values)) %*% t(Sigma_eigen$vectors)
 
+    # center data
+    if (standardize) {
+      center <-  apply(y, 2, median)
+      y <- y - center
+    }
+
     # rescale data
     y <- y %*% Lambda_sqrt
   }
 
-  # initialize mu_0
+  #### initialize mu_0 ####
   if (fit_intercept) {
     mu_0 <- colMeans(y[1:ceiling(log(T)),,drop=FALSE])
   } else mu_0 <- rep(0.0, d)
 
-  # initializing posterior parameters
+  #### initializing posterior parameters ####
   omega_bar_l <- omega_l + T - 1:T + 1
   log_omega_bar_l <- log(omega_bar_l)
   post_params <- list()
@@ -189,7 +197,10 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
         # keep probabilities of component with largest posterior probability
         if (max(pi_bar_l[,merge_dex[2]]) > max(pi_bar_l[,merge_dex[1]])) {
           pi_bar_l[,merge_dex[1]] <- pi_bar_l[,merge_dex[2]]
+          post_params[[merge_dex[1]]][["pi_bar"]] <- post_params[[merge_dex[2]]][["pi_bar"]]
           post_params[[merge_dex[1]]][["log_pi_bar"]] <- post_params[[merge_dex[2]]][["log_pi_bar"]]
+          merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
+          merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
         }
 
         # store merged mean parameters
@@ -201,6 +212,8 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
         # drop merged component
         post_params[merge_dex[2]] <- NULL
         pi_bar_l <- pi_bar_l[,-merge_dex[2]]
+        merge_prob_mat <- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
+        keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
         if (L_auto) {
           log_pi_l <- log_pi_l[,-merge_dex[2], drop=FALSE]
         }
@@ -229,12 +242,13 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
 
   if (L_auto | merge_flag) {
     refit <- (L > 0)
-    counter <- n_search
+    counter <- n_search # number of searches after max elbo
     elbo <- fit$elbo[length(fit$elbo)] # store current value of ELBO
     elbo_new <- elbo
 
     if (verbose) print(paste0("L = ", L, ": ELBO = ", elbo_new))
 
+    # continue search until n_search exhausted or max components exceeded
     while (L < L_max) {
       # increment dimension of parameters
       for (i in 1:increment) {
@@ -354,7 +368,10 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
               # keep probabilities of component with largest posterior probability
               if (max(pi_bar_l[,merge_dex[2]]) > max(pi_bar_l[,merge_dex[1]])) {
                 pi_bar_l[,merge_dex[1]] <- pi_bar_l[,merge_dex[2]]
+                post_params[[merge_dex[1]]][["pi_bar"]] <- post_params[[merge_dex[2]]][["pi_bar"]]
                 post_params[[merge_dex[1]]][["log_pi_bar"]] <- post_params[[merge_dex[2]]][["log_pi_bar"]]
+                merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
+                merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
               }
 
               # store merged mean parameters
@@ -366,6 +383,8 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
               # drop merged component
               post_params[merge_dex[2]] <- NULL
               pi_bar_l <- pi_bar_l[,-merge_dex[2]]
+              merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
+              keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
               if (L_auto) {
                 log_pi_l <- log_pi_l[,-merge_dex[2], drop=FALSE]
               }
@@ -429,13 +448,12 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
     # refit model and merge components
     merged <- FALSE # flag indicating components have been merged
     while (!merged) {
-      fit <- multi_mich_cpp(y, mu_0, fit_intercept, refit,
-                            max_iter, tol, verbose = verbose & !L_auto,
+      fit <- multi_mich_cpp(y[T:1,], mu_0, fit_intercept, refit = TRUE,
+                            max_iter, tol, verbose = FALSE,
                             omega_l, log_pi_l, omega_bar_l, log_omega_bar_l,
                             post_params)
 
       merged <- TRUE
-      refit <- TRUE
 
       # identify components to merge
       if (L > 1) {
@@ -471,7 +489,10 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
           # keep probabilities of component with largest posterior probability
           if (max(pi_bar_l[,merge_dex[2]]) > max(pi_bar_l[,merge_dex[1]])) {
             pi_bar_l[,merge_dex[1]] <- pi_bar_l[,merge_dex[2]]
+            post_params[[merge_dex[1]]][["pi_bar"]] <- post_params[[merge_dex[2]]][["pi_bar"]]
             post_params[[merge_dex[1]]][["log_pi_bar"]] <- post_params[[merge_dex[2]]][["log_pi_bar"]]
+            merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
+            merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
           }
 
           # store merged mean parameters
@@ -483,6 +504,8 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
           # drop merged component
           post_params[merge_dex[2]] <- NULL
           pi_bar_l <- pi_bar_l[,-merge_dex[2]]
+          merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
+          keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
           if (L_auto) {
             log_pi_l <- log_pi_l[,-merge_dex[2], drop=FALSE]
           }
@@ -493,14 +516,19 @@ mich_matrix <- function(y, fit_intercept, fit_scale,
   }
 
   #### return model ####
-  class(fit) <- "mich"
+  class(fit) <- "mich.fit"
   fit$y <- y_raw
 
-  # rescale data
-  if (fit_scale) {
+  # rescale data to original units
+  if (fit_scale | standardize) {
     Sigma_sqrt <- Sigma_eigen$vectors %*% diag(sqrt(Sigma_eigen$values)) %*% t(Sigma_eigen$vectors)
+    # rescale (and center) posterior parameters
     fit$mu_0 <- c(fit$mu_0 %*% Sigma_sqrt)
     fit$mu <- fit$mu %*% Sigma_sqrt
+    if (standardize) {
+      fit$mu_0 <- fit$mu_0 + center # recenter mu_0
+      fit$mu <- fit$mu + matrix(center, nrow = T, ncol = d, byrow = TRUE)
+    }
     for (l in seq_len(fit$L)) {
       fit$post_params[[l]][["b_bar"]] <- post_params[[l]][["b_bar"]]  %*% Sigma_sqrt
     }

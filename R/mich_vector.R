@@ -982,8 +982,10 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
         }
 
         # fit new model
-        fit_new <- mich_vector(y, fit_intercept, fit_scale, J, L, K,
+        fit_new <- mich_vector(y, fit_intercept, fit_scale, standardize,
+                               J, L, K,
                                J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
+                               J_max = J, L_max = L, K_max = K,
                                pi_j_weighted, pi_l_weighted, pi_k_weighted,
                                tol, verbose = FALSE, max_iter, reverse = FALSE,
                                detect, merge_level, merge_prob,
@@ -1015,8 +1017,10 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
         }
 
         # fit new model
-        fit_new <- mich_vector(y, fit_intercept, fit_scale, J, L, K,
+        fit_new <- mich_vector(y, fit_intercept, fit_scale, standardize,
+                               J, L, K,
                                J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
+                               J_max = J, L_max = L, K_max = K,
                                pi_j_weighted, pi_l_weighted, pi_k_weighted,
                                tol, verbose = FALSE, max_iter, reverse = FALSE,
                                detect, merge_level, merge_prob,
@@ -1048,12 +1052,14 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
         }
 
         # fit new model
-        fit_new <- mich_vector(y, fit_intercept, fit_scale, J, L, K,
+        fit_new <- mich_vector(y, fit_intercept, fit_scale, standardize,
+                               J, L, K,
                                J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
+                               J_max = J, L_max = L, K_max = K,
                                pi_j_weighted, pi_l_weighted, pi_k_weighted,
                                tol, verbose = FALSE, max_iter, reverse = FALSE,
                                detect, merge_level, merge_prob,
-                               restart, n_search,
+                               restart, n_search, increment,
                                omega_j, u_j, v_j, log_pi_j,
                                omega_l, log_pi_l,
                                u_k, v_k, log_pi_k)

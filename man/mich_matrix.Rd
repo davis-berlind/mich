@@ -8,6 +8,7 @@ mich_matrix(
   y,
   fit_intercept,
   fit_scale,
+  standardize,
   L,
   L_auto,
   L_max,
@@ -30,22 +31,24 @@ mich_matrix(
 \item{y}{A numeric matrix. \eqn{T \times d} matrix of observations.}
 
 \item{fit_intercept}{A logical. If \code{fit_intercept == TRUE}, then an
-intercept is estimated and \code{mu_0} gets updated, otherwise it is assumed
-that \eqn{\boldsymbol{\mu}_0 = \mathbf{0}}.}
+intercept is estimated, otherwise it is assumed  that
+\eqn{\boldsymbol{\mu}_0 = \mathbf{0}}.}
 
 \item{fit_scale}{A logical. If \code{fit_scale == TRUE}, then the precision matrix
 \eqn{\Lambda = E[\mathbf{y}_t\mathbf{y}'_t]^{-1}} is estimated using
 \eqn{\hat{\Lambda}^{-1} = \frac{1}{2(T-1)} \Sigma_{t=1}^{T-1} (\mathbf{y}_{t+1} - \mathbf{y}_{t})(\mathbf{y}_{t+1} - \mathbf{y}_{t})'},
 otherwise it is assumed that \eqn{\Lambda = \mathbf{I}_d}.}
 
-\item{L}{An integer. Number of mean-scp components included in model. If
-\code{L_auto == TRUE} then \code{L} lower bounds the number of change-points and
-\code{mich_matrix()} searches for the \eqn{L^*} between \code{L} and \code{L_max} that
-maximizes the ELBO.}
+\item{standardize}{A logical. If \code{standardize == TRUE}, then \code{y} is centered
+and rescaled before fitting.}
 
-\item{L_auto}{A logical. If \code{fit_scale == TRUE}, then \code{mich_matrix()} returns
-the \eqn{L^*} between \code{L} and \code{L_max} that maximizes the ELBO (see Appendix
-C.4 of Berlind, Cappello, Madrid Padilla (2025))..}
+\item{L}{An integer. Number of mean-scp components included in model. If
+\code{L_auto == TRUE} then \code{L} lower bounds the number of change-points in the
+model.}
+
+\item{L_auto}{A logical. If \code{L_auto == TRUE}, then \code{mich_matrix()} returns
+the \eqn{L} between \code{L} and \code{L_max} that maximizes the ELBO (see Appendix
+C.4 of Berlind, Cappello, Madrid Padilla (2025)).}
 
 \item{L_max}{L An integer. If \code{L_auto == TRUE} then \code{L_max} upper bounds the
 number of change-points included in the model.}
@@ -84,7 +87,7 @@ same change is greater than \code{merge_level}, then those components are merged
 (see Appendix C.3 of Berlind, Cappello, Madrid Padilla (2025)).}
 
 \item{restart}{A logical. If \code{restart == TRUE} and \code{L_auto == TRUE} then
-after  \code{n_search} increments of \code{L}, if the ELBO has not increased,
+after \code{n_search} increments of \code{L}, if the ELBO has not increased,
 \code{mich_matrix()} will restart by setting the \code{L} components to the null
 model initialization (except for the components with maximum posterior
 probabilities > 0.9) then refit and begin the search again.}
@@ -103,15 +106,15 @@ change-point location probabilities for each of the \eqn{L} mean
 change-points.}
 }
 \value{
-A mich object. A List of the parameters of the variational
-approximation of the MICH posterior distribution, including:
+A list. Parameters of the variational approximation the MICH
+posterior distribution, including:
 \itemize{
 \item \code{y}: A numeric matrix. Original data.
 \item \code{Sigma}: A numeric matrix. Estimate of \eqn{\Lambda^{-1}} if
 \code{fit_scale == TRUE}.
 \item \code{L}: An integer. Number of components included in model.
 \item \code{pi_bar}: A numeric matrix. A  \eqn{T \times L} matrix of posterior
-change-point location probabilities.
+change-point location probabilites.
 \item \code{residual}: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
 subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
 \eqn{\mathbf{y}_{1:T}}.
