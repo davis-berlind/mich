@@ -13,3 +13,4 @@ Imports:
 LinkingTo: Rcpp
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
+URL: https://davis-berlind.github.io/mich/
