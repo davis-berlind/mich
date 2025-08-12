@@ -1,0 +1,12 @@
+pandoc: 3.1.11
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  ion_channel: ion_channel.html
+  mich: mich.html
+  step_count: step_count.html
+  well_log: well_log.html
+last_built: 2025-08-12T11:58Z
+urls:
+  reference: https://davis-berlind.github.io/mich/reference
+  article: https://davis-berlind.github.io/mich/articles
