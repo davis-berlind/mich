@@ -146,7 +146,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
 
   #### initialize lambda_0 ####
   if (fit_scale) {
-    lambda_0 <- 1 / IQR(y[1:ceiling(2*log(T))])^2
+    lambda_0 <- 1 / stats::IQR(y[1:ceiling(2*log(T))])^2
   } else lambda_0 <- 1.0
 
   #### initializing posterior parameters ####

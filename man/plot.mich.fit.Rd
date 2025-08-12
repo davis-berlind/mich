@@ -5,23 +5,24 @@
 \title{Plot method for mich.fit objects}
 \usage{
 \method{plot}{mich.fit}(
-  fit,
+  x,
   level = 0.95,
   max_length = NULL,
   signal = FALSE,
   cs = TRUE,
-  n_plots = 5
+  n_plots = 5,
+  ...
 )
 }
 \arguments{
-\item{fit}{A mich.fit object. Output of running \code{mich()} on a numeric vector
+\item{x}{A mich.fit object. Output of running \code{mich()} on a numeric vector
 or matrix.}
 
 \item{level}{A scalar. A number between (0,1) indicating the significance
 level to construct credible sets at when \code{cs == TRUE}.}
 
 \item{max_length}{An integer. Detection threshold, see \code{mich_sets()}. Equal
-to \eqn{\log(T)^{1.5}} by default.}
+to \eqn{\log^{2}(T)} by default.}
 
 \item{signal}{A logical. If \code{TRUE}, then the posterior mean and precision
 signals are also plotted.}
@@ -31,18 +32,24 @@ detected change-point are also plotted.}
 
 \item{n_plots}{An integer. Number of plot to display at once when data \code{y} is
 a matrix.}
+
+\item{...}{Additional arguments to be passed to methods.}
 }
 \value{
 Invisibly returns \code{NULL}.
 }
 \description{
-Plot method for mich.fit objects
+Plots the resulting fit and estimated change-points from calling \code{mich()}.
 }
 \examples{
+# generate data with two mean-variance change-points
 y = c(rnorm(100,0,10), rnorm(100,10,3), rnorm(100,0,6))
 fit = mich(y, J = 2) # fit two mean-variance change-points
-plot(fit, level = 0.95, cs = TRUE) # plot change-points with 95\% credible sets
-fit = mich(y, J = 1, L = 1) # fit one mean and one mean-variance change-point
-plot(fit, level = 0.95, cs = TRUE, signal = TRUE) # plot change-points with 95\% credible sets and signal
+# plot change-points with 95\% credible sets
+plot(fit, level = 0.95, cs = TRUE)
+# fit one mean and one mean-variance change-point
+fit = mich(y, J = 1, L = 1)
+# plot change-points with 95\% credible sets and signal
+plot(fit, level = 0.95, cs = TRUE, signal = TRUE)
 
 }

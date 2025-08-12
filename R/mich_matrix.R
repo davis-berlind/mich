@@ -114,12 +114,12 @@ mich_matrix <- function(y, fit_intercept, fit_scale, standardize,
     y_diff_norm <- sqrt(rowSums(y_diff^2))
 
     # remove outliers due to big mean changes
-    y_diff <- y_diff[y_diff_norm <= quantile(y_diff_norm, p = 0.75) +  1.5 * IQR(y_diff_norm), ]
+    y_diff <- y_diff[y_diff_norm <= stats::quantile(y_diff_norm, p = 0.75) +  1.5 * stats::IQR(y_diff_norm), ]
 
     # estimate variance
-    Sigma <- var(y_diff) / 2
+    Sigma <- stats::var(y_diff) / 2
     Sigma_eigen <- eigen(Sigma)
-    if (any(Sigma_eigen$values == 0)) {
+    if (any(Sigma_eigen$values <= 0)) {
       warning("Var(y) is singular. Consider removing collinear columns.")
       Sigma_eigen$values <- Sigma_eigen$values + 1e-5
     }
@@ -127,7 +127,7 @@ mich_matrix <- function(y, fit_intercept, fit_scale, standardize,
 
     # center data
     if (standardize) {
-      center <-  apply(y, 2, median)
+      center <-  apply(y, 2, stats::median)
       y <- y - center
     }
 
