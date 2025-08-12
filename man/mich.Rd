@@ -2,7 +2,7 @@
 % Please edit documentation in R/mich.R
 \name{mich}
 \alias{mich}
-\title{Title}
+\title{Multiple Independent Change-Point (MICH) Model}
 \usage{
 mich(
   y,
@@ -38,8 +38,240 @@ mich(
 )
 }
 \arguments{
-\item{pi_k}{}
+\item{y}{A numeric vector or matrix. A length \eqn{T} vector of observations
+exhibiting change-points in the mean and/or variance of the series, or a
+\eqn{T \times d} matrix of observations exhibiting just mean changes.}
+
+\item{fit_intercept}{A logical. If \code{fit_intercept == TRUE}, then an
+intercept is estimated, otherwise it is assumed  that
+\eqn{\mu_0 = 0}.}
+
+\item{fit_scale}{A logical. If \code{fit_scale == TRUE}, then the initial
+precision is estimated, otherwise it is assumed  that \eqn{\lambda_0 = 1}
+(or \eqn{\Lambda_0 = \mathbf{I}_d} if \code{y} is a matrix).}
+
+\item{standardize}{A logical. If \code{standardize == TRUE}, then \code{y} is centered
+and rescaled before fitting.}
+
+\item{L, J, K}{Integers. Respective number of mean-scp, var-scp, and
+meanvar-scp components included in the model. If \code{L_auto == TRUE},
+\code{K_auto == TRUE}, or \code{J_auto == TRUE} then \code{L}, \code{K}, and \code{J} lower bound
+the number of each kind of change-point in the model.}
+
+\item{L_auto, K_auto, J_auto}{Logicals. If \code{L_auto == TRUE},
+\code{K_auto == TRUE}, and/or \code{J_auto == TRUE}, then \code{mich_vector()} searches
+forr and returns the \eqn{L} between \code{L} and \code{L_max}, the \eqn{K} between
+\code{K} and \code{K_max}, and/or the \eqn{J} between \code{J} and \code{J_max} that maximize
+the ELBO (see Appendix C.4 of Berlind, Cappello, Madrid Padilla (2025)).}
+
+\item{L_max, K_max, J_max}{Integers. If \code{L_auto == TRUE},
+\code{K_auto == TRUE}, or \code{J_auto == TRUE} then \code{L_max}, \code{K_max}, and \code{J_max}
+upper bound the number of each kind of change-point in the model.}
+
+\item{tol}{A scalar. Convergence tolerance for relative increase in ELBO.
+Once \eqn{(\text{ELBO}_{t+1}-\text{ELBO}_t)/ \text{ELBO}_t} falls below
+\code{tol} the variational algorithm terminates.}
+
+\item{merge_prob}{A scalar. A value between (0,1) indicating the merge
+criterion. If the posterior probability that two components identify the
+same change is greater than \code{merge_level}, then those components are merged
+(see Appendix C.3 of Berlind, Cappello, Madrid Padilla (2025)).}
+
+\item{merge_level}{A scalar. A value between (0,1) for the significance level
+to construct credible sets at when merging. A model component is only
+considered to be a candidate for merging if its \code{merge_level}-level
+credible set contains fewer than \code{detect} indices.}
+
+\item{max_iter}{An integer. Maximum number of variational iterations. If ELBO
+does not converge before \code{max_iter} is reached, then \code{converged == FALSE}
+in the returned fit object.}
+
+\item{verbose}{A logical. If \code{verbose == TRUE} and \code{L_auto == FALSE},
+\code{K_auto == FALSE}, and \code{J_auto == FALSE} then the value of the ELBO is
+printed every 5000th iteration. If \code{verbose == TRUE} and any of \code{L_auto},
+\code{K_auto}, or \code{J_auto} are \code{TRUE}, then the value of the ELBO is printed for
+each combinatin of \eqn{(L,K,J)} as \code{mich_vector()} searches for the
+parameterization that maximized the EBLO.}
+
+\item{reverse}{A logical. If \code{reverse == TRUE} then MICH is fit to
+\eqn{\mathbf{y}_{T:1}} and the model parameters are reversed in
+post-processing.}
+
+\item{restart}{logical. If \code{restart == TRUE} and \code{L_auto}, \code{K_auto}, or
+\code{J_auto} are \code{TRUE}, then after \code{n_search} increments of \code{L}, \code{K}, and/or
+\code{J}, if the ELBO has not increased, \code{mich_vector()} will restart by setting
+the \code{L}, \code{K}, and \code{J} components to the null model initialization (except
+for the components with maximum posterior probabilities > 0.9) then refit
+and begin the search again.}
+
+\item{increment}{An integer. Number of components to increment \code{L}, \code{K} and
+\code{J} by when \code{L_auto}, \code{K_auto}, or \code{J_auto} are \code{TRUE}.}
+
+\item{omega_j, u_j, v_j}{Scalars. Prior precision, shape, and rate parameters
+for meanvar-scp components of the model.}
+
+\item{pi_j}{A character or numeric vector or matrix. Prior for the
+meanvar-scp model components. Must either be a length \eqn{T} vector with
+entries that sum to one, a \eqn{T \times J} matrix with columns that sum to
+one, or a character equal to \code{"weighted"} or \code{"uniform"}. If \code{pi_j} is a
+vector and \code{J > 1}, then \code{pi_j} is used as the prior for all \code{J}
+meanvar-scp components in the model. If \code{pi_j == "uniform"} then the
+uniform prior \eqn{\pi_{jt} = 1/T} is used for all components. If
+\code{pi_j == "weighted"} then \code{log_meanvar_prior()} is used to calculate the
+weighted prior as described in Appendix C.2 of Berlind, Cappello, Madrid
+Padilla (2025). If \code{J_auto == TRUE} then it must be the case that
+\code{pi_j \%in\% c("uniform", "weighted")}.}
+
+\item{omega_l}{A scalar. Prior precision parameter for mean-scp components of
+the model. If \code{y} is a matrix then the prior precision is
+\eqn{\omega_\ell\mathbf{I}_d}.}
+
+\item{pi_l}{A character or numeric vector or matrix. Prior for the mean-scp
+model components. Must either be a length \eqn{T} vector with entries that
+sum to one, a \eqn{T \times L} matrix with columns that sum to one, or a
+character equal to \code{"weighted"} or \code{"uniform"}. If \code{pi_l} is a vector and
+\code{L > 1}, then \code{pi_l} is used as the prior for all \code{L} mean-scp components.
+If \code{pi_l == "uniform"} then the uniform prior \eqn{\pi_{\ell t} = 1/T} is
+used for all components. If \code{pi_l == "weighted"} then \code{log_mean_prior()}
+is used to calculate the weighted prior as described in Appendix C.2 of
+Berlind, Cappello, Madrid Padilla (2025). If \code{L_auto == TRUE} then it must
+be the case that \code{pi_l \%in\% c("uniform", "weighted")}.}
+
+\item{u_k, v_k}{Scalar. Prior shape and rate parameters for var-scp components
+of the model.}
+
+\item{pi_k}{A character or numeric vector or matrix. Prior for the var-scp
+model components. Must either be a length \eqn{T} vector with entries that
+sum to one, a \eqn{T \times K} matrix with columns that sum to one, or a
+character equal to \code{"weighted"} or \code{"uniform"}. If \code{pi_k} is a vector and
+\code{K > 1}, then \code{pi_k} is used as the prior for all \code{K} var-scp components.
+If \code{pi_k == "uniform"} then the uniform prior \eqn{\pi_{k t} = 1/T} is used
+for all components. If \code{pi_k == "weighted"} then \code{log_var_prior()} is used
+to calculate the weighted prior as described in Appendix C.2 of Berlind,
+Cappello, Madrid Padilla (2025). If \code{K_auto == TRUE} then it must be the
+case that \code{pi_k \%in\% c("uniform", "weighted")}.}
+}
+\value{
+A list. Parameters of the variational approximation the MICH
+posterior distribution. If \code{y} is a vector, this list includes:
+\itemize{
+\item \code{y}: A numeric vector. Original data.
+\item \code{L},\code{K},\code{J}: Integers. Number of mean-scp, var-scp, and meanvar-scp
+components included in the model.
+\item \code{residual}: A numeric vector. Residual \eqn{\tilde{\mathbf{r}}_{1:T}}
+(see (B.4) of Berlind, Cappello, Madrid Padilla (2025)).
+\item \code{mu}: A numeric vector. Posterior estimate of
+\eqn{\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}] + \Sigma_{j=1}^J E[\boldsymbol{\mu}_{j,1:T}|\mathbf{y}_{1:T}]}.
+\item \code{lambda}: A numeric vector. Posterior estimate of
+\eqn{\Pi_{k=1}^K E[\boldsymbol{\lambda}_{k,1:T}|\mathbf{y}_{1:T}] \times \Pi_{j=1}^J E[\boldsymbol{\lambda}_{j,1:T}|\mathbf{y}_{1:T}]}.
+\item \code{delta}: A numeric vector. Posterior estimate of equation (B.4) of
+Berlind, Cappello, Madrid Padilla (2025).
+\item \code{mu_0}: A scalar. Estimate of the intercept.
+\item \code{lambda_0}: A scalar. Estimate of the initial precision.
+\item \code{elbo}: A numeric vector. Value of the ELBO after each iteration.
+\item \code{converged}: A logical. Indicates whether relative increase in the ELBO
+is less than \code{tol}.
+\item \code{meanvar_model}: A list. List of meanvar-scp posterior parameters:
+\itemize{
+\item \code{pi_bar}: A numeric matrix. A \eqn{T \times J} matrix of posterior
+change-point location probabilities.
+\item \code{b_bar}: A numeric matrix. A \eqn{T \times J} matrix of posterior
+mean parameters.
+\item \code{omega_bar}: A numeric matrix. A \eqn{T \times J} matrix of posterior
+precision parameters.
+\item \code{v_bar}: A numeric matrix. A \eqn{T \times J} matrix of posterior
+rate parameters.
+\item \code{u_bar}: A numeric vector. A length \eqn{T} vector of posterior shape
+parameters.
+\item \code{mu_lambda_bar}: A numeric matrix. A \eqn{T \times J} matrix of scaled
+posterior mean signals \eqn{E[\lambda_{jt}\mu_{jt}|\mathbf{y}_{1:T}]}.
+\item \code{mu2_lambda_bar}: A numeric matrix. A \eqn{T \times J} matrix of scaled
+posterior squared mean signals
+\eqn{E[\lambda_{jt}\mu^2_{jt}|\mathbf{y}_{1:T}]}.
+\item \code{lambda_bar}: A numeric matrix. A \eqn{T \times J} matrix of
+posterior precision signals \eqn{E[\lambda_{jt}|\mathbf{y}_{1:T}]}.
+}
+\item \code{mean_model}: A list. List of mean-scp posterior parameters:
+\itemize{
+\item \code{pi_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior
+change-point location probabilities.
+\item \code{b_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior
+mean parameters.
+\item \code{omega_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior
+precision parameters.
+\item \code{mu_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior mean
+signals \eqn{E[\mu_{\ell t}|\mathbf{y}_{1:T}]}.
+\item \code{mu2_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior
+squared mean signals \eqn{E[\mu_{\ell t}^2|\mathbf{y}_{1:T}]}.
+}
+\item \code{var_model}: A list. List of var-scp posterior parameters:
+\itemize{
+\item \code{pi_bar}: A numeric matrix. A \eqn{T \times K} matrix of posterior
+change-point location probabilities.
+\item \code{v_bar}: A numeric matrix. A \eqn{T \times K} matrix of posterior
+rate parameters.
+\item \code{u_bar}: A numeric vector. A length \eqn{T} vector of posterior shape
+parameters.
+\item \code{lambda_bar}: A numeric matrix. A \eqn{T \times K} matrix of
+posterior precision signals \eqn{E[\lambda_{kt}|\mathbf{y}_{1:T}]}.
+}
+}
+
+If \code{y} is a vector, this list includes:
+\itemize{
+\item \code{y}: A numeric matrix. Original data.
+\item \code{Sigma}: A numeric matrix. Estimate of \eqn{\Lambda^{-1}} if
+\code{fit_scale == TRUE}.
+\item \code{L}: An integer. Number of components included in model.
+\item \code{pi_bar}: A numeric matrix. A  \eqn{T \times L} matrix of posterior
+change-point location probabilites.
+\item \code{residual}: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
+subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
+\eqn{\mathbf{y}_{1:T}}.
+\item \code{mu}: A numeric matrix. Posterior estimate of
+\eqn{\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}]}.
+\item \code{mu_0}: A numeric vector. Estimate of the intercept.
+\item \code{post_params}: A list. List of posterior parameters for each mean-scp
+component.
+\item \code{elbo}: A numeric vector. Value of the ELBO after each iteration.
+\item \code{converged}: A logical. Indicates whether relative increase in the ELBO
+is less than \code{tol}.
+}
 }
 \description{
-Title
+Implementation of the MICH model as described in Berlind, Cappello, and
+Madrid Padilla. MICH is a Bayesian change-point detection method that
+can quantify uncertainty around estimated change-points in the form of
+credible sets.
+}
+\examples{
+set.seed(222)
+# generate univariate data with two mean-variance change-points
+y = c(rnorm(100,0,10), rnorm(100,10,3), rnorm(100,0,6))
+fit = mich(y, J = 2) # fit two mean-variance change-points
+# plot change-points with 95\% credible sets
+plot(fit, level = 0.95, cs = TRUE)
+# fit one mean and one mean-variance change-point
+fit = mich(y, J = 1, L = 1)
+# plot change-points with 95\% credible sets and signal
+plot(fit, level = 0.95, cs = TRUE, signal = TRUE)
+
+# generate correlated mulitvariate data with two mean-variance change-points
+T <- 150
+Sigma <- rbind(c(1, 0.7), c(0.7, 2))
+d <- ncol(Sigma)
+Sigma_eigen <- eigen(Sigma)
+e_vectors <- Sigma_eigen$vectors
+e_values <- Sigma_eigen$values
+Sigma_sd <- e_vectors \%*\% diag(sqrt(e_values)) \%*\% t(e_vectors)
+Z <- sapply(1:d, function(i) rnorm(T))
+mu <- c(-1, 2)
+mu_t <- matrix(0, nrow = 70, ncol=d)
+mu_t <- rbind(mu_t, t(sapply(1:30, function(i) mu)))
+mu_t <- rbind(mu_t, matrix(0, nrow = 50, ncol = d))
+Y <- mu_t + Z \%*\% Sigma_sd
+# fit MICH and pick L automatically using ELBO
+fit = mich(Y, L_auto = TRUE)
+plot(fit, level = 0.95, cs = TRUE, signal = TRUE)
+
 }

@@ -42,7 +42,8 @@ Invisibly returns \code{NULL}.
 Plots the resulting fit and estimated change-points from calling \code{mich()}.
 }
 \examples{
-# generate data with two mean-variance change-points
+set.seed(222)
+# generate univariate data with two mean-variance change-points
 y = c(rnorm(100,0,10), rnorm(100,10,3), rnorm(100,0,6))
 fit = mich(y, J = 2) # fit two mean-variance change-points
 # plot change-points with 95\% credible sets
@@ -50,6 +51,24 @@ plot(fit, level = 0.95, cs = TRUE)
 # fit one mean and one mean-variance change-point
 fit = mich(y, J = 1, L = 1)
 # plot change-points with 95\% credible sets and signal
+plot(fit, level = 0.95, cs = TRUE, signal = TRUE)
+
+# generate correlated mulitvariate data with two mean-variance change-points
+T <- 150
+Sigma <- rbind(c(1, 0.7), c(0.7, 2))
+d <- ncol(Sigma)
+Sigma_eigen <- eigen(Sigma)
+e_vectors <- Sigma_eigen$vectors
+e_values <- Sigma_eigen$values
+Sigma_sd <- e_vectors \%*\% diag(sqrt(e_values)) \%*\% t(e_vectors)
+Z <- sapply(1:d, function(i) rnorm(T))
+mu <- c(-1, 2)
+mu_t <- matrix(0, nrow = 70, ncol=d)
+mu_t <- rbind(mu_t, t(sapply(1:30, function(i) mu)))
+mu_t <- rbind(mu_t, matrix(0, nrow = 50, ncol = d))
+Y <- mu_t + Z \%*\% Sigma_sd
+# fit MICH and pick L automatically using ELBO
+fit = mich(Y, L_auto = TRUE)
 plot(fit, level = 0.95, cs = TRUE, signal = TRUE)
 
 }

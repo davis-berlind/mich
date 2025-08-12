@@ -56,7 +56,7 @@ precision is estimated, otherwise it is assumed  that \eqn{\lambda_0 = 1}.}
 and rescaled before fitting.}
 
 \item{L, K, J}{Integers. Respective number of mean-scp, var-scp, and
-meanvar-scp components included in model. If \code{L_auto == TRUE},
+meanvar-scp components included in the model. If \code{L_auto == TRUE},
 \code{K_auto == TRUE}, or \code{J_auto == TRUE} then \code{L}, \code{K}, and \code{J} lower bound
 the number of each kind of change-point in the model.}
 
@@ -66,7 +66,7 @@ the number of each kind of change-point in the model.}
 and/or the \eqn{J} between \code{J} and \code{J_max} that maximize the ELBO (see
 Appendix C.4 of Berlind, Cappello, Madrid Padilla (2025)).}
 
-\item{L_max, K_max, J_max}{Integers.  If \code{L_auto == TRUE},
+\item{L_max, K_max, J_max}{Integers. If \code{L_auto == TRUE},
 \code{K_auto == TRUE}, or \code{J_auto == TRUE} then \code{L_max}, \code{K_max}, and \code{J_max}
 upper bound the number of each kind of change-point in the model.}
 
@@ -79,9 +79,9 @@ Padilla (2025) are used.}
 \item{verbose}{A logical. If \code{verbose == TRUE} and \code{L_auto == FALSE},
 \code{K_auto == FALSE}, and \code{J_auto == FALSE} then the value of the ELBO is
 printed every 5000th iteration. If \code{verbose == TRUE} and any of \code{L_auto},
-\code{K_auto}, or \code{J_auto} are \code{TRUE}, the the value of the ELBO is printed for
-each \eqn{(L,K,J)} as \code{mich_vector()} searches for the parameterization
-that maximized the EBLO.}
+\code{K_auto}, or \code{J_auto} are \code{TRUE}, then the value of the ELBO is printed for
+each combinatin of \eqn{(L,K,J)} as \code{mich_vector()} searches for the
+parameterization that maximized the EBLO.}
 
 \item{max_iter}{An integer. Maximum number of iterations. If ELBO does not
 converge before \code{max_iter} is reached, then \code{converged == FALSE} in the
@@ -156,8 +156,6 @@ posterior distribution, including:
 \item \code{y}: A numeric vector. Original data.
 \item \code{L},\code{K},\code{J}: Integers. Number of mean-scp, var-scp, and meanvar-scp
 components included in the model.
-\item \code{pi_bar}: A numeric matrix. A  \eqn{T \times L} matrix of posterior
-change-point location probabilites.
 \item \code{residual}: A numeric vector. Residual \eqn{\tilde{\mathbf{r}}_{1:T}}
 (see (B.4) of Berlind, Cappello, Madrid Padilla (2025)).
 \item \code{mu}: A numeric vector. Posterior estimate of
@@ -168,11 +166,53 @@ change-point location probabilites.
 Berlind, Cappello, Madrid Padilla (2025).
 \item \code{mu_0}: A scalar. Estimate of the intercept.
 \item \code{lambda_0}: A scalar. Estimate of the initial precision.
-\item \code{post_params}: A list. List of posterior parameters for each mean-scp
-component.
 \item \code{elbo}: A numeric vector. Value of the ELBO after each iteration.
 \item \code{converged}: A logical. Indicates whether relative increase in the ELBO
 is less than \code{tol}.
+\item \code{meanvar_model}: A list. List of meanvar-scp posterior parameters:
+\itemize{
+\item \code{pi_bar}: A numeric matrix. A \eqn{T \times J} matrix of posterior
+change-point location probabilities.
+\item \code{b_bar}: A numeric matrix. A \eqn{T \times J} matrix of posterior
+mean parameters.
+\item \code{omega_bar}: A numeric matrix. A \eqn{T \times J} matrix of posterior
+precision parameters.
+\item \code{v_bar}: A numeric matrix. A \eqn{T \times J} matrix of posterior
+rate parameters.
+\item \code{u_bar}: A numeric vector. A length \eqn{T} vector of posterior shape
+parameters.
+\item \code{mu_lambda_bar}: A numeric matrix. A \eqn{T \times J} matrix of scaled
+posterior mean signals \eqn{E[\lambda_{jt}\mu_{jt}|\mathbf{y}_{1:T}]}.
+\item \code{mu2_lambda_bar}: A numeric matrix. A \eqn{T \times J} matrix of scaled
+posterior squared mean signals
+\eqn{E[\lambda_{jt}\mu^2_{jt}|\mathbf{y}_{1:T}]}.
+\item \code{lambda_bar}: A numeric matrix. A \eqn{T \times J} matrix of
+posterior precision signals \eqn{E[\lambda_{jt}|\mathbf{y}_{1:T}]}.
+}
+\item \code{mean_model}: A list. List of mean-scp posterior parameters:
+\itemize{
+\item \code{pi_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior
+change-point location probabilities.
+\item \code{b_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior
+mean parameters.
+\item \code{omega_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior
+precision parameters.
+\item \code{mu_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior mean
+signals \eqn{E[\mu_{\ell t}|\mathbf{y}_{1:T}]}.
+\item \code{mu2_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior
+squared mean signals \eqn{E[\mu_{\ell t}^2|\mathbf{y}_{1:T}]}.
+}
+\item \code{var_model}: A list. List of var-scp posterior parameters:
+\itemize{
+\item \code{pi_bar}: A numeric matrix. A \eqn{T \times K} matrix of posterior
+change-point location probabilities.
+\item \code{v_bar}: A numeric matrix. A \eqn{T \times K} matrix of posterior
+rate parameters.
+\item \code{u_bar}: A numeric vector. A length \eqn{T} vector of posterior shape
+parameters.
+\item \code{lambda_bar}: A numeric matrix. A \eqn{T \times K} matrix of
+posterior precision signals \eqn{E[\lambda_{kt}|\mathbf{y}_{1:T}]}.
+}
 }
 }
 \description{
