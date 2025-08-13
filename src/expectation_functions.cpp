@@ -20,7 +20,8 @@ using namespace Rcpp;
 //' \eqn{E[\mathbf{b}I(t\geq \tau)]}.
 //'
 // [[Rcpp::export]]
-NumericMatrix multi_mu_bar_fn(NumericMatrix b, NumericVector prob) {
+NumericMatrix multi_mu_bar_fn(NumericMatrix b,
+                              NumericVector prob) {
   int T = prob.length();
   int d = b.ncol();
   NumericVector fwd_sum (d);
@@ -55,7 +56,9 @@ NumericMatrix multi_mu_bar_fn(NumericMatrix b, NumericVector prob) {
 //' \eqn{E[b^2_iI(t\geq \tau)]}.
 //'
 // [[Rcpp::export]]
-NumericMatrix multi_mu2_bar_fn(NumericMatrix b, NumericVector omega, NumericVector prob) {
+NumericMatrix multi_mu2_bar_fn(NumericMatrix b,
+                               NumericVector omega,
+                               NumericVector prob) {
   int T = prob.length();
   int d = b.ncol();
   NumericVector fwd_sum (d);
@@ -85,7 +88,8 @@ NumericMatrix multi_mu2_bar_fn(NumericMatrix b, NumericVector omega, NumericVect
 //' @return A numeric vector. A length \eqn{T} vector of \eqn{E[\mu_t]}.
 //'
 // [[Rcpp::export]]
-NumericVector mu_bar_fn(NumericVector b, NumericVector prob) {
+NumericVector mu_bar_fn(NumericVector b,
+                        NumericVector prob) {
   int T = prob.length();
   double fwd_sum = 0.0;
   NumericVector mu_bar (T, 0.0);
@@ -115,7 +119,9 @@ NumericVector mu_bar_fn(NumericVector b, NumericVector prob) {
 //' @return A numeric vector. A length \eqn{T} vector of \eqn{E[\mu_t]}.
 //'
 // [[Rcpp::export]]
-NumericVector mu2_bar_fn(NumericVector b, NumericVector omega, NumericVector prob) {
+NumericVector mu2_bar_fn(NumericVector b,
+                         NumericVector omega,
+                         NumericVector prob) {
   int T = prob.length();
   double fwd_sum = 0.0;
   NumericVector mu2_bar (T, 0.0);
@@ -145,7 +151,9 @@ NumericVector mu2_bar_fn(NumericVector b, NumericVector omega, NumericVector pro
 //' @return A numeric vector. A length \eqn{T} vector of \eqn{E[\lambda_t]}.
 //'
 // [[Rcpp::export]]
-NumericVector lambda_bar_fn(NumericVector u, NumericVector v, NumericVector prob) {
+NumericVector lambda_bar_fn(NumericVector u,
+                            NumericVector v,
+                            NumericVector prob) {
   int T = prob.length();
   double fwd_sum = 0.0, rev_sum = 1.0;
   NumericVector lambda_bar (T, 0.0);
@@ -181,7 +189,9 @@ NumericVector lambda_bar_fn(NumericVector u, NumericVector v, NumericVector prob
 //' \eqn{E[\mu_t\lambda_t]}.
 //'
 // [[Rcpp::export]]
-NumericVector mu_lambda_fn(NumericVector b, NumericVector u, NumericVector v,
+NumericVector mu_lambda_fn(NumericVector b,
+                           NumericVector u,
+                           NumericVector v,
                            NumericVector prob) {
   int T = prob.length();
   double fwd_sum = 0.0;
@@ -219,8 +229,11 @@ NumericVector mu_lambda_fn(NumericVector b, NumericVector u, NumericVector v,
 //' \eqn{E[\mu^2_t\lambda_t]}.
 //'
 // [[Rcpp::export]]
-NumericVector mu2_lambda_fn(NumericVector b, NumericVector omega, NumericVector u,
-                            NumericVector v, NumericVector prob) {
+NumericVector mu2_lambda_fn(NumericVector b,
+                            NumericVector omega,
+                            NumericVector u,
+                            NumericVector v,
+                            NumericVector prob) {
   int T = prob.length();
   double fwd_sum = 0.0;
   NumericVector mu2_lambda (T, 0.0);

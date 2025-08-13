@@ -24,7 +24,9 @@ using namespace Rcpp;
 //' @export
 //'
 // [[Rcpp::export]]
-List mean_scp(NumericVector y, NumericVector lambda, double omega,
+List mean_scp(NumericVector y,
+              NumericVector lambda,
+              double omega,
               NumericVector log_pi) {
 
   int T = y.length();
@@ -77,8 +79,10 @@ List mean_scp(NumericVector y, NumericVector lambda, double omega,
 //' @export
 //'
 // [[Rcpp::export]]
-List multi_mean_scp(NumericMatrix y, NumericVector omega_bar,
-                    NumericVector log_omega_bar, NumericVector log_pi) {
+List multi_mean_scp(NumericMatrix y,
+                    NumericVector omega_bar,
+                    NumericVector log_omega_bar,
+                    NumericVector log_pi) {
   int T = y.nrow();
   int d = y.ncol();
   NumericVector pi_bar (T, 0.0), log_pi_bar (T, 0.0), ys (d, 0.0);
@@ -132,9 +136,12 @@ List multi_mean_scp(NumericMatrix y, NumericVector omega_bar,
 //' @export
 //'
 // [[Rcpp::export]]
-List var_scp(NumericVector y, NumericVector omega,
-             NumericVector u_bar, NumericVector lgamma_u_bar,
-             NumericVector v, NumericVector log_pi) {
+List var_scp(NumericVector y,
+             NumericVector omega,
+             NumericVector u_bar,
+             NumericVector lgamma_u_bar,
+             NumericVector v,
+             NumericVector log_pi) {
 
   int T = y.length();
   NumericVector pi_bar (T, 0.0), log_pi_bar (T, 0.0), v_bar (T, 0.0);
@@ -191,8 +198,12 @@ List var_scp(NumericVector y, NumericVector omega,
 //' @export
 //'
 // [[Rcpp::export]]
-List meanvar_scp(NumericVector y, NumericVector lambda,
-                 double omega, NumericVector u_bar, NumericVector lgamma_u_bar, NumericVector v,
+List meanvar_scp(NumericVector y,
+                 NumericVector lambda,
+                 double omega,
+                 NumericVector u_bar,
+                 NumericVector lgamma_u_bar,
+                 NumericVector v,
                  NumericVector log_pi) {
 
   int T = y.length();

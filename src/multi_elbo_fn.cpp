@@ -32,10 +32,15 @@ const double log_2_pi = std::log(2 * M_PI);
 //'
 //' @return A scalar. Value of ELBO for MICH model at current parameter values.
 //'
-double multi_elbo_fn(NumericVector mu_0, NumericMatrix r_bar,
-                     double omega_l, double log_omega_l, NumericMatrix log_pi_l,
-                     NumericVector mu_var, List post_params,
-                     NumericVector omega_bar_l, NumericVector log_omega_bar_l) {
+double multi_elbo_fn(NumericVector mu_0,
+                     NumericMatrix r_bar,
+                     double omega_l,
+                     double log_omega_l,
+                     NumericMatrix log_pi_l,
+                     NumericVector mu_var,
+                     List post_params,
+                     NumericVector omega_bar_l,
+                     NumericVector log_omega_bar_l) {
 
   int T = r_bar.nrow();
   int d = r_bar.ncol();

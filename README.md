@@ -16,7 +16,7 @@ approximation to the posterior distribution of the change-points.
 
 ## Installation
 
-You can install the development version of `mich` from GitHub using:
+You can install the development version of `{mich}` from GitHub using:
 
 ``` r
 # install.packages("devtools")

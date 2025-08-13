@@ -1,4 +1,23 @@
 url: https://davis-berlind.github.io/mich/
 template:
   bootstrap: 5
+  bootswatch: minty
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right:
+    - search
+    - github
+    - lightswitch
+  components:
+    home:
+      text: Home
+      icon: fa-home
+      href: https://davis-berlind.github.io/
 

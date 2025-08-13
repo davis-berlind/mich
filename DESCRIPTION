@@ -1,6 +1,6 @@
 Package: mich
 Title: Bayesian Change-Point Detection with Credible Sets
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person("Davis", "Berlind", , "davis.berlind@gmail.com", role = c("aut", "cre"))
 Description: Implementation of the MICH model from Berlind, Cappello, and Madrid Padilla (2025). MICH provides Variational Bayesian inference for change-point detection problems. MICH can estimate the locations of mean and variance change-points and provide uncertainty quantification in the form of alpha-level credible sets around each identified change-point.
@@ -13,4 +13,5 @@ Imports:
 LinkingTo: Rcpp
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-URL: https://davis-berlind.github.io/mich/
+URL: https://davis-berlind.github.io/mich/, , https://github.com/davis-berlind/mich
+
