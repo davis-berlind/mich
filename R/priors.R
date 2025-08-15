@@ -7,8 +7,8 @@
 #' uniform.
 #'
 #'
-#' @param T An integer. Number of observations (rows) of \eqn{\mathbf{y}_{1:T}}.
-#' @param d An integer. Dimension (columns) of \eqn{\mathbf{y}_{1:T}}.
+#' @param T An integer. Number of observations.
+#' @param d An integer. Dimension each observation.
 #'
 #' @return A numeric vector. Log prior probabilities.
 #' @export
@@ -30,7 +30,7 @@ log_mean_prior <- function(T, d) {
 #' uniform.
 #'
 #'
-#' @param T An integer. Number of observations in \eqn{y_{1:T}}.
+#' @param T An integer. Number of observations.
 #'
 #' @return A numeric vector. Log prior probabilities.
 #' @export
@@ -55,7 +55,7 @@ log_var_prior <- function(T) {
 #' uniform.
 #'
 #'
-#' @param T An integer. Number of observations in \eqn{y_{1:T}}.
+#' @param T An integer. Number of observations..
 #'
 #' @return A numeric vector. Log prior probabilities.
 #' @export

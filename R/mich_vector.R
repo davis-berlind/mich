@@ -180,7 +180,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
 
   #### initialize lambda_0 ####
   if (fit_scale) {
-    lambda_0 <- 1 / stats::IQR(y[1:ceiling(2*log(T))])^2
+    lambda_0 <- 1 / stats::var(y[1:ceiling(2*log(T))])
   } else lambda_0 <- 1.0
 
   #### initializing posterior parameters ####
@@ -210,11 +210,12 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
 
   # initialize mean components if fitting meanvar
   if (((J_auto & !L_auto & !K_auto) | J > 0) & (L + K == 0)) {
+
     if (verbose) print("Initializing mean components.")
     if (J_auto) log_pi_l <- sapply(1:max(1,J), function(i) log_pi_l[,1])
     else log_pi_l <- log_pi_j
 
-    fit <- mich_vector(y, fit_intercept, fit_scale, standardize,
+    fit <- mich_vector(y, fit_intercept, fit_scale, standardize = FALSE,
                        J = 0, L = J, K,
                        J_auto = L_auto, L_auto = J_auto, K_auto,
                        J_max = 0, L_max = J_max, K_max,
@@ -569,7 +570,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
       # fit incremented model
       fit_new <- mich_cpp(y, J, L, K, mu_0, lambda_0,
                           fit_intercept, fit_scale, refit,
-                          max_iter = max_iter,
+                          max_iter,
                           verbose = FALSE, tol,
                           omega_j, u_j, v_j, log_pi_j,
                           pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,
@@ -748,7 +749,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
         while (!merged) {
           fit <- mich_cpp(y, J, L, K, mu_0, lambda_0,
                           fit_intercept, fit_scale, refit = TRUE,
-                          max_iter = ifelse(no_merges, 1, max_iter),
+                          max_iter,
                           verbose = FALSE, tol,
                           omega_j, u_j, v_j, log_pi_j,
                           pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,

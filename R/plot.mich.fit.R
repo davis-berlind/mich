@@ -8,7 +8,7 @@
 #' @param level A scalar. A number between (0,1) indicating the significance
 #'   level to construct credible sets at when `cs == TRUE`.
 #' @param max_length An integer. Detection threshold, see `mich_sets()`. Equal
-#'   to \eqn{\log^{2}(T)} by default.
+#'   to `log(T)^2` by default.
 #' @param signal A logical. If `TRUE`, then the posterior mean and precision
 #'   signals are also plotted.
 #' @param cs A logical. If `TRUE`, then `level`-level credible sets for each
@@ -136,7 +136,7 @@ plot.mich.fit <- function(x, level = 0.95, max_length = NULL, signal = FALSE, cs
         oma = c(0,0,0,0))
     if (fit$L > 0) {
       cp_est <- mich_sets(fit$mean_model$pi_bar, max_length, level)
-      plot(fit$y, type = "l", main = "Mean Change-Points")
+      plot(fit$y, type = "l", main = "Mean Change-Points",  ylab = "y")
       if (signal) {
         lines(fit$mu, col = "blue", lwd = 2)
         lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)
@@ -154,7 +154,7 @@ plot.mich.fit <- function(x, level = 0.95, max_length = NULL, signal = FALSE, cs
     }
     if (fit$K > 0) {
       cp_est <- mich_sets(fit$var_model$pi_bar, max_length, level)
-      plot(fit$y, type = "l", main = "Variance Change-Points")
+      plot(fit$y, type = "l", main = "Variance Change-Points",  ylab = "y")
       if (signal) {
         lines(fit$mu, col = "blue", lwd = 2)
         lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)
@@ -172,7 +172,7 @@ plot.mich.fit <- function(x, level = 0.95, max_length = NULL, signal = FALSE, cs
     }
     if (fit$J > 0) {
       cp_est <- mich_sets(fit$meanvar_model$pi_bar, max_length, level)
-      plot(fit$y, type = "l", main = "Mean-Variance Change-Points")
+      plot(fit$y, type = "l", main = "Mean-Variance Change-Points", ylab = "y")
       if (signal) {
         lines(fit$mu, col = "blue", lwd = 2)
         lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)

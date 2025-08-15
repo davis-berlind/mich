@@ -1,5 +1,5 @@
 Package: mich
-Title: Bayesian Change-Point Detection with Credible Sets
+Title: Fast Bayesian Change-Point Detection with Credible Sets
 Version: 0.0.1
 Authors@R: 
     person("Davis", "Berlind", , "davis.berlind@gmail.com", role = c("aut", "cre"))

@@ -2,6 +2,7 @@ url: https://davis-berlind.github.io/mich/
 template:
   bootstrap: 5
   bootswatch: minty
+  math-rendering: mathjax
 navbar:
   structure:
     left:

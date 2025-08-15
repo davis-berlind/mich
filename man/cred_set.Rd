@@ -18,8 +18,7 @@ A vector. A Level \code{level} posterior credible set for the location of
 a single change-point.
 }
 \description{
-The function \code{cred_set()} takes a length \eqn{T} vector of posterior
-change-point location probabilities \eqn{\pi_{1:T}} and a coverage level
-\eqn{\alpha}, and returns the smallest set \eqn{S} such that
-\eqn{\Sigma_{t \in S} \pi_t \geq \alpha}.
+The function \code{cred_set()} takes a length T vector of posterior change-point
+location probabilities \code{prob} and a coverage level \code{level}, and returns the
+smallest set of indices \code{s} such that \code{prob[s] > level}.
 }

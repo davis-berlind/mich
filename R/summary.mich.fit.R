@@ -10,7 +10,7 @@
 #' @param level A scalar. A number between (0,1) indicating the significance
 #'   level to construct credible sets at.
 #' @param max_length An integer. Detection threshold, see `mich_sets()`. Equal
-#'   to \eqn{\log^{2}(T)} by default.
+#'   to `log(T)^2` by default.
 #' @param ... Additional arguments to be passed to methods.
 #'
 #' @method summary mich.fit

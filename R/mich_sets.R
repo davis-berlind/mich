@@ -1,10 +1,9 @@
 #' Single Change-Point Posterior Credible Set
 #'
 #' @description
-#' The function `cred_set()` takes a length \eqn{T} vector of posterior
-#' change-point location probabilities \eqn{\pi_{1:T}} and a coverage level
-#' \eqn{\alpha}, and returns the smallest set \eqn{S} such that
-#' \eqn{\Sigma_{t \in S} \pi_t \geq \alpha}.
+#' The function `cred_set()` takes a length T vector of posterior change-point
+#' location probabilities `prob` and a coverage level `level`, and returns the
+#' smallest set of indices `s` such that `prob[s] > level`.
 #'
 #' @param prob  A numeric vector. A vector of posterior probabilities for the
 #'   location of the change-point.
@@ -21,20 +20,19 @@ cred_set <- function(prob, level) {
 #' MICH Posterior Credible Sets
 #'
 #' @description
-#' The function `mich_sets()` takes a \eqn{T \times N} matrix of posterior
-#' change-point location probabilities \eqn{\{\pi_{i,1:T}\}_{i=1}^N}, a coverage
-#' level \eqn{\alpha}, and a max set length, and for each \eqn{1\leq i \leq N}
-#' returns the MAP estimator \eqn{\arg\max_{1\leq t \leq T} \pi_{it}} and the
-#' smallest set \eqn{S_i} such that \eqn{\Sigma_{t \in S_i} \pi_{it} \geq \alpha}
-#' if \eqn{|S_i|<} `max_length`.
+#' The function `mich_sets()` takes a T x N matrix of posterior change-point
+#' location probabilities `probs`, a coverage level `level`, and a max set
+#' length, and for column `i` of `probs` returns the MAP estimator
+#' `which.max(probs[,i])` and the smallest set of indices `s_i` such that
+#' `probs[s_i,i] > level` if `length(s_i) < max_length`.
 #'
-#' @param probs A numeric Matrix. A \eqn{T \times N} matrix of posterior
+#' @param probs A numeric Matrix. A T x N matrix of posterior
 #'   probabilities for the location of the change-points.
 #' @param level A scalar. A single number in (0,1) that gives the lower bound
 #'   for the probability that each credible set contains a change-point.
 #' @param max_length A positive scalar. Detection threshold, if a credible set
 #'   contains more that `max_length` indices, then no change is detected. Set
-#'   equal to \eqn{\log^{1.5} T} by default (see Section 2.5 of Berlind,
+#'   equal to `log(T)^1.5` by default (see Section 2.5 of Berlind,
 #'   Cappello, and Madrid Padilla (2025)).
 #'
 #' @return A list. MAP estimator of each change-point and corresponding credible

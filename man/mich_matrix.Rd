@@ -28,16 +28,14 @@ mich_matrix(
 )
 }
 \arguments{
-\item{y}{A numeric matrix. \eqn{T \times d} matrix of observations.}
+\item{y}{A numeric matrix. T x d matrix of observations.}
 
 \item{fit_intercept}{A logical. If \code{fit_intercept == TRUE}, then an
-intercept is estimated, otherwise it is assumed  that
-\eqn{\boldsymbol{\mu}_0 = \mathbf{0}}.}
+intercept is estimated, otherwise \code{mu_0 = rep(0,d)}.}
 
 \item{fit_scale}{A logical. If \code{fit_scale == TRUE}, then the precision matrix
-\eqn{\Lambda = E[\mathbf{y}_t\mathbf{y}'_t]^{-1}} is estimated using
-\eqn{\hat{\Lambda}^{-1} = \frac{1}{2(T-1)} \Sigma_{t=1}^{T-1} (\mathbf{y}_{t+1} - \mathbf{y}_{t})(\mathbf{y}_{t+1} - \mathbf{y}_{t})'},
-otherwise it is assumed that \eqn{\Lambda = \mathbf{I}_d}.}
+is estimated using the inverse of \code{var(diff(y))}, otherwise it is assumed
+that the precision matrix is equal to \code{diag(d)}.}
 
 \item{standardize}{A logical. If \code{standardize == TRUE}, then \code{y} is centered
 and rescaled before fitting.}
@@ -47,8 +45,8 @@ and rescaled before fitting.}
 model.}
 
 \item{L_auto}{A logical. If \code{L_auto == TRUE}, then \code{mich_matrix()} returns
-the \eqn{L} between \code{L} and \code{L_max} that maximizes the ELBO (see Appendix
-C.4 of Berlind, Cappello, Madrid Padilla (2025)).}
+the number of changes between \code{L} and \code{L_max} that maximizes the ELBO
+(see Appendix C.4 of Berlind, Cappello, Madrid Padilla (2025)).}
 
 \item{L_max}{L An integer. If \code{L_auto == TRUE} then \code{L_max} upper bounds the
 number of change-points included in the model.}
@@ -62,19 +60,18 @@ are used.}
 \item{verbose}{A logical. If \code{verbose == TRUE} and \code{L_auto == FALSE}, then
 the value of the ELBO is printed every 5000th iteration. If
 \code{verbose == TRUE} and \code{L_auto == TRUE}, the the value of the ELBO is
-printed for each \eqn{L} as \code{mich_matrix()} searches over [\code{L}, \code{L_max}].}
+printed for each L as \code{mich_matrix()} searches over [\code{L}, \code{L_max}].}
 
 \item{max_iter}{An integer. Maximum number of iterations. If ELBO does not
 converge before \code{max_iter} is reached, then \code{converged == FALSE} in the
 returned fit object.}
 
 \item{reverse}{A logical. If \code{reverse == TRUE} then MICH is fit to
-\eqn{\mathbf{y}_{T:1}} and the model parameters are reversed in
-post-processing.}
+\code{y[T:1,]} and the model parameters are reversed in post-processing.}
 
-\item{detect}{A scalar. The detection criteria. The \eqn{\ell^{\text{th}}}
-component of the model detects a change-point only if the posterior
-credible set for that component contains fewer than \code{detect} indices.}
+\item{detect}{A scalar. The detection criteria. Each component of the model
+detects a change-point only if the posterior credible set for that
+component contains fewer than \code{detect} indices.}
 
 \item{merge_level}{A scalar. A value between (0,1) for the significance level
 to construct credible sets at when merging. A model component is only
@@ -101,25 +98,21 @@ increment \code{L} before terminating automatic procedure when \code{L_auto == T
 \item{omega_l}{A scalar. Prior precision parameter for mean-scp components of
 model.}
 
-\item{log_pi_l}{A numeric matrix. A \eqn{T \times L} matrix of prior log
-change-point location probabilities for each of the \eqn{L} mean
-change-points.}
+\item{log_pi_l}{A numeric matrix. T x L matrix of prior log change-point
+location probabilities for each of the L mean change-points.}
 }
 \value{
 A list. Parameters of the variational approximation the MICH
 posterior distribution, including:
 \itemize{
 \item \code{y}: A numeric matrix. Original data.
-\item \code{Sigma}: A numeric matrix. Estimate of \eqn{\Lambda^{-1}} if
+\item \code{Sigma}: A numeric matrix. Estimate of the precision if
 \code{fit_scale == TRUE}.
 \item \code{L}: An integer. Number of components included in model.
-\item \code{pi_bar}: A numeric matrix. A  \eqn{T \times L} matrix of posterior
-change-point location probabilites.
-\item \code{residual}: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
-subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
-\eqn{\mathbf{y}_{1:T}}.
-\item \code{mu}: A numeric matrix. Posterior estimate of
-\eqn{\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}]}.
+\item \code{pi_bar}: A numeric matrix. A T x L matrix of posterior change-point
+location probabilites.
+\item \code{residual}: A numeric matrix. Residual \code{y - mu}.
+\item \code{mu}: A numeric matrix. Posterior estimate of mean signal.
 \item \code{mu_0}: A numeric vector. Estimate of the intercept.
 \item \code{post_params}: A list. List of posterior parameters for each mean-scp
 component.
