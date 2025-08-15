@@ -13,7 +13,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Fast Bayesian Inference for Change-Point Detection <a href="https://davis-berlind.github.io/mich/"><img src="man/figures/logo.png" align="right" height="100" alt="mich website" /></a>
+# mich <a href="https://davis-berlind.github.io/mich/"><img src="man/figures/logo.png" align="right" height="100" alt="mich website" /></a>
+
+## Fast Bayesian Inference for Change-Point Detection 
 
 <!-- badges: start -->
 <!-- badges: end -->
