@@ -5,14 +5,26 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Bayesian Change-Point Detection with Credible Sets • mich</title>
-<script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Fast Bayesian Change-Point Detection with Credible Sets • mich</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Bayesian Change-Point Detection with Credible Sets">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Fast Bayesian Change-Point Detection with Credible Sets">
 <meta name="description" content="Implementation of the MICH model from Berlind, Cappello, and Madrid Padilla (2025). MICH provides Variational Bayesian inference for change-point detection problems. MICH can estimate the locations of mean and variance change-points and provide uncertainty quantification in the form of alpha-level credible sets around each identified change-point.">
 <meta property="og:description" content="Implementation of the MICH model from Berlind, Cappello, and Madrid Padilla (2025). MICH provides Variational Bayesian inference for change-point detection problems. MICH can estimate the locations of mean and variance change-points and provide uncertainty quantification in the form of alpha-level credible sets around each identified change-point.">
+<meta property="og:image" content="https://davis-berlind.github.io/mich/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -57,15 +69,18 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="fast-bayesian-inference-for-change-point-detection">Fast Bayesian Inference for Change-Point Detection<a class="anchor" aria-label="anchor" href="#fast-bayesian-inference-for-change-point-detection"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="fast-bayesian-inference-for-change-point-detection-">Fast Bayesian Inference for Change-Point Detection 
+<a class="anchor" aria-label="anchor" href="#fast-bayesian-inference-for-change-point-detection-"></a>
+</h1>
+</div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p><a href="https://davis-berlind.github.io/mich/">mich</a> is an R package that implements the Multiple Independent Change-Point (MICH) method introduced in <a href="https://arxiv.org/abs/2507.01558" class="external-link">Berlind, Cappello, Madrid Padilla (2025)</a>. The main function in the package <code><a href="reference/mich.html">mich()</a></code> takes a length <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math> sequence of observations <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐲</mi><mrow><mn>1</mn><mo>:</mo><mi>T</mi></mrow></msub><annotation encoding="application/x-tex">\mathbf{y}_{1:T}</annotation></semantics></math> with potentially many change-points in the mean and variance, and deploys a backfitting procedure to find a variational approximation to the posterior distribution of the change-points.</p>
+<p><a href="https://davis-berlind.github.io/mich/">mich</a> is an R package that implements the Multiple Independent Change-Point (MICH) method introduced in <a href="https://arxiv.org/abs/2507.01558" class="external-link">Berlind, Cappello, Madrid Padilla (2025)</a>. The package’s main function <code><a href="reference/mich.html">mich()</a></code> implements a backfitting procedure to identify changes in the mean and/or variance of a length <span class="math inline">\(T\)</span> sequence of observations <span class="math inline">\(\mathbf{y}_{1:T}\)</span>. The <code>mich.fit</code> object returned by <code><a href="reference/mich.html">mich()</a></code> provides a variational approximation to the posterior distribution of the change-points.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <a href="https://davis-berlind.github.io/mich/">mich</a> from GitHub using:</p>
+<p>The development version of <a href="https://davis-berlind.github.io/mich/">mich</a> can be installed from GitHub using:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"davis-berlind/mich"</span><span class="op">)</span></span></code></pre></div>
