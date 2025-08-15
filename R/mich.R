@@ -107,9 +107,9 @@
 #'   * `residual`: A numeric vector. Residual \eqn{\tilde{\mathbf{r}}_{1:T}}
 #'     (see (B.4) of Berlind, Cappello, Madrid Padilla (2025)).
 #'   * `mu`: A numeric vector. Posterior estimate of
-#'     \eqn{\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}] + \Sigma_{j=1}^J E[\boldsymbol{\mu}_{j,1:T}|\mathbf{y}_{1:T}]}.
+#'     \eqn{\Sigma_{\ell=1}^L E[\mu_{\ell,1:T}|\mathbf{y}_{1:T}] + \Sigma_{j=1}^J E[\mu_{j,1:T}|\mathbf{y}_{1:T}]}.
 #'   * `lambda`: A numeric vector. Posterior estimate of
-#'     \eqn{\Pi_{k=1}^K E[\boldsymbol{\lambda}_{k,1:T}|\mathbf{y}_{1:T}] \times \Pi_{j=1}^J E[\boldsymbol{\lambda}_{j,1:T}|\mathbf{y}_{1:T}]}.
+#'     \eqn{\Pi_{k=1}^K E[\lambda_{k,1:T}|\mathbf{y}_{1:T}] \times \Pi_{j=1}^J E[\lambda_{j,1:T}|\mathbf{y}_{1:T}]}.
 #'   * `delta`: A numeric vector. Posterior estimate of equation (B.4) of
 #'     Berlind, Cappello, Madrid Padilla (2025).
 #'   * `mu_0`: A scalar. Estimate of the intercept.
@@ -164,10 +164,10 @@
 #'   * `pi_bar`: A numeric matrix. A  \eqn{T \times L} matrix of posterior
 #'     change-point location probabilites.
 #'   * `residual`: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
-#'     subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
+#'     subtracting out each \eqn{E[\mu_{\ell t}]} from
 #'     \eqn{\mathbf{y}_{1:T}}.
 #'   * `mu`: A numeric matrix. Posterior estimate of
-#'     \eqn{\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}]}.
+#'     \eqn{\Sigma_{\ell=1}^L E[\mu_{\ell,1:T}|\mathbf{y}_{1:T}]}.
 #'   * `mu_0`: A numeric vector. Estimate of the intercept.
 #'   * `post_params`: A list. List of posterior parameters for each mean-scp
 #'     component.
