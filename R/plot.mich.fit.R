@@ -58,22 +58,22 @@ plot.mich.fit <- function(x, level = 0.95, max_length = NULL, signal = FALSE, cs
   fit <- x
   # multivariate plots
   if (is.matrix(fit$y)) {
-    par(ask = TRUE)
     T <- nrow(fit$y)
     if (is.null(max_length)) max_length <- log(T)^2
 
     if (fit$L > 0) {
       N <- ncol(fit$y) %/% n_plots
+      if (N > n_plots) par(ask = TRUE)
       M <- ncol(fit$y) %% n_plots
       cp_est <- mich_sets(fit$pi_bar, max_length, level)
 
       for (i in seq_len(N)) {
         par(mfrow = c(n_plots, 1),
-            mar = c(4,4,4,3),
+            #mar = c(4,4,4,3),
             oma = c(0,0,0,0))
         for (j in 1:n_plots) {
           if (j > 1) {
-            par(mar = c(4,4,0.5,3))
+            #par(mar = c(4,4,0.5,3))
           }
           plot(fit$y[, (i-1) * n_plots + j],
                main = ifelse(j==1, "Mean Change-Points",""),
@@ -81,28 +81,28 @@ plot.mich.fit <- function(x, level = 0.95, max_length = NULL, signal = FALSE, cs
                ylab = ifelse(is.null(names(fit$y[, (i-1) * n_plots + j])),
                              paste0("Series ",  (i-1) * n_plots + j),
                              names(fit$y[, (i-1) * n_plots + j])),
-               type = "l")
+               type = "l", ... = ...)
           if (signal) {
-            lines(fit$mu[, (i-1) * n_plots + j], col = "blue", lwd = 2)
+            lines(fit$mu[, (i-1) * n_plots + j], col = "blue", lwd = 1)
           }
           if (cs) {
             for (k in unlist(cp_est$sets)) {
-              rect(xleft = k - 0.5, xright = k+ 0.5,
+              rect(xleft = k - 1, xright = k + 1,
                    ybottom = par("usr")[3], ytop = par("usr")[4],
                    col =  adjustcolor("lightblue", alpha.f = .8),
                    border = NA)
             }
           }
-          abline(v = cp_est$cp, lty = 2, col = "red", lwd = 2)
+          abline(v = cp_est$cp, lty = 2, col = "red", lwd = 1)
         }
       }
       if (M > 0) {
         par(mfrow = c(M, 1),
-            mar = c(4,4,4,3),
+            #mar = c(4,4,4,3),
             oma = c(0,0,0,0))
         for (j in 1:M) {
           if (j > 1) {
-            par(mar = c(4,4,0.5,3))
+            #par(mar = c(4,4,0.5,3))
           }
           plot(fit$y[, N * n_plots + j],
                main = ifelse(j==1, "Mean Change-Points",""),
@@ -110,19 +110,19 @@ plot.mich.fit <- function(x, level = 0.95, max_length = NULL, signal = FALSE, cs
                ylab = ifelse(is.null(names(fit$y[, N * n_plots + j])),
                              paste0("Series ",  N * n_plots + j),
                              names(fit$y[, N * n_plots + j])),
-               type = "l")
+               type = "l", ... = ...)
           if (signal) {
-            lines(fit$mu[, N * n_plots + j], col = "blue", lwd = 2)
+            lines(fit$mu[, N * n_plots + j], col = "blue", lwd = 1)
           }
           if (cs) {
             for (k in unlist(cp_est$sets)) {
-              rect(xleft = k - 0.5, xright = k + 0.5,
+              rect(xleft = k - 1, xright = k + 1,
                    ybottom = par("usr")[3], ytop = par("usr")[4],
                    col =  adjustcolor("lightblue", alpha.f = .8),
                    border = NA)
             }
           }
-          abline(v = cp_est$cp, lty = 2, col = "red", lwd = 2)
+          abline(v = cp_est$cp, lty = 2, col = "red", lwd = 1)
         }
       }
     }
@@ -131,62 +131,60 @@ plot.mich.fit <- function(x, level = 0.95, max_length = NULL, signal = FALSE, cs
     # univariate plots
     T <- length(fit$y)
     if (is.null(max_length)) max_length <- log(T)^1.5
-    par(mfrow = c((fit$L > 0) + (fit$K > 0) + (fit$J > 0), 1),
-        mar = c(4,4,4,3),
-        oma = c(0,0,0,0))
+    par(mfrow = c((fit$L > 0) + (fit$K > 0) + (fit$J > 0), 1))
     if (fit$L > 0) {
       cp_est <- mich_sets(fit$mean_model$pi_bar, max_length, level)
-      plot(fit$y, type = "l", main = "Mean Change-Points",  ylab = "y")
+      plot(fit$y, type = "l", main = "Mean Change-Points",  ylab = "y", ... = ...)
       if (signal) {
-        lines(fit$mu, col = "blue", lwd = 2)
-        lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)
-        lines(fit$mu-2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)
+        lines(fit$mu, col = "blue", lwd = 1)
+        lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 1, lty = 2)
+        lines(fit$mu-2*1/sqrt(fit$lambda), col = "blue", lwd = 1, lty = 2)
       }
       if (cs) {
         for (i in unlist(cp_est$sets)) {
-          rect(xleft = i - 0.5, xright = i + 0.5,
+          rect(xleft = i - 1, xright = i + 1,
                ybottom = par("usr")[3], ytop = par("usr")[4],
                col =  adjustcolor("lightblue", alpha.f = .8),
                border = NA)
         }
       }
-      abline(v = cp_est$cp, lty = 2, col = "red", lwd = 2)
+      abline(v = cp_est$cp, lty = 2, col = "red", lwd = 1)
     }
     if (fit$K > 0) {
       cp_est <- mich_sets(fit$var_model$pi_bar, max_length, level)
-      plot(fit$y, type = "l", main = "Variance Change-Points",  ylab = "y")
+      plot(fit$y, type = "l", main = "Variance Change-Points",  ylab = "y", ... = ...)
       if (signal) {
-        lines(fit$mu, col = "blue", lwd = 2)
-        lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)
-        lines(fit$mu-2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)
+        lines(fit$mu, col = "blue", lwd = 1)
+        lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 1, lty = 2)
+        lines(fit$mu-2*1/sqrt(fit$lambda), col = "blue", lwd = 1, lty = 2)
       }
       if (cs) {
         for (i in unlist(cp_est$sets)) {
-          rect(xleft = i-0.5, xright = i + 0.5,
+          rect(xleft = i - 1, xright = i + 1,
                ybottom = par("usr")[3], ytop = par("usr")[4],
                col =  adjustcolor("lightblue", alpha.f = .8),
                border = NA)
         }
       }
-      abline(v = cp_est$cp, lty = 2, col = "red", lwd = 2)
+      abline(v = cp_est$cp, lty = 2, col = "red", lwd = 1)
     }
     if (fit$J > 0) {
       cp_est <- mich_sets(fit$meanvar_model$pi_bar, max_length, level)
-      plot(fit$y, type = "l", main = "Mean-Variance Change-Points", ylab = "y")
+      plot(fit$y, type = "l", main = "Mean-Variance Change-Points", ylab = "y", ... = ...)
       if (signal) {
-        lines(fit$mu, col = "blue", lwd = 2)
-        lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)
-        lines(fit$mu-2*1/sqrt(fit$lambda), col = "blue", lwd = 2, lty = 2)
+        lines(fit$mu, col = "blue", lwd = 1)
+        lines(fit$mu+2*1/sqrt(fit$lambda), col = "blue", lwd = 1, lty = 2)
+        lines(fit$mu-2*1/sqrt(fit$lambda), col = "blue", lwd = 1, lty = 2)
       }
       if (cs) {
         for (i in unlist(cp_est$sets)) {
-          rect(xleft = i-0.5, xright = i + 0.5,
+          rect(xleft = i - 1, xright = i + 1,
                ybottom = par("usr")[3], ytop = par("usr")[4],
                col =  adjustcolor("lightblue", alpha.f = .8),
                border = NA)
         }
       }
-      abline(v = cp_est$cp, lty = 2, col = "red", lwd = 2)
+      abline(v = cp_est$cp, lty = 2, col = "red", lwd = 1)
     }
   }
 }
