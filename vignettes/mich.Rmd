@@ -40,15 +40,15 @@ The summary output shows us the ELBO for the fitted model as well as the estimat
 mich_sets(fit$mean_model$pi_bar, level = 0.95)
 ```
 
-The `plot()` function is extended to the `mich.fit` class and uses `mich_sets()` to plot the returned MAP estimates as well as credible sets if `cs == TRUE` (note that as in the plot below, these truly are sets, not intervals).
+The `plot()` function is extended to the `mich.fit` class and uses `mich_sets()` to plot the returned MAP estimates as well as the estimated signal if `signal == TRUE` and credible sets if `cs == TRUE` (note that as in the plot below, these truly are sets, not intervals).
 
 ```{r, eval=FALSE}
-plot(fit, cs = TRUE, level = 0.95)
+plot(fit, cs = TRUE, level = 0.95, signal = TRUE)
 ```
 
 ```{r, dpi=500, out.width="99%", echo=FALSE}
 par(oma = c(0,0,0,0), mar = c(3,1,1,1))
-plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
+plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5, signal = TRUE)
 ```
 
 ### Variance Changes
@@ -64,12 +64,12 @@ summary(fit, level = 0.95)
 The posterior quantities are now stored in `fit$var_model$pi_bar`.
 
 ```{r, eval=FALSE}
-plot(fit, cs = TRUE, level = 0.95)
+plot(fit, cs = TRUE, level = 0.95, signal = TRUE)
 ```
 
 ```{r, dpi=500, out.width="99%", echo=FALSE}
 par(oma = c(0,0,0,0), mar = c(3,1,1,1))
-plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
+plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5, signal = TRUE)
 ```
 
 ### Mean-Variance Changes
@@ -85,12 +85,12 @@ summary(fit, level = 0.95)
 The posterior quantities are now stored in `fit$meanvar_model$pi_bar`.
 
 ```{r, eval=FALSE}
-plot(fit, cs = TRUE, level = 0.95)
+plot(fit, cs = TRUE, level = 0.95, signal = TRUE)
 ```
 
 ```{r, dpi=500, out.width="99%", echo=FALSE}
 par(oma = c(0,0,0,0), mar = c(3,1,1,1))
-plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
+plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5, signal = TRUE)
 ```
 
 ### Multiple Change-Types
@@ -146,12 +146,12 @@ fit = mich(Y, L = 2)
 ```
 
 ```{r, eval=FALSE}
-plot(fit, cs = TRUE, level = 0.95)
+plot(fit, cs = TRUE, level = 0.95, signal = TRUE)
 ```
 
 ```{r, dpi=500, out.width="99%", echo=FALSE}
 par(oma = c(0,0,0,0), mar = c(3,1,1,1))
-plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
+plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5, signal = TRUE)
 ```
 
 ## Selecting `L`, `K`, and `J`
