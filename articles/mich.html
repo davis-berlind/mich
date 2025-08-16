@@ -139,11 +139,12 @@ credible sets.</p>
 <span><span class="co">#&gt; [1] 198 199 200 201 203 204 207</span></span></code></pre></div>
 <p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> function is extended to the
 <code>mich.fit</code> class and uses <code><a href="../reference/mich_sets.html">mich_sets()</a></code> to plot
-the returned MAP estimates as well as credible sets if
-<code>cs == TRUE</code> (note that as in the plot below, these truly are
-sets, not intervals).</p>
+the returned MAP estimates as well as the estimated signal if
+<code>signal == TRUE</code> and credible sets if <code>cs == TRUE</code>
+(note that as in the plot below, these truly are sets, not
+intervals).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span>, signal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mich_files/figure-html/unnamed-chunk-5-1.png" width="99%"></p>
 </div>
 <div class="section level3">
@@ -166,7 +167,7 @@ sets, not intervals).</p>
 <p>The posterior quantities are now stored in
 <code>fit$var_model$pi_bar</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span>, signal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mich_files/figure-html/unnamed-chunk-8-1.png" width="99%"></p>
 </div>
 <div class="section level3">
@@ -189,7 +190,7 @@ sets, not intervals).</p>
 <p>The posterior quantities are now stored in
 <code>fit$meanvar_model$pi_bar</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span>, signal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mich_files/figure-html/unnamed-chunk-11-1.png" width="99%"></p>
 </div>
 <div class="section level3">
@@ -258,7 +259,7 @@ the precision matrix of the series (see the discussion of the
 <span><span class="co"># fit two multivariate mean-scp components</span></span>
 <span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">Y</span>, L <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span>, signal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mich_files/figure-html/unnamed-chunk-17-1.png" width="99%"></p>
 </div>
 </div>
