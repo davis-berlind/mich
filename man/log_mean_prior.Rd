@@ -7,9 +7,9 @@
 log_mean_prior(T, d)
 }
 \arguments{
-\item{T}{An integer. Number of observations (rows) of \eqn{\mathbf{y}_{1:T}}.}
+\item{T}{An integer. Number of observations.}
 
-\item{d}{An integer. Dimension (columns) of \eqn{\mathbf{y}_{1:T}}.}
+\item{d}{An integer. Dimension each observation.}
 }
 \value{
 A numeric vector. Log prior probabilities.

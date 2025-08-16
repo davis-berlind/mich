@@ -57,7 +57,7 @@ summary.mich.fit <- function(object, level = 0.95, max_length = NULL, ...) {
     mich_summary$elbo <- max(object$elbo)
     mich_summary$converged <- object$converged
 
-    cat("Multivariate MICH Model:\n\n")
+    cat("Univariate MICH Model:\n\n")
     cat(paste0("ELBO: ", mich_summary$elbo, "; Converged: ", mich_summary$converged, "\n"))
 
     if (object$L > 0) {

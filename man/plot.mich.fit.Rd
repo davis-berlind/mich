@@ -22,7 +22,7 @@ or matrix.}
 level to construct credible sets at when \code{cs == TRUE}.}
 
 \item{max_length}{An integer. Detection threshold, see \code{mich_sets()}. Equal
-to \eqn{\log^{2}(T)} by default.}
+to \code{log(T)^2} by default.}
 
 \item{signal}{A logical. If \code{TRUE}, then the posterior mean and precision
 signals are also plotted.}

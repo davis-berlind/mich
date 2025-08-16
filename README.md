@@ -43,7 +43,7 @@ y = c(rnorm(100,0,10), rnorm(100,10,3), rnorm(100,0,6))
 # fit two mean-variance change-points
 fit = mich(y, J = 2) 
 summary(fit, level = 0.95)
-#> Multivariate MICH Model:
+#> Univariate MICH Model:
 #> 
 #> ELBO: -227.315037808182; Converged: TRUE
 #> 

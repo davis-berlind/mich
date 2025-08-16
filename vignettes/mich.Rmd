@@ -56,7 +56,7 @@ plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5
 ```{r}
 # generate univariate data with two variance change-points
 y = c(rnorm(100,0,10), rnorm(100,0,3), rnorm(100,0,6))
-# fit two mean-scp components
+# fit two var-scp components
 fit = mich(y, K = 2) 
 summary(fit, level = 0.95)
 ```
@@ -93,7 +93,7 @@ par(oma = c(0,0,0,0), mar = c(3,1,1,1))
 plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
 ```
 
-## Multiple Change-Types
+### Multiple Change-Types
 
 Note that by default `L=K=J=0`, so the call `mich(y)` will fit the null model assuming no changes are present in the mean or variance of `y`. It is also possible to fit `mich()` with multiple kinds of changes, e.g. we could rerun the last example with one of the changes misspecified as just a mean change. 
 
@@ -116,9 +116,9 @@ par(oma = c(0,0,0,0), mar = c(3,1,1,1))
 plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
 ```
 
-## Multivariate Mean Changes
+### Multivariate Mean Changes
 
-In the case where `y` is a T x d matrix, `mich()` can detect mean changes that are shared across all or some of the columns. The columns of `y` do not need to be independent and by default `mich()` will attempt to estimate the precision matrix of the series (for more detail see the discussion of the `fit_scale` parameter below). In the following example `y[,1]` and `y[,2]` are positively correlated.
+In the case where `y` is a T x d matrix, `mich()` can detect mean changes that are shared across all or some of the columns. The columns of `y` do not need to be independent and by default `mich()` will attempt to estimate the precision matrix of the series (see the discussion of the `fit_scale` parameter below). In the following example `y[,1]` and `y[,2]` are positively correlated.
 
 ```{r}
 T <- 150
@@ -156,13 +156,78 @@ plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5
 
 ## Selecting `L`, `K`, and `J`
 
-#increment and max and restart
+In the previous section we treated the numbers of each kind of change-point as known quantities, but more often than not we need to estimate these parameters. One option is to set `L`, `K`, and `J` equal to some large numbers that upper bound each kind of change. For example if we think there are at most five mean changes in the data then we can set `L = 5`. 
+
+```{r}
+# generate univariate data with two mean change-points
+y = c(rnorm(100,0), rnorm(100,2), rnorm(100,0))
+# fit five mean-scp components
+fit = mich(y, L = 5) 
+summary(fit, level = 0.95)
+```
+
+```{r, eval=FALSE}
+plot(fit, cs = TRUE, level = 0.95)
+```
+```{r, dpi=500, out.width="99%", echo=FALSE}
+par(oma = c(0,0,0,0), mar = c(3,1,1,1))
+plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
+```
+
+Note that the model still only detected the two true change-points. The plot below shows that this is because the extra three components we included have very diffuse posterior distributions that do not satisfy the detection criterion of having credible sets containing fewer than `log(T)^2` indices (see Corollary 1 of [Berlind, Cappello, and Madrid Padilla (2025)](https://arxiv.org/abs/2507.01558)). 
+
+```{r, dpi=500, out.width="99%", echo=FALSE}
+par(oma = c(0,0,0,0), mar = c(3,1,1,1))
+matplot(fit$mean_model$pi_bar, type = "l", ylab = "", 
+        main = "Posterior Distribution of each Mean-SCP Change-Point",
+        cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
+```
+
+### Auto-MICH
+
+Alternatively, we can use the ELBO as an approximation to marginal likelihood of the model and automatically select the `L`, `K`, and `J` that maximizes the ELBO. This option is implemented in `mich()` via the `L_auto`, `K_auto`, and `J_auto` parameters. If `L_auto == TRUE`, then `mich()` searches for the number of mean changes between `L` and `L_max` that maximize the EBLO. 
+
+```{r}
+# fit mich with L selected automatically
+fit = mich(y, L_auto = TRUE, verbose = TRUE, restart = FALSE) 
+summary(fit, level = 0.95)
+```
+
+Once again `mich()` is able to correctly identify the mean-changes, but now setting `L_auto == TRUE` results in a model with only two components.
+
+```{r, eval=FALSE}
+plot(fit, cs = TRUE, level = 0.95)
+```
+
+```{r, dpi=500, out.width="99%", echo=FALSE}
+par(oma = c(0,0,0,0), mar = c(3,1,1,1))
+plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
+```
+
+Similarly, if `K_auto == TRUE` or `J_auto == TRUE` then `mich()` searches for the optimal number of variance and mean-variance components to include in the model. It is possible to have some combination of `L_auto`, `K_auto`, and/or `J_auto` set equal to true, in which case `mich()` takes turns incrementing `L`, `K`, and `J` and moves in the direction that results in the largest increase in the ELBO.
+
+```{r}
+# fit mich with L selected automatically
+fit = mich(y, L_auto = TRUE, J_auto = TRUE, verbose = TRUE, restart = FALSE) 
+summary(fit, level = 0.95)
+```
+
+```{r, eval=FALSE}
+plot(fit, cs = TRUE, level = 0.95)
+```
+
+```{r, dpi=500, out.width="99%", echo=FALSE}
+par(oma = c(0,0,0,0), mar = c(3,1,1,1))
+plot(fit, cs = TRUE, level = 0.95, cex.main = 0.5, cex.lab = 0.5, cex.axis = 0.5)
+```
+
+Lastly, `mich()` accepts the integer valued parameter `increment`, which determines how many components are added to the model as `mich()` searches for the best `L`, `K`, and/or `J`, and `restart`, which causes `mich()` to refit the model from a null parameterization once the ELBO stops increasing, which can help the variational algorithm escape local minima. 
 
 ## Priors
 
 ### Prior Change-Point Location Probabilities
 
-The priors for the change-point locations are controlled by the `pi_l`, `pi_k`, and `pi_j` parameters (each corresponding the the prior locations of mean, variance, and mean and variance changes). By default these parameters are set equal to `"weighted"`, in which case the function `log_mean_prior()`, `log_var_prior()`, and `log_meanvar_prior()` are used to calculated weighted priors that ensure diffused posterior distribution in the absence of any changes in the mean and/or variance of `y` (see Appendix C.2 of [Berlind, Cappello, and Madrid Padilla (2025)](https://arxiv.org/abs/2507.01558) for a detailed discussion). Setting `pi_l`, `pi_k`, or `pi_j` equal to `"uniform"` will force `mich()` to instead use the uniform prior `rep(1/T, T)`. The user can also provide their own priors by setting `pi_l`, `pi_k`, or `pi_j` equal to a vector `pi` such that `length(pi) == length(y)` and `sum(pi) == 1`, in which case `pi` will be used as the prior for all of the model components. `pi` can also be a matrix of probabilities so long as `nrow(pi) == length(y)`, `all(colSums(pi) == 1) == TRUE`, and if `pi_l = pi` then `ncol(pi) == L` and so on for `pi_k` and `pi_j`.
+The priors for the change-point locations are controlled by the `pi_l`, `pi_k`, and `pi_j` parameters (each corresponding the the prior locations of mean, variance, and mean and variance changes). By default these parameters are set equal to `"weighted"`, in which case the functions `log_mean_prior()`, `log_var_prior()`, and `log_meanvar_prior()` are used to calculated weighted priors that ensure diffuse posterior distributions in the absence of any changes in the mean and/or variance of `y` (see Appendix C.2 of [Berlind, Cappello, and Madrid Padilla (2025)](https://arxiv.org/abs/2507.01558) for a detailed discussion). Setting `pi_l`, `pi_k`, or `pi_j` equal to `"uniform"` will force `mich()` to use the uniform prior `rep(1/T, T)` instead. The user can also provide their own priors by setting `pi_l`, `pi_k`, or `pi_j` equal to a vector `pi` such that `length(pi) == length(y)` and `sum(pi) == 1`, in which case `pi` will be used as the prior for all of the model components. `pi` can also be a matrix of probabilities so long as `nrow(pi) == length(y)`, `all(colSums(pi) == 1) == TRUE`, and if `pi_l = pi` then `ncol(pi) == L` and so on for `pi_k` and `pi_j`.
 
 ### Precision, Shape, and Rate Parameters
 
@@ -175,21 +240,8 @@ alter the output of `mich()`.
 
 ## Standardization
 
-When `standardize == TRUE`, `mich()` will center and rescale the data before 
-running the main variational algorithm. While this step can help improve 
-performance, because the location of the first change-point is unknown, it does
-not guarantee that `y` will begin centered at zero or have unit variance. 
-Instead, `mich()` estimates and returns an intercept `mu_0` and initial 
-precision `lambda_0` by default (when `y` is a matrix, the estimated 
-variance-covariance matrix is returned instead as `Sigma`). If `y` is known to 
-be centered at zero or have unit variance, than the estimation of these 
-parameters can be avoided by setting `fit_intecept == FALSE` and/or 
-`fit_scale == FALSE`.
+When `standardize == TRUE`, `mich()` will center and rescale the data before running the main variational algorithm. While this step can help improve performance, because the location of the first change-point is unknown, it does not guarantee that `y` will begin centered at zero or have unit variance. Instead, `mich()` estimates and returns an intercept `mu_0` and initial precision `lambda_0` by default (when `y` is a matrix, the estimated variance-covariance matrix is returned instead as `Sigma`). If `y` is known to be centered at zero or have unit variance, than the estimation of these parameters can be avoided by setting `fit_intecept == FALSE` and/or `fit_scale == FALSE`.
 
 ## Additonal Parameters
 
-Additional control parameters can be viewed by typing `?mich` in the console. 
-These include the convergence criterion `tol`, a `verbose` parameter that will 
-provide feedback as `mich()` fits the model if set to `TRUE`, and a `reverse` 
-parameter that will make `mich()` fit to `y[T:1]` in place of `y` which can 
-occasionally improve the model fit. 
+Additional control parameters can be viewed by typing `?mich` in the console. These include the convergence criterion `tol`, a `verbose` parameter that will prompt `mich()` to provide feedback as it fits the model, and a `reverse` parameter that will make `mich()` fit to `y[T:1]` in place of `y` which can occasionally improve the model fit. 

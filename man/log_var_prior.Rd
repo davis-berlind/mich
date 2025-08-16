@@ -7,7 +7,7 @@
 log_var_prior(T)
 }
 \arguments{
-\item{T}{An integer. Number of observations in \eqn{y_{1:T}}.}
+\item{T}{An integer. Number of observations.}
 }
 \value{
 A numeric vector. Log prior probabilities.
