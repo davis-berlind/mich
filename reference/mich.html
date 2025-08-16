@@ -261,9 +261,9 @@ components included in the model.</p></li>
 <li><p><code>residual</code>: A numeric vector. Residual \(\tilde{\mathbf{r}}_{1:T}\)
 (see (B.4) of Berlind, Cappello, Madrid Padilla (2025)).</p></li>
 <li><p><code>mu</code>: A numeric vector. Posterior estimate of
-\(\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}] + \Sigma_{j=1}^J E[\boldsymbol{\mu}_{j,1:T}|\mathbf{y}_{1:T}]\).</p></li>
+\(\Sigma_{\ell=1}^L E[\mu_{\ell,1:T}|\mathbf{y}_{1:T}] + \Sigma_{j=1}^J E[\mu_{j,1:T}|\mathbf{y}_{1:T}]\).</p></li>
 <li><p><code>lambda</code>: A numeric vector. Posterior estimate of
-\(\Pi_{k=1}^K E[\boldsymbol{\lambda}_{k,1:T}|\mathbf{y}_{1:T}] \times \Pi_{j=1}^J E[\boldsymbol{\lambda}_{j,1:T}|\mathbf{y}_{1:T}]\).</p></li>
+\(\Pi_{k=1}^K E[\lambda_{k,1:T}|\mathbf{y}_{1:T}] \times \Pi_{j=1}^J E[\lambda_{j,1:T}|\mathbf{y}_{1:T}]\).</p></li>
 <li><p><code>delta</code>: A numeric vector. Posterior estimate of equation (B.4) of
 Berlind, Cappello, Madrid Padilla (2025).</p></li>
 <li><p><code>mu_0</code>: A scalar. Estimate of the intercept.</p></li>
@@ -316,10 +316,10 @@ posterior precision signals \(E[\lambda_{kt}|\mathbf{y}_{1:T}]\).</p></li>
 <li><p><code>pi_bar</code>: A numeric matrix. A  \(T \times L\) matrix of posterior
 change-point location probabilites.</p></li>
 <li><p><code>residual</code>: A numeric matrix. Residual \(\mathbf{r}_{1:T}\) after
-subtracting out each \(E[\boldsymbol{\mu}_{\ell t}]\) from
+subtracting out each \(E[\mu_{\ell t}]\) from
 \(\mathbf{y}_{1:T}\).</p></li>
 <li><p><code>mu</code>: A numeric matrix. Posterior estimate of
-\(\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}]\).</p></li>
+\(\Sigma_{\ell=1}^L E[\mu_{\ell,1:T}|\mathbf{y}_{1:T}]\).</p></li>
 <li><p><code>mu_0</code>: A numeric vector. Estimate of the intercept.</p></li>
 <li><p><code>post_params</code>: A list. List of posterior parameters for each mean-scp
 component.</p></li>
