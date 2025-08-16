@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>mich • mich</title>
+<title>Introduction to mich • mich</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -21,7 +21,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="mich">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to mich">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -46,9 +46,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/ion_channel.html">Mean-Variance Change-Point Detection with Ion Channel Data</a></li>
-    <li><a class="dropdown-item" href="../articles/step_count.html">Detecting Changes in Daily Step Count</a></li>
-    <li><a class="dropdown-item" href="../articles/well_log.html">Multivariaet Mean Change-Point Detection with Well-Log Data</a></li>
+<li><a class="dropdown-item" href="../articles/step_count.html">Detecting Changes in Daily Step Count</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -70,7 +68,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>mich</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Introduction to mich</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/davis-berlind/mich/blob/main/vignettes/mich.Rmd" class="external-link"><code>vignettes/mich.Rmd</code></a></small>
@@ -80,8 +78,266 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://davis-berlind.github.io/mich/">mich</a></span><span class="op">)</span></span></code></pre></div>
-  </main>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">222</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://davis-berlind.github.io/mich/">mich</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="basic-usage">Basic Usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
+</h2>
+<p>The main function of the package is <code><a href="../reference/mich.html">mich()</a></code>, which takes
+a vector or matrix of observations <code>y</code> and returns a
+<code>mich.fit</code> object containing a variational approximation to
+the posterior distribution of the change-points in the mean and/or
+variance of <code>y</code>. The integer valued parameters
+<code>L</code>, <code>K</code>, and <code>J</code> specify the
+respective numbers of mean, variance, and joint mean and variance
+change-points in <code>y</code>. In each of the examples below, we
+sample a series with two changes in the mean and/or variance at times
+<code>101</code> and <code>201</code> and use <code><a href="../reference/mich.html">mich()</a></code> to
+estimate and construct 95% credible sets around the locations of the
+changes.</p>
+<div class="section level3">
+<h3 id="mean-changes">Mean Changes<a class="anchor" aria-label="anchor" href="#mean-changes"></a>
+</h3>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># generate univariate data with two mean change-points</span></span>
+<span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># fit two mean-scp components</span></span>
+<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">y</span>, L <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Multivariate MICH Model:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ELBO: -242.324141949562; Converged: TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; L = 2 Mean-SCP Component(s); 2 Detected Mean Change-Point(s):</span></span>
+<span><span class="co">#&gt;   change.points lower.0.95.credible.set upper.0.95.credible.set</span></span>
+<span><span class="co">#&gt; 1           101                     100                     102</span></span>
+<span><span class="co">#&gt; 2           203                     198                     207</span></span></code></pre></div>
+<p>The summary output shows us the ELBO for the fitted model as well as
+the estimated locations of the changes and the lower and upper bounds of
+the <code>level</code>-level credible sets around each change. Because
+we called <code><a href="../reference/mich.html">mich()</a></code> with <code>L &gt; 0</code>, the returned
+<code>mich.fit</code> object contains a named list
+<code>mean_model</code> that contains the posterior parameters for each
+of the <code>L</code> components in the model. The most important
+element is <code>pi_bar</code>, which is a T x L matrix of posterior
+change-point location probabilities (for a detailed description of each
+element of <code>mean_model</code>, type <code><a href="../reference/mich.html">?mich</a></code> in the
+console). We can use <code>pi_bar</code> along with the function
+<code><a href="../reference/mich_sets.html">mich_sets()</a></code> to construct change-point estimates and
+credible sets.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># MAP estimates with 95% credible sets</span></span>
+<span><span class="fu"><a href="../reference/mich_sets.html">mich_sets</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">mean_model</span><span class="op">$</span><span class="va">pi_bar</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $cp</span></span>
+<span><span class="co">#&gt; [1] 101 203</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sets</span></span>
+<span><span class="co">#&gt; $sets[[1]]</span></span>
+<span><span class="co">#&gt; [1] 100 101 102</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sets[[2]]</span></span>
+<span><span class="co">#&gt; [1] 198 199 200 201 203 204 207</span></span></code></pre></div>
+<p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> function is extended to the
+<code>mich.fit</code> class and uses <code><a href="../reference/mich_sets.html">mich_sets()</a></code> to plot
+the returned MAP estimates as well as credible sets if
+<code>cs == TRUE</code> (note that as in the plot below, these truly are
+sets, not intervals).</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mich_files/figure-html/unnamed-chunk-5-1.png" width="99%"></p>
+</div>
+<div class="section level3">
+<h3 id="variance-changes">Variance Changes<a class="anchor" aria-label="anchor" href="#variance-changes"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># generate univariate data with two variance change-points</span></span>
+<span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">10</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># fit two mean-scp components</span></span>
+<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">y</span>, K <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Multivariate MICH Model:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ELBO: -362.67485155576; Converged: TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; K = 2 Var-SCP Component(s); 2 Detected Variance Change-Point(s):</span></span>
+<span><span class="co">#&gt;   change.points lower.0.95.credible.set upper.0.95.credible.set</span></span>
+<span><span class="co">#&gt; 1           100                     100                     104</span></span>
+<span><span class="co">#&gt; 2           201                     196                     201</span></span></code></pre></div>
+<p>The posterior quantities are now stored in
+<code>fit$var_model$pi_bar</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mich_files/figure-html/unnamed-chunk-8-1.png" width="99%"></p>
+</div>
+<div class="section level3">
+<h3 id="mean-variance-changes">Mean-Variance Changes<a class="anchor" aria-label="anchor" href="#mean-variance-changes"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># generate univariate data with two mean-variance change-points</span></span>
+<span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">10</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">10</span>,<span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># fit two meanvar-scp components</span></span>
+<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">y</span>, J <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Multivariate MICH Model:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ELBO: -220.537132456086; Converged: TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; J = 2 MeanVar-SCP Component(s); 2 Detected Mean-Variance Change-Point(s):</span></span>
+<span><span class="co">#&gt;   change.points lower.0.95.credible.set upper.0.95.credible.set</span></span>
+<span><span class="co">#&gt; 1           101                      99                     102</span></span>
+<span><span class="co">#&gt; 2           201                     199                     201</span></span></code></pre></div>
+<p>The posterior quantities are now stored in
+<code>fit$meanvar_model$pi_bar</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mich_files/figure-html/unnamed-chunk-11-1.png" width="99%"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="multiple-change-types">Multiple Change-Types<a class="anchor" aria-label="anchor" href="#multiple-change-types"></a>
+</h2>
+<p>Note that by default <code>L=K=J=0</code>, so the call
+<code>mich(y)</code> will fit the null model assuming no changes are
+present in the mean or variance of <code>y</code>. It is also possible
+to fit <code><a href="../reference/mich.html">mich()</a></code> with multiple kinds of changes, e.g. we could
+rerun the last example with one of the changes misspecified as just a
+mean change.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># generate univariate data with two mean-variance change-points</span></span>
+<span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">10</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">10</span>,<span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># fit one mean-scp component and meanvar-scp component</span></span>
+<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">y</span>, L<span class="op">=</span><span class="fl">1</span>, J <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Multivariate MICH Model:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ELBO: -254.723737904752; Converged: TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; L = 1 Mean-SCP Component(s); 1 Detected Mean Change-Point(s):</span></span>
+<span><span class="co">#&gt;   change.points lower.0.95.credible.set upper.0.95.credible.set</span></span>
+<span><span class="co">#&gt; 1           101                      86                     103</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; J = 1 MeanVar-SCP Component(s); 1 Detected Mean-Variance Change-Point(s):</span></span>
+<span><span class="co">#&gt;   change.points lower.0.95.credible.set upper.0.95.credible.set</span></span>
+<span><span class="co">#&gt; 1           200                     199                     202</span></span></code></pre></div>
+<p>We see that the model uses the mean-component to fit the first change
+and the mean-variance component to fit the second change.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mich_files/figure-html/unnamed-chunk-14-1.png" width="99%"></p>
+</div>
+<div class="section level2">
+<h2 id="multivariate-mean-changes">Multivariate Mean Changes<a class="anchor" aria-label="anchor" href="#multivariate-mean-changes"></a>
+</h2>
+<p>In the case where <code>y</code> is a T x d matrix,
+<code><a href="../reference/mich.html">mich()</a></code> can detect mean changes that are shared across all
+or some of the columns. The columns of <code>y</code> do not need to be
+independent and by default <code><a href="../reference/mich.html">mich()</a></code> will attempt to estimate
+the precision matrix of the series (for more detail see the discussion
+of the <code>fit_scale</code> parameter below). In the following example
+<code>y[,1]</code> and <code>y[,2]</code> are positively correlated.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="cn">T</span> <span class="op">&lt;-</span> <span class="fl">150</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
+<span></span>
+<span><span class="co"># covariance matrix</span></span>
+<span><span class="va">Sigma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.7</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">Sigma_eigen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/eigen.html" class="external-link">eigen</a></span><span class="op">(</span><span class="va">Sigma</span><span class="op">)</span></span>
+<span><span class="va">e_vectors</span> <span class="op">&lt;-</span> <span class="va">Sigma_eigen</span><span class="op">$</span><span class="va">vectors</span></span>
+<span><span class="va">e_values</span> <span class="op">&lt;-</span> <span class="va">Sigma_eigen</span><span class="op">$</span><span class="va">values</span></span>
+<span><span class="va">Sigma_sd</span> <span class="op">&lt;-</span> <span class="va">e_vectors</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">e_values</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">e_vectors</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># construct mean signal</span></span>
+<span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">mu_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, nrow <span class="op">=</span> <span class="fl">70</span>, ncol <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span><span class="va">mu_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">mu_t</span>, <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">30</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="va">mu</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">mu_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">mu_t</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, nrow <span class="op">=</span> <span class="fl">50</span>, ncol <span class="op">=</span> <span class="va">d</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># generate data</span></span>
+<span><span class="va">Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">d</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="va">mu_t</span> <span class="op">+</span> <span class="va">Z</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">Sigma_sd</span></span>
+<span></span>
+<span><span class="co"># fit two multivariate mean-scp components</span></span>
+<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">Y</span>, L <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mich_files/figure-html/unnamed-chunk-17-1.png" width="99%"></p>
+</div>
+<div class="section level2">
+<h2 id="selecting-l-k-and-j">Selecting <code>L</code>, <code>K</code>, and <code>J</code><a class="anchor" aria-label="anchor" href="#selecting-l-k-and-j"></a>
+</h2>
+<p>#increment and max and restart</p>
+</div>
+<div class="section level2">
+<h2 id="priors">Priors<a class="anchor" aria-label="anchor" href="#priors"></a>
+</h2>
+<div class="section level3">
+<h3 id="prior-change-point-location-probabilities">Prior Change-Point Location Probabilities<a class="anchor" aria-label="anchor" href="#prior-change-point-location-probabilities"></a>
+</h3>
+<p>The priors for the change-point locations are controlled by the
+<code>pi_l</code>, <code>pi_k</code>, and <code>pi_j</code> parameters
+(each corresponding the the prior locations of mean, variance, and mean
+and variance changes). By default these parameters are set equal to
+<code>"weighted"</code>, in which case the function
+<code><a href="../reference/log_mean_prior.html">log_mean_prior()</a></code>, <code><a href="../reference/log_var_prior.html">log_var_prior()</a></code>, and
+<code><a href="../reference/log_meanvar_prior.html">log_meanvar_prior()</a></code> are used to calculated weighted priors
+that ensure diffused posterior distribution in the absence of any
+changes in the mean and/or variance of <code>y</code> (see Appendix C.2
+of <a href="https://arxiv.org/abs/2507.01558" class="external-link">Berlind, Cappello, and
+Madrid Padilla (2025)</a> for a detailed discussion). Setting
+<code>pi_l</code>, <code>pi_k</code>, or <code>pi_j</code> equal to
+<code>"uniform"</code> will force <code><a href="../reference/mich.html">mich()</a></code> to instead use the
+uniform prior <code>rep(1/T, T)</code>. The user can also provide their
+own priors by setting <code>pi_l</code>, <code>pi_k</code>, or
+<code>pi_j</code> equal to a vector <code>pi</code> such that
+<code>length(pi) == length(y)</code> and <code>sum(pi) == 1</code>, in
+which case <code>pi</code> will be used as the prior for all of the
+model components. <code>pi</code> can also be a matrix of probabilities
+so long as <code>nrow(pi) == length(y)</code>,
+<code>all(colSums(pi) == 1) == TRUE</code>, and if
+<code>pi_l = pi</code> then <code>ncol(pi) == L</code> and so on for
+<code>pi_k</code> and <code>pi_j</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="precision-shape-and-rate-parameters">Precision, Shape, and Rate Parameters<a class="anchor" aria-label="anchor" href="#precision-shape-and-rate-parameters"></a>
+</h3>
+<p>Each of the prior precision, shape, and rate parameters in the model
+is set equal to <code>0.001</code> by default. The user can change these
+parameters by modifying <code>omega_l, u_k, v_k, omega_j, u_j</code> and
+<code>v_j</code>, but the sensitivity analysis in <a href="https://arxiv.org/abs/2507.01558" class="external-link">Berlind, Cappello, and Madrid
+Padilla (2025)</a> indicates that as long as these values are small,
+they do not meaningfully alter the output of <code><a href="../reference/mich.html">mich()</a></code>.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="standardization">Standardization<a class="anchor" aria-label="anchor" href="#standardization"></a>
+</h2>
+<p>When <code>standardize == TRUE</code>, <code><a href="../reference/mich.html">mich()</a></code> will
+center and rescale the data before running the main variational
+algorithm. While this step can help improve performance, because the
+location of the first change-point is unknown, it does not guarantee
+that <code>y</code> will begin centered at zero or have unit variance.
+Instead, <code><a href="../reference/mich.html">mich()</a></code> estimates and returns an intercept
+<code>mu_0</code> and initial precision <code>lambda_0</code> by default
+(when <code>y</code> is a matrix, the estimated variance-covariance
+matrix is returned instead as <code>Sigma</code>). If <code>y</code> is
+known to be centered at zero or have unit variance, than the estimation
+of these parameters can be avoided by setting
+<code>fit_intecept == FALSE</code> and/or
+<code>fit_scale == FALSE</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="additonal-parameters">Additonal Parameters<a class="anchor" aria-label="anchor" href="#additonal-parameters"></a>
+</h2>
+<p>Additional control parameters can be viewed by typing
+<code><a href="../reference/mich.html">?mich</a></code> in the console. These include the convergence
+criterion <code>tol</code>, a <code>verbose</code> parameter that will
+provide feedback as <code><a href="../reference/mich.html">mich()</a></code> fits the model if set to
+<code>TRUE</code>, and a <code>reverse</code> parameter that will make
+<code><a href="../reference/mich.html">mich()</a></code> fit to <code>y[T:1]</code> in place of
+<code>y</code> which can occasionally improve the model fit.</p>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

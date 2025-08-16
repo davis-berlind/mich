@@ -49,9 +49,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/ion_channel.html">Mean-Variance Change-Point Detection with Ion Channel Data</a></li>
-    <li><a class="dropdown-item" href="articles/step_count.html">Detecting Changes in Daily Step Count</a></li>
-    <li><a class="dropdown-item" href="articles/well_log.html">Multivariaet Mean Change-Point Detection with Well-Log Data</a></li>
+<li><a class="dropdown-item" href="articles/step_count.html">Detecting Changes in Daily Step Count</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -70,7 +68,8 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="mich-">mich 
+<img src="logo.png" class="logo" alt=""><h1 id="mich-">
+<code>{mich}</code> 
 <a class="anchor" aria-label="anchor" href="#mich-"></a>
 </h1>
 </div>
@@ -88,6 +87,31 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"davis-berlind/mich"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="basic-usage">Basic Usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
+</h2>
+<p>For an in-depth introduction check out <a href="articles/mich.html">Getting Started</a>. The function <code><a href="reference/mich.html">mich()</a></code> works by taking a vector or matrix of observations <code>y</code> and integers <code>L</code>, <code>K</code>, and <code>J</code> that specify the respective numbers of mean, variance, and joint mean and variance change-points in <code>y</code>. In the example below we sample a series with two changes in the mean and variance at times <code>101</code> and <code>201</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://davis-berlind.github.io/mich/">mich</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">222</span><span class="op">)</span></span>
+<span><span class="co"># generate univariate data with two mean-variance change-points</span></span>
+<span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">10</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">10</span>,<span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># fit two mean-variance change-points</span></span>
+<span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="reference/mich.html">mich</a></span><span class="op">(</span><span class="va">y</span>, J <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Multivariate MICH Model:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ELBO: -227.315037808182; Converged: TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; J = 2 MeanVar-SCP Component(s); 2 Detected Mean-Variance Change-Point(s):</span></span>
+<span><span class="co">#&gt;   change.points lower.0.95.credible.set upper.0.95.credible.set</span></span>
+<span><span class="co">#&gt; 1           101                     101                     103</span></span>
+<span><span class="co">#&gt; 2           201                     198                     201</span></span></code></pre></div>
+<p>Plotting the estimated change-points and their 95% credible sets shows that <code><a href="reference/mich.html">mich()</a></code> properly recovers the changes.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
