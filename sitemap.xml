@@ -9,8 +9,10 @@
 <url><loc>https://davis-berlind.github.io/mich/index.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/news/index.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/reference/cred_set.html</loc></url>
+<url><loc>https://davis-berlind.github.io/mich/reference/daily_steps.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/reference/index.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/reference/integer_check.html</loc></url>
+<url><loc>https://davis-berlind.github.io/mich/reference/ion_channel.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/reference/lambda_bar_fn.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/reference/log_mean_prior.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/reference/log_meanvar_prior.html</loc></url>
@@ -37,5 +39,6 @@
 <url><loc>https://davis-berlind.github.io/mich/reference/scalar_check.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/reference/summary.mich.fit.html</loc></url>
 <url><loc>https://davis-berlind.github.io/mich/reference/var_scp.html</loc></url>
+<url><loc>https://davis-berlind.github.io/mich/reference/well_log.html</loc></url>
 </urlset>
 
