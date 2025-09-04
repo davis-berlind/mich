@@ -8,7 +8,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-`{mich}` is an R package that implements the Multiple Independent
+`mich` is an R package that implements the Multiple Independent
 Change-Point (MICH) method introduced in [Berlind, Cappello, Madrid
 Padilla (2025)](https://arxiv.org/abs/2507.01558). The package’s main
 function `mich()` implements a backfitting procedure to identify changes
@@ -19,7 +19,7 @@ change-points.
 
 ## Installation
 
-The development version of `{mich}` can be installed from GitHub using:
+The development version of `mich` can be installed from GitHub using:
 
 ``` r
 # install.packages("devtools")

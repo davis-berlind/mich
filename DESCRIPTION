@@ -14,4 +14,7 @@ LinkingTo: Rcpp
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 URL: https://davis-berlind.github.io/mich/, , https://github.com/davis-berlind/mich
-
+Depends: 
+    R (>= 3.5)
+LazyData: true
+Config/Needs/website: rmarkdown

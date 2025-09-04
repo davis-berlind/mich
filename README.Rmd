@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-`{mich}` is an R package that implements the Multiple Independent Change-Point 
+`mich` is an R package that implements the Multiple Independent Change-Point 
 (MICH) method introduced in [Berlind, Cappello, Madrid Padilla (2025)](https://arxiv.org/abs/2507.01558). 
 The package's main function `mich()` implements a backfitting procedure to 
 identify changes in the mean and/or variance of a length $T$ sequence of 
@@ -30,7 +30,7 @@ change-points.
 
 ## Installation
 
-The development version of `{mich}` can be installed from GitHub using:
+The development version of `mich` can be installed from GitHub using:
 
 ```{r, eval=FALSE}
 # install.packages("devtools")
