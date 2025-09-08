@@ -233,9 +233,9 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
       keep <- seq_len(J)
       if (J_auto) {
         # only keep detected changes
-        # cred_sets <- apply(fit$mean_model$pi_bar, 2, cred_set, level = merge_level, simplify = FALSE)
-        # keep <- sapply(cred_sets, length) <= 2 * detect
-        # J = sum(keep)
+        cred_sets <- apply(fit$mean_model$pi_bar, 2, cred_set, level = merge_level, simplify = FALSE)
+        keep <- sapply(cred_sets, length) <= detect
+        J = sum(keep)
         log_pi_j <- sapply(1:max(1,J), function(i) log_pi_j[,1])
       }
 
