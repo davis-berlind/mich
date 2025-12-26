@@ -106,9 +106,10 @@ double elbo_fn(int T, double mu_0, double lambda_0,
 
   // calculate E[log p(y)]
   double elbo = 0.5 * T * (std::log(lambda_0) - log_2_pi);
-  elbo -= 0.5 * Rcpp::sum(lambda_bar * (Rcpp::pow(r_tilde, 2) + delta));
 
   for (int t = 0; t < T; t++) {
+    elbo += -0.5 * lambda_bar[t] * (r_tilde[t] * r_tilde[t] + delta[t]);
+
     for (int j = 0; j < J; j++) {
       // E[log lambda_j] component of E[log p(y)]
       elbo += 0.5 * (T - t) * (digamma_u_bar_j[t] - std::log(v_bar_j(t,j))) * pi_bar_j(t,j);

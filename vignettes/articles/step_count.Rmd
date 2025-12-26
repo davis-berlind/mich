@@ -33,7 +33,7 @@ Due to the widespread adoption of wearable devices over the past decade, individ
 library(mich)
 daily_steps$day <- as.Date(daily_steps$day)
 
-step_fit <- mich(daily_steps$total_steps, J_auto = TRUE, tol = 1e-12,
+step_fit <- mich(daily_steps$total_steps, J_auto = TRUE, tol = 1e-10,
                  max_iter = Inf, restart = FALSE)
 ```
 ```{r plot-model, echo = FALSE, dpi=500, out.width="99%",}

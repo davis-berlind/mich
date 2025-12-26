@@ -43,7 +43,7 @@ List mean_scp(NumericVector y,
   }
 
   // normalize posterior probability
-  for(int t = 0; t < T; t++) {
+  for (int t = 0; t < T; t++) {
     log_pi_bar[t] -= log_pi_max;
     if (log_pi[t] > R_NegInf) pi_bar[t] = std::exp(log_pi_bar[t]);
     else pi_bar[t] = 0.0;
@@ -100,7 +100,7 @@ List multi_mean_scp(NumericMatrix y,
   }
 
   // normalize posterior probability
-  for(int t = 0; t < T; t++) {
+  for (int t = 0; t < T; t++) {
     log_pi_bar[t] -= log_pi_max;
     if (log_pi[t] > R_NegInf) pi_bar[t] = std::exp(log_pi_bar[t]);
     else pi_bar[t] = 0.0;
@@ -160,7 +160,7 @@ List var_scp(NumericVector y,
   }
 
   // normalize posterior probability
-  for(int t = 0; t < T; t++) {
+  for (int t = 0; t < T; t++) {
     log_pi_bar[t] -= log_pi_max;
     if (log_pi[t] > R_NegInf) pi_bar[t] = std::exp(log_pi_bar[t]);
     else pi_bar[t] = 0.0;
@@ -226,7 +226,7 @@ List meanvar_scp(NumericVector y,
     fs += y[T-t-1] * y[T-t-1] * lambda[T-t-1];
   }
 
-  for(int t = 0; t < T; t++) {
+  for (int t = 0; t < T; t++) {
     log_pi_bar[t] -= log_pi_max;
     if (log_pi[t] > R_NegInf) pi_bar[t] = std::exp(log_pi_bar[t]);
     else pi_bar[t] = 0.0;

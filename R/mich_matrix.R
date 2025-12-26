@@ -120,7 +120,7 @@ mich_matrix <- function(y, fit_intercept, fit_scale, standardize,
 
     # center data
     if (standardize) {
-      center <-  apply(y, 2, stats::median)
+      center <- matrix(apply(y, 2, stats::median), ncol = ncol(y), nrow = nrow(y), byrow = TRUE)
       y <- y - center
     }
 
