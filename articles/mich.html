@@ -145,7 +145,7 @@ the returned MAP estimates as well as the estimated signal if
 intervals).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span>, signal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mich_files/figure-html/unnamed-chunk-5-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="99%"></p>
 </div>
 <div class="section level3">
 <h3 id="variance-changes">Variance Changes<a class="anchor" aria-label="anchor" href="#variance-changes"></a>
@@ -168,7 +168,7 @@ intervals).</p>
 <code>fit$var_model$pi_bar</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span>, signal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mich_files/figure-html/unnamed-chunk-8-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="99%"></p>
 </div>
 <div class="section level3">
 <h3 id="mean-variance-changes">Mean-Variance Changes<a class="anchor" aria-label="anchor" href="#mean-variance-changes"></a>
@@ -191,7 +191,7 @@ intervals).</p>
 <code>fit$meanvar_model$pi_bar</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span>, signal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mich_files/figure-html/unnamed-chunk-11-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="99%"></p>
 </div>
 <div class="section level3">
 <h3 id="multiple-change-types">Multiple Change-Types<a class="anchor" aria-label="anchor" href="#multiple-change-types"></a>
@@ -210,7 +210,7 @@ mean change.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Univariate MICH Model:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ELBO: -254.723737904752; Converged: TRUE</span></span>
+<span><span class="co">#&gt; ELBO: -254.723737904751; Converged: TRUE</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; L = 1 Mean-SCP Component(s); 1 Detected Mean Change-Point(s):</span></span>
 <span><span class="co">#&gt;   change.points lower.0.95.credible.set upper.0.95.credible.set</span></span>
@@ -223,7 +223,7 @@ mean change.</p>
 and the mean-variance component to fit the second change.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mich_files/figure-html/unnamed-chunk-14-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="99%"></p>
 </div>
 <div class="section level3">
 <h3 id="multivariate-mean-changes">Multivariate Mean Changes<a class="anchor" aria-label="anchor" href="#multivariate-mean-changes"></a>
@@ -260,7 +260,7 @@ the precision matrix of the series (see the discussion of the
 <span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">Y</span>, L <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span>, signal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mich_files/figure-html/unnamed-chunk-17-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="99%"></p>
 </div>
 </div>
 <div class="section level2">
@@ -289,14 +289,14 @@ most five mean changes in the data then we can set
 <span><span class="co">#&gt; 2           201                     201                     201</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mich_files/figure-html/unnamed-chunk-20-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="99%"></p>
 <p>Note that the model still only detected the two true change-points.
 The plot below shows that this is because the extra three components we
 included have very diffuse posterior distributions that do not satisfy
 the detection criterion of having credible sets containing fewer than
 <code>log(T)^2</code> indices (see Corollary 1 of <a href="https://arxiv.org/abs/2507.01558" class="external-link">Berlind, Cappello, and Madrid
 Padilla (2025)</a>).</p>
-<p><img src="mich_files/figure-html/unnamed-chunk-21-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="99%"></p>
 <div class="section level3">
 <h3 id="auto-mich">Auto-MICH<a class="anchor" aria-label="anchor" href="#auto-mich"></a>
 </h3>
@@ -311,14 +311,14 @@ that maximize the EBLO.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fit mich with L selected automatically</span></span>
 <span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">y</span>, L_auto <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, restart <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span>
-<span><span class="co">#&gt; [1] "(L = 0, K = 0, J = 0): ELBO = -304.942450777235; Counter: 6"</span></span>
-<span><span class="co">#&gt; [1] "(L = 1, K = 0, J = 0): ELBO = -298.331456279222; Counter: 6"</span></span>
+<span><span class="co">#&gt; [1] "(L = 0, K = 0, J = 0): ELBO = -304.942450777234; Counter: 6"</span></span>
+<span><span class="co">#&gt; [1] "(L = 1, K = 0, J = 0): ELBO = -298.331456279221; Counter: 6"</span></span>
 <span><span class="co">#&gt; [1] "(L = 2, K = 0, J = 0): ELBO = -211.047722355175; Counter: 6"</span></span>
 <span><span class="co">#&gt; [1] "(L = 3, K = 0, J = 0): ELBO = -215.885482079647; Counter: 6"</span></span>
 <span><span class="co">#&gt; [1] "(L = 4, K = 0, J = 0): ELBO = -220.962514999129; Counter: 5"</span></span>
 <span><span class="co">#&gt; [1] "(L = 5, K = 0, J = 0): ELBO = -226.200102703732; Counter: 4"</span></span>
 <span><span class="co">#&gt; [1] "(L = 6, K = 0, J = 0): ELBO = -231.558781723112; Counter: 3"</span></span>
-<span><span class="co">#&gt; [1] "(L = 7, K = 0, J = 0): ELBO = -237.011609035981; Counter: 2"</span></span>
+<span><span class="co">#&gt; [1] "(L = 7, K = 0, J = 0): ELBO = -237.01160903598; Counter: 2"</span></span>
 <span><span class="co">#&gt; [1] "(L = 8, K = 0, J = 0): ELBO = -242.541140918896; Counter: 1"</span></span>
 <span><span class="co">#&gt; [1] "(L = 9, K = 0, J = 0): ELBO = -248.136597702824; Counter: 0"</span></span>
 <span><span class="co">#&gt; [1] "Merging. Merge Counter: 1"</span></span>
@@ -336,7 +336,7 @@ mean-changes, but now setting <code>L_auto == TRUE</code> results in a
 model with only two components.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mich_files/figure-html/unnamed-chunk-24-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-24-1.png" class="r-plt" alt="" width="99%"></p>
 <p>Similarly, if <code>K_auto == TRUE</code> or
 <code>J_auto == TRUE</code> then <code><a href="../reference/mich.html">mich()</a></code> searches for the
 optimal number of variance and mean-variance components to include in
@@ -349,22 +349,22 @@ ELBO.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fit mich with L selected automatically</span></span>
 <span><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/mich.html">mich</a></span><span class="op">(</span><span class="va">y</span>, L_auto <span class="op">=</span> <span class="cn">TRUE</span>, J_auto <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, restart <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span>
-<span><span class="co">#&gt; [1] "(L = 0, K = 0, J = 0): ELBO = -304.942450777235"</span></span>
+<span><span class="co">#&gt; [1] "(L = 0, K = 0, J = 0): ELBO = -304.942450777234"</span></span>
 <span><span class="co">#&gt; [1] "(L = 0, K = 0, J = 1): ELBO = -290.56141335325"</span></span>
-<span><span class="co">#&gt; [1] "(L = 1, K = 0, J = 0): ELBO = -298.331456279222"</span></span>
+<span><span class="co">#&gt; [1] "(L = 1, K = 0, J = 0): ELBO = -298.331456279221"</span></span>
 <span><span class="co">#&gt; [1] "(L = 0, K = 0, J = 2): ELBO = -226.747670431813"</span></span>
-<span><span class="co">#&gt; [1] "(L = 1, K = 0, J = 1): ELBO = -308.61486984484"</span></span>
+<span><span class="co">#&gt; [1] "(L = 1, K = 0, J = 1): ELBO = -308.614869844839"</span></span>
 <span><span class="co">#&gt; [1] "(L = 0, K = 0, J = 3): ELBO = -235.207021249792"</span></span>
 <span><span class="co">#&gt; [1] "(L = 1, K = 0, J = 2): ELBO = -232.203193790049"</span></span>
 <span><span class="co">#&gt; [1] "(L = 1, K = 0, J = 3): ELBO = -247.407027549628"</span></span>
-<span><span class="co">#&gt; [1] "(L = 2, K = 0, J = 2): ELBO = -232.674862962078"</span></span>
+<span><span class="co">#&gt; [1] "(L = 2, K = 0, J = 2): ELBO = -232.674862962079"</span></span>
 <span><span class="co">#&gt; [1] "(L = 2, K = 0, J = 3): ELBO = -247.141610997682"</span></span>
 <span><span class="co">#&gt; [1] "(L = 3, K = 0, J = 2): ELBO = -238.433249627662"</span></span>
 <span><span class="co">#&gt; [1] "(L = 3, K = 0, J = 3): ELBO = -250.526457976407"</span></span>
-<span><span class="co">#&gt; [1] "(L = 4, K = 0, J = 2): ELBO = -243.104705526495"</span></span>
+<span><span class="co">#&gt; [1] "(L = 4, K = 0, J = 2): ELBO = -243.104705526494"</span></span>
 <span><span class="co">#&gt; [1] "(L = 4, K = 0, J = 3): ELBO = -257.781771835369"</span></span>
 <span><span class="co">#&gt; [1] "(L = 5, K = 0, J = 2): ELBO = -248.914056107144"</span></span>
-<span><span class="co">#&gt; [1] "(L = 5, K = 0, J = 3): ELBO = -264.495764094317"</span></span>
+<span><span class="co">#&gt; [1] "(L = 5, K = 0, J = 3): ELBO = -264.495764094318"</span></span>
 <span><span class="co">#&gt; [1] "(L = 6, K = 0, J = 2): ELBO = -254.768484151035"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Univariate MICH Model:</span></span>
@@ -377,7 +377,7 @@ ELBO.</p>
 <span><span class="co">#&gt; 2           201                     201                     201</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, cs <span class="op">=</span> <span class="cn">TRUE</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mich_files/figure-html/unnamed-chunk-27-1.png" width="99%"></p>
+<p><img src="mich_files/figure-html/unnamed-chunk-27-1.png" class="r-plt" alt="" width="99%"></p>
 <p>Lastly, <code><a href="../reference/mich.html">mich()</a></code> accepts the integer valued parameter
 <code>increment</code>, which determines how many components are added
 to the model as <code><a href="../reference/mich.html">mich()</a></code> searches for the best
@@ -467,7 +467,7 @@ improve the model fit.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

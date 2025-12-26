@@ -1,0 +1,127 @@
+# `{mich}`
+
+## Fast Bayesian Inference for Change-Point Detection
+
+`mich` is an R package that implements the Multiple Independent
+Change-Point (MICH) method introduced in [Berlind, Cappello, Madrid
+Padilla (2025)](https://arxiv.org/abs/2507.01558). The package’s main
+function
+[`mich()`](https://davis-berlind.github.io/mich/reference/mich.md)
+implements a backfitting procedure to identify changes in the mean
+and/or variance of a length \\T\\ sequence of observations
+\\\mathbf{y}\_{1:T}\\. The `mich.fit` object returned by
+[`mich()`](https://davis-berlind.github.io/mich/reference/mich.md)
+provides a variational approximation to the posterior distribution of
+the change-points.
+
+## Installation
+
+The development version of `mich` can be installed from GitHub using:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("davis-berlind/mich")
+```
+
+## Basic Usage
+
+For an in-depth introduction check out [Getting
+Started](https://davis-berlind.github.io/mich/articles/mich.md). The
+function
+[`mich()`](https://davis-berlind.github.io/mich/reference/mich.md) works
+by taking a vector or matrix of observations `y` and integers `L`, `K`,
+and `J` that specify the respective numbers of mean, variance, and joint
+mean and variance change-points in `y`. In the example below we sample a
+series with two changes in the mean and variance at times `101` and
+`201`.
+
+``` r
+library(mich)
+set.seed(222)
+# generate univariate data with two mean-variance change-points
+y = c(rnorm(100,0,10), rnorm(100,10,3), rnorm(100,0,6))
+# fit two mean-variance change-points
+fit = mich(y, J = 2) 
+summary(fit, level = 0.95)
+#> Univariate MICH Model:
+#> 
+#> ELBO: -227.315037808182; Converged: TRUE
+#> 
+#> J = 2 MeanVar-SCP Component(s); 2 Detected Mean-Variance Change-Point(s):
+#>   change.points lower.0.95.credible.set upper.0.95.credible.set
+#> 1           101                     101                     103
+#> 2           201                     198                     201
+```
+
+Plotting the estimated change-points and their 95% credible sets shows
+that [`mich()`](https://davis-berlind.github.io/mich/reference/mich.md)
+properly recovers the changes.
+
+``` r
+plot(fit, cs = TRUE, level = 0.95)
+```
+
+![](reference/figures/README-unnamed-chunk-4-1.png)
+
+# Package index
+
+## All functions
+
+- [`cred_set()`](https://davis-berlind.github.io/mich/reference/cred_set.md)
+  : Single Change-Point Posterior Credible Set
+- [`daily_steps`](https://davis-berlind.github.io/mich/reference/daily_steps.md)
+  : Davis Berlind's Daily Step Count
+- [`integer_check()`](https://davis-berlind.github.io/mich/reference/integer_check.md)
+  : Integer value check.
+- [`ion_channel`](https://davis-berlind.github.io/mich/reference/ion_channel.md)
+  : Ion Channel Voltage
+- [`log_mean_prior()`](https://davis-berlind.github.io/mich/reference/log_mean_prior.md)
+  : Log Weighted Mean-SCP Prior
+- [`log_meanvar_prior()`](https://davis-berlind.github.io/mich/reference/log_meanvar_prior.md)
+  : Log Weighted MeanVar-SCP Prior
+- [`log_var_prior()`](https://davis-berlind.github.io/mich/reference/log_var_prior.md)
+  : Log Weighted Var-SCP Prior
+- [`logical_check()`](https://davis-berlind.github.io/mich/reference/logical_check.md)
+  : Logical value check.
+- [`mean_scp()`](https://davis-berlind.github.io/mich/reference/mean_scp.md)
+  : Mean Single Change-Point Model
+- [`meanvar_scp()`](https://davis-berlind.github.io/mich/reference/meanvar_scp.md)
+  : Mean-Variance Single Change-Point Model
+- [`mich()`](https://davis-berlind.github.io/mich/reference/mich.md) :
+  Multiple Independent Change-Point (MICH) Model
+- [`mich_cpp()`](https://davis-berlind.github.io/mich/reference/mich_cpp.md)
+  : MICH Algorithm
+- [`mich_matrix()`](https://davis-berlind.github.io/mich/reference/mich_matrix.md)
+  : Multivariate Multiple Independent Change-Point (MICH) Model
+- [`mich_sets()`](https://davis-berlind.github.io/mich/reference/mich_sets.md)
+  : MICH Posterior Credible Sets
+- [`mich_vector()`](https://davis-berlind.github.io/mich/reference/mich_vector.md)
+  : Univariate Multiple Independent Change-Point (MICH) Model
+- [`multi_mean_scp()`](https://davis-berlind.github.io/mich/reference/multi_mean_scp.md)
+  : Mulitvariate Mean Single Change-Point Model
+- [`plot(`*`<mich.fit>`*`)`](https://davis-berlind.github.io/mich/reference/plot.mich.fit.md)
+  : Plot method for mich.fit objects
+- [`prob_check()`](https://davis-berlind.github.io/mich/reference/prob_check.md)
+  : Probability vector check.
+- [`revcumsum()`](https://davis-berlind.github.io/mich/reference/revcumsum.md)
+  : Reverse cumulative sum
+- [`scalar_check()`](https://davis-berlind.github.io/mich/reference/scalar_check.md)
+  : Scalar value check.
+- [`summary(`*`<mich.fit>`*`)`](https://davis-berlind.github.io/mich/reference/summary.mich.fit.md)
+  : Summary method for mich.fit objects
+- [`var_scp()`](https://davis-berlind.github.io/mich/reference/var_scp.md)
+  : Variance Single Change-Point Model
+- [`well_log`](https://davis-berlind.github.io/mich/reference/well_log.md)
+  : Shankle Oil Well Lithology
+
+# Articles
+
+### All vignettes
+
+- [Introduction to
+  mich](https://davis-berlind.github.io/mich/articles/mich.md):
+
+- [Detecting Changes in Daily Step
+  Count](https://davis-berlind.github.io/mich/articles/step_count.md):
+
+  Using MICH to detect changes in my daily step count.
