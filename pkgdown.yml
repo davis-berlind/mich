@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   mich: mich.html
   articles/step_count: step_count.html
-last_built: 2025-12-26T00:26Z
+last_built: 2025-12-27T00:24Z
 urls:
   reference: https://davis-berlind.github.io/mich/reference
   article: https://davis-berlind.github.io/mich/articles
