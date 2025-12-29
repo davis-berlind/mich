@@ -523,7 +523,7 @@ mich_matrix <- function(y, fit_intercept, fit_scale, standardize,
       fit$mu <- fit$mu + matrix(center, nrow = T, ncol = d, byrow = TRUE)
     }
     for (l in seq_len(fit$L)) {
-      fit$post_params[[l]][["b_bar"]] <- post_params[[l]][["b_bar"]]  %*% Sigma_sqrt
+      fit$post_params[[l]][["b_bar"]] <- fit$post_params[[l]][["b_bar"]] %*% Sigma_sqrt
     }
     fit$Sigma <- Sigma
   }
