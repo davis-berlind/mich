@@ -29,6 +29,8 @@
 #' @param L_max,K_max,J_max Integers. If `L_auto == TRUE`,
 #'   `K_auto == TRUE`, or `J_auto == TRUE` then `L_max`, `K_max`, and `J_max`
 #'   upper bound the number of each kind of change-point in the model.
+#' @param null_prob A scalar. Prior probability that each component does not
+#'   contain a change.
 #' @param tol A scalar. Convergence tolerance for relative increase in ELBO.
 #'   Once \eqn{(\text{ELBO}_{t+1}-\text{ELBO}_t)/ \text{ELBO}_t} falls below
 #'   `tol` the variational algorithm terminates.
@@ -38,8 +40,8 @@
 #'   (see Appendix C.3 of Berlind, Cappello, Madrid Padilla (2025)).
 #' @param merge_level A scalar. A value between (0,1) for the significance level
 #'   to construct credible sets at when merging. A model component is only
-#'   considered to be a candidate for merging if its `merge_level`-level
-#'   credible set contains fewer than `detect` indices.
+#'   considered to be a candidate for merging if the marginal probability it
+#'   represents a change is greater than `merge_level`.
 #' @param max_iter An integer. Maximum number of variational iterations. If ELBO
 #'   does not converge before `max_iter` is reached, then `converged == FALSE`
 #'   in the returned fit object.
@@ -207,16 +209,18 @@
 #' fit = mich(Y, L_auto = TRUE)
 #' plot(fit, level = 0.95, cs = TRUE, signal = TRUE)
 #'
-mich <- function(y, fit_intercept = TRUE, fit_scale = TRUE, standardize = TRUE,
-                 J = 0, L = 0, K = 0,
-                 J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
-                 J_max = Inf, L_max = Inf, K_max = Inf,
-                 tol = 1e-5, merge_prob = NULL, merge_level = 0.95,
-                 max_iter = 1e4, verbose = FALSE, reverse = FALSE,
-                 restart = TRUE, increment = 1,
-                 omega_j = 1e-3, u_j = 1e-3, v_j = 1e-3, pi_j = "weighted",
-                 omega_l = 1e-3, pi_l = "weighted",
-                 u_k = 1e-3, v_k = 1e-3, pi_k = "weighted") {
+mich <- function(
+    y, fit_intercept = TRUE, fit_scale = TRUE, standardize = TRUE,
+    J = 0, L = 0, K = 0,
+    J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
+    J_max = Inf, L_max = Inf, K_max = Inf,
+    null_prob = 0.05, tol = 1e-5, merge_prob = NULL, merge_level = null_prob,
+    max_iter = 1e4, verbose = FALSE, reverse = FALSE,
+    restart = TRUE, increment = 1,
+    omega_j = 1e-3, u_j = 1e-3, v_j = 1e-3, pi_j = "weighted",
+    omega_l = 1e-3, pi_l = "weighted",
+    u_k = 1e-3, v_k = 1e-3, pi_k = "weighted"
+) {
 
   # checking that y is a numeric vector/matrix
   if (is.data.frame(y)) y <- as.matrix(y)
@@ -253,11 +257,11 @@ mich <- function(y, fit_intercept = TRUE, fit_scale = TRUE, standardize = TRUE,
   if (T < 2) stop("y must have at least 2 observations.")
 
   #### merge and detect defaults ####
-  delta <- 0.5
+  null_prob <- scalar_check(null_prob)
+  if (null_prob >= 1) stop("null_prob must be < 1 for non-degenerate model")
   merge_level <- scalar_check(merge_level)
   if (merge_level < 0 | merge_level > 1) stop("merge_level must be in [0,1].")
-  detect <- ceiling(log(T)^(1 + delta))
-  if (is.null(merge_prob)) merge_prob <- detect / T^2
+  if (is.null(merge_prob)) merge_prob <- log(T)^2 / T^2
   merge_prob <- scalar_check(merge_prob)
   n_search <- max(4, ceiling(log(T) / ((1 + restart) * increment)))
 
@@ -303,8 +307,8 @@ mich <- function(y, fit_intercept = TRUE, fit_scale = TRUE, standardize = TRUE,
   pi_j_weighted <- (pi_j == "weighted")
   if (J_auto & length(pi_j) > 1) stop("When J_auto = TRUE, pi_j must one of 'uniform' or 'weighted'.")
   if (is.character(pi_j)) {
-    if (pi_j == "weighted") log_pi_j <- log_meanvar_prior(T)
-    else if (pi_j == "uniform") log_pi_j <- rep(0, T)
+    if (pi_j == "weighted") log_pi_j <- log_meanvar_prior(T+1)
+    else if (pi_j == "uniform") log_pi_j <- c(rep(log(1-null_prob) - log(T), T), log(null_prob))
     log_pi_j <- sapply(1:max(1, J), function(i) log_pi_j)
   } else log_pi_j <- log(pi_j)
 
@@ -315,8 +319,8 @@ mich <- function(y, fit_intercept = TRUE, fit_scale = TRUE, standardize = TRUE,
   pi_l_weighted <- (pi_l == "weighted")
   if (L_auto & length(pi_l) > 1) stop("When L_auto = TRUE, pi_l must one of 'uniform' or 'weighted'.")
   if (is.character(pi_l)) {
-    if (pi_l == "weighted") log_pi_l <- log_mean_prior(T, floor(1.5 * d))
-    else if (pi_l == "uniform") log_pi_l <- rep(0, T)
+    if (pi_l == "weighted") log_pi_l <- log_mean_prior(T+1, floor(1.5 * d))
+    else if (pi_l == "uniform") log_pi_l <- c(rep(log(1-null_prob) - log(T), T), log(null_prob))
     log_pi_l <- sapply(1:max(1, L), function(i) log_pi_l)
   } else log_pi_l <- log(pi_l)
 
@@ -329,7 +333,7 @@ mich <- function(y, fit_intercept = TRUE, fit_scale = TRUE, standardize = TRUE,
   if (K_auto & length(pi_k) > 1) stop("When K_auto = TRUE, pi_k must one of 'uniform' or 'weighted'.")
   if (is.character(pi_k)) {
     if (pi_k == "weighted") log_pi_k <- log_var_prior(T)
-    else if (pi_k == "uniform") log_pi_k <- rep(0, T)
+    else if (pi_k == "uniform") log_pi_k <- c(rep(log(1-null_prob) - log(T), T), log(null_prob))
     log_pi_k <- sapply(1:max(1, K), function(i) log_pi_k)
   } else log_pi_k <- log(pi_k)
 
@@ -343,46 +347,53 @@ mich <- function(y, fit_intercept = TRUE, fit_scale = TRUE, standardize = TRUE,
 
     if (reverse) {
       if (!pi_l_weighted) pi_l <- pi_l[T:1,,drop = FALSE]
-
-      mich_matrix(y[T:1,], fit_intercept = TRUE, fit_scale, standardize,
-                  L, L_auto, L_max, pi_l_weighted,
-                  tol, verbose, max_iter, reverse,
-                  detect, merge_level, merge_prob,
-                  restart, n_search, increment,
-                  omega_l, log_pi_l)
+      mich_matrix(
+        y[T:1,], fit_intercept = TRUE, fit_scale, standardize,
+        L, L_auto, L_max, pi_l_weighted,
+        tol, verbose, max_iter, reverse,
+        merge_level, merge_prob,
+        restart, n_search, increment,
+        omega_l, log_pi_l
+      )
     } else {
-      mich_matrix(y, fit_intercept, fit_scale, standardize,
-                  L, L_auto, L_max, pi_l_weighted,
-                  tol, verbose, max_iter, reverse,
-                  detect, merge_level, merge_prob,
-                  restart, n_search, increment,
-                  omega_l, log_pi_l)
+      mich_matrix(
+        y, fit_intercept, fit_scale, standardize,
+        L, L_auto, L_max, pi_l_weighted,
+        tol, verbose, max_iter, reverse,
+        merge_level, merge_prob,
+        restart, n_search, increment,
+        omega_l, log_pi_l
+      )
     }
   } else {
     if (reverse) {
-      if (!pi_l_weighted) log_pi_l <- log_pi_l[T:1,,drop = FALSE]
-      if (!pi_k_weighted) log_pi_k <- log_pi_k[T:1,,drop = FALSE]
-      if (!pi_j_weighted) log_pi_j <- log_pi_j[T:1,,drop = FALSE]
+      if (!pi_l_weighted) log_pi_l[1:T,] <- log_pi_l[T:1,]
+      if (!pi_k_weighted) log_pi_k[1:T,] <- log_pi_k[T:1,]
+      if (!pi_j_weighted) log_pi_j[1:T,] <- log_pi_j[T:1,]
 
-      mich_vector(y[T:1], fit_intercept = TRUE, fit_scale = TRUE, standardize,
-                  J, L, K, J_auto, L_auto, K_auto, J_max, L_max, K_max,
-                  pi_j_weighted, pi_l_weighted, pi_k_weighted,
-                  tol, verbose, max_iter, reverse,
-                  detect, merge_level, merge_prob,
-                  restart, n_search, increment,
-                  omega_j, u_j, v_j, log_pi_j,
-                  omega_l, log_pi_l,
-                  u_k, v_k, log_pi_k)
+      mich_vector(
+        y[T:1], fit_intercept = TRUE, fit_scale = TRUE, standardize,
+        J, L, K, J_auto, L_auto, K_auto, J_max, L_max, K_max,
+        pi_j_weighted, pi_l_weighted, pi_k_weighted,
+        tol, verbose, max_iter, reverse,
+        merge_level, merge_prob,
+        restart, n_search, increment,
+        omega_j, u_j, v_j, log_pi_j,
+        omega_l, log_pi_l,
+        u_k, v_k, log_pi_k
+      )
     } else {
-      mich_vector(y, fit_intercept, fit_scale, standardize,
-                  J, L, K, J_auto, L_auto, K_auto, J_max, L_max, K_max,
-                  pi_j_weighted, pi_l_weighted, pi_k_weighted,
-                  tol, verbose, max_iter, reverse,
-                  detect, merge_level, merge_prob,
-                  restart, n_search, increment,
-                  omega_j, u_j, v_j, log_pi_j,
-                  omega_l, log_pi_l,
-                  u_k, v_k, log_pi_k)
+      mich_vector(
+        y, fit_intercept, fit_scale, standardize,
+        J, L, K, J_auto, L_auto, K_auto, J_max, L_max, K_max,
+        pi_j_weighted, pi_l_weighted, pi_k_weighted,
+        tol, verbose, max_iter, reverse,
+        merge_level, merge_prob,
+        restart, n_search, increment,
+        omega_j, u_j, v_j, log_pi_j,
+        omega_l, log_pi_l,
+        u_k, v_k, log_pi_k
+      )
     }
   }
 }

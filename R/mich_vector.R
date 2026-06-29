@@ -42,13 +42,10 @@
 #' @param reverse A logical. If `reverse == TRUE` then MICH is fit to
 #'   \eqn{\mathbf{y}_{T:1}} and the model parameters are reversed in
 #'   post-processing.
-#' @param detect A scalar. The detection criteria. The \eqn{i^{\text{th}}}
-#'   component of the model detects a change-point only if the posterior
-#'   credible set for that component contains fewer than `detect` indices.
 #' @param merge_level A scalar. A value between (0,1) for the significance level
 #'   to construct credible sets at when merging. A model component is only
-#'   considered to be a candidate for merging if its `merge_level`-level
-#'   credible set contains fewer than `detect` indices.
+#'   considered to be a candidate for merging if the marginal probability it
+#'   represents a change is greater than `merge_level`.
 #' @param merge_prob A scalar. A value between (0,1) indicating the merge
 #'   criterion. If the posterior probability that two components identify the
 #'   same change is greater than `merge_level`, then those components are merged
@@ -143,19 +140,19 @@
 #'     * `lambda_bar`: A numeric matrix. A \eqn{T \times K} matrix of
 #'       posterior precision signals \eqn{E[\lambda_{kt}|\mathbf{y}_{1:T}]}.
 #'
-mich_vector <- function(y, fit_intercept, fit_scale, standardize,
-                        J, L, K, J_auto, L_auto, K_auto, J_max, L_max, K_max,
-                        pi_j_weighted, pi_l_weighted, pi_k_weighted,
-                        tol, verbose, max_iter, reverse,
-                        detect, merge_level, merge_prob,
-                        restart, n_search, increment,
-                        omega_j, u_j, v_j, log_pi_j,
-                        omega_l, log_pi_l,
-                        u_k, v_k, log_pi_k) {
+mich_vector <- function(
+    y, fit_intercept, fit_scale, standardize,
+    J, L, K, J_auto, L_auto, K_auto, J_max, L_max, K_max,
+    pi_j_weighted, pi_l_weighted, pi_k_weighted,
+    tol, verbose, max_iter, reverse,
+    merge_level, merge_prob,
+    restart, n_search, increment,
+    omega_j, u_j, v_j, log_pi_j,
+    omega_l, log_pi_l,
+    u_k, v_k, log_pi_k
+) {
 
   #### set up ####
-  # Flag for new model
-  refit <- FALSE
 
   # calculate dimensions of y
   T <- length(y)
@@ -168,43 +165,43 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
 
   #### standardize data ####
   if (standardize) {
-    center <- stats::median(y)
-    scale <- stats::IQR(y)
+    center <- mean(y)
+    scale <- sd(y)
     y <- (y - center) / scale
   }
 
   #### initialize mu_0 ####
   if (fit_intercept) {
-    mu_0 <- mean(y[1:ceiling(2*log(T))])
-  } else mu_0 <- 0.0
+    mu_0 <- c(mean(y[1:ceiling(2*log(T))]))
+  } else mu_0 <- c(0.0)
 
   #### initialize lambda_0 ####
   if (fit_scale) {
-    lambda_0 <- 1 / stats::var(y[1:ceiling(2*log(T))])
-  } else lambda_0 <- 1.0
+    lambda_0 <- c(1 / stats::var(y[1:ceiling(2*log(T))]))
+  } else lambda_0 <- c(1.0)
 
   #### initializing posterior parameters ####
 
   # mean components
-  pi_bar_l <- matrix(1/T, nrow = T, ncol = L)
-  log_pi_bar_l <- matrix(0, nrow = T, ncol = L)
-  b_bar_l <- matrix(0.0, nrow = T, ncol = L)
-  omega_bar_l <- matrix(1.0, nrow = T, ncol = L)
+  pi_bar_l <- matrix(1 / (T+1), nrow = T+1, ncol = L)
+  log_pi_bar_l <- matrix(0, nrow = T+1, ncol = L)
+  b_bar_l <- matrix(0.0, nrow = T+1, ncol = L)
+  omega_bar_l <- matrix(1.0, nrow = T+1, ncol = L)
 
   # variance components
-  pi_bar_k <- matrix(1/T, nrow = T, ncol = K)
-  log_pi_bar_k <- matrix(0, nrow = T, ncol = K)
-  u_bar_k <- u_k + (T-1:T+1) / 2
+  pi_bar_k <- matrix(1 / (T+1), nrow = T+1, ncol = K)
+  log_pi_bar_k <- matrix(0, nrow = T+1, ncol = K)
+  u_bar_k <- u_k + (T-1:(T+1)+1) / 2
   lgamma_u_bar_k <- lgamma(u_bar_k)
   digamma_u_bar_k <- digamma(u_bar_k)
-  v_bar_k <- matrix(u_k, nrow = T, ncol = K, byrow = TRUE) + (T-1:T+1) / 2
+  v_bar_k <- matrix(u_k, nrow = T+1, ncol = K, byrow = TRUE) + (T-1:(T+1)+1) / 2
 
   # mean-variance components
-  pi_bar_j <- matrix(1/T, nrow = T, ncol = J)
-  log_pi_bar_j <- matrix(0.0, nrow = T, ncol = J)
-  b_bar_j <- matrix(0.0, nrow = T, ncol = J)
-  omega_bar_j <- matrix(1.0, nrow = T, ncol = J)
-  u_bar_j <- u_j + (T-1:T+1) / 2
+  pi_bar_j <- matrix(1 / (T+1), nrow = T+1, ncol = J)
+  log_pi_bar_j <- matrix(0.0, nrow = T+1, ncol = J)
+  b_bar_j <- matrix(0.0, nrow = T+1, ncol = J)
+  omega_bar_j <- matrix(1.0, nrow = T+1, ncol = J)
+  u_bar_j <- u_j + (T-1:(T+1)+1) / 2
   lgamma_u_bar_j <- lgamma(u_bar_j)
   digamma_u_bar_j <- digamma(u_bar_j)
 
@@ -215,27 +212,27 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
     if (J_auto) log_pi_l <- sapply(1:max(1,J), function(i) log_pi_l[,1])
     else log_pi_l <- log_pi_j
 
-    fit <- mich_vector(y, fit_intercept, fit_scale, standardize = FALSE,
-                       J = 0, L = J, K,
-                       J_auto = L_auto, L_auto = J_auto, K_auto,
-                       J_max = 0, L_max = J_max, K_max,
-                       pi_j_weighted, pi_l_weighted, pi_k_weighted,
-                       tol, verbose, max_iter, reverse = FALSE,
-                       detect, merge_level, merge_prob,
-                       restart = FALSE, n_search, increment,
-                       omega_j, u_j, v_j, log_pi_j,
-                       omega_l, log_pi_l,
-                       u_k, v_k, log_pi_k)
+    fit <- mich_vector(
+      y, fit_intercept, fit_scale, standardize = FALSE,
+      J = 0, L = J, K,
+      J_auto = L_auto, L_auto = J_auto, K_auto,
+      J_max = 0, L_max = J_max, K_max,
+      pi_j_weighted, pi_l_weighted, pi_k_weighted,
+      tol, verbose, max_iter, reverse = FALSE,
+      merge_level, merge_prob,
+      restart = FALSE, n_search, increment,
+      omega_j, u_j, v_j, log_pi_j,
+      omega_l, log_pi_l,
+      u_k, v_k, log_pi_k
+    )
 
     J <- fit$L
     if (J > 0) {
-      refit <- TRUE
       keep <- seq_len(J)
       if (J_auto) {
         # only keep detected changes
-        # cred_sets <- apply(fit$mean_model$pi_bar, 2, cred_set, level = merge_level, simplify = FALSE)
-        # keep <- sapply(cred_sets, length) <= detect
-        # J = sum(keep)
+        keep <- fit$mean_model$pi_bar[T+1,] <= null_prob
+        J = sum(keep)
         log_pi_j <- sapply(1:max(1,J), function(i) log_pi_j[,1])
       }
 
@@ -268,236 +265,53 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
   #### fit model and merge components ####
   merged <- FALSE # flag indicating components have been merged
   while (!merged) {
-    fit <- mich_cpp(y, J, L, K, mu_0, lambda_0,
-                    fit_intercept, fit_scale, refit,
-                    max_iter, verbose = (verbose & sum(J_auto, L_auto, K_auto) == 0), tol,
-                    omega_j, u_j, v_j, log_pi_j,
-                    pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,
-                    u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j,
-                    omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l,
-                    u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k,
-                    lgamma_u_bar_k, digamma_u_bar_k)
+    fit <- mich_cpp(
+      y, J, L, K, mu_0, lambda_0,
+      fit_intercept, fit_scale,
+      max_iter, verbose = (verbose & sum(J_auto, L_auto, K_auto) == 0), tol,
+      omega_j, u_j, v_j, log_pi_j,
+      pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,
+      u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j,
+      omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l,
+      u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k,
+      lgamma_u_bar_k, digamma_u_bar_k
+    )
 
-    merged <- TRUE
-    refit <- TRUE
+    fit <- component_merge(
+      fit, L_auto, K_auto, J_auto,
+      merge_level, merge_prob,
+      omega_l, log_pi_l,
+      v_k, u_bar_k, lgamma_u_bar_k, log_pi_k,
+      omega_j, v_j, u_bar_j, lgamma_u_bar_j, log_pi_j
+    )
 
+    merged <- fit$merged
+    L <- fit$L; K <- fit$K; J <- fit$J;
     # identify components to merge
     if (L > 1) {
-      # only merge columns with credible sets with length less than detect
-      cred_sets <- apply(pi_bar_l, 2, cred_set, level = merge_level, simplify = FALSE)
-      keep <- sapply(cred_sets, length) <= detect
-      keep_mat <- matrix(FALSE, ncol = L, nrow = L)
-      keep_mat[keep, keep] <- TRUE
-      diag(keep_mat) <- FALSE
-
-      # compute pairwise merge probabilities
-      merge_prob_mat <- t(pi_bar_l) %*% pi_bar_l
-      diag(merge_prob_mat) <- 0
-
-      mu_bar_l <- fit$mean_model$mu_bar
-      mu2_bar_l <- fit$mean_model$mu2_bar
-      merge_residual <- fit$residual
-      merge_lambda <- fit$lambda
-      merge_delta <- fit$delta
-
-      # merge mean components with pairwise merge probabilities > merge_prob
-      while (L > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-        merged <- FALSE
-        L <- L - 1
-
-        # identify components with largest pairwise merge probabilities
-        merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-        # remove model parameters set to be merged
-        mu_bar_merge <- rowSums(mu_bar_l[,merge_dex])
-        merge_residual <- merge_residual + mu_bar_merge
-        merge_delta <- merge_delta + rowSums(mu_bar_l[,merge_dex]^2 - mu2_bar_l[,merge_dex])
-
-        # fit mean-scp to merged residual
-        merge_fit <- mean_scp(merge_residual, merge_lambda, omega_l, log_pi_l[,merge_dex[1]])
-
-        # keep probabilities of component with largest posterior probability
-        if (max(pi_bar_l[,merge_dex[2]]) > max(pi_bar_l[,merge_dex[1]])) {
-          pi_bar_l[,merge_dex[1]] <- pi_bar_l[,merge_dex[2]]
-          log_pi_bar_l[,merge_dex[1]] <- log_pi_bar_l[,merge_dex[2]]
-          merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-          merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-        }
-
-        # store merged parameters
-        b_bar_l[,merge_dex[1]] <- b_bar_l[,merge_dex[1]] + b_bar_l[,merge_dex[2]]
-        omega_bar_l[,merge_dex[1]] <- merge_fit$omega_bar
-
-        # calculate merged mean signals
-        mu_bar_l[,merge_dex[1]] <- mu_bar_fn(b_bar_l[,merge_dex[1]], pi_bar_l[,merge_dex[1]])
-        mu2_bar_l[,merge_dex[1]] <- mu2_bar_fn(b_bar_l[,merge_dex[1]], omega_bar_l[,merge_dex[1]], pi_bar_l[,merge_dex[1]])
-
-        # calculate merged residual
-        merge_residual <- merge_residual - mu_bar_l[,merge_dex[1]]
-        merge_delta <- merge_delta - mu_bar_l[,merge_dex[1]]^2 + mu2_bar_l[,merge_dex[1]]
-
-        # drop merged component
-        merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-        keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-        pi_bar_l <- pi_bar_l[,-merge_dex[2], drop=FALSE]
-        log_pi_bar_l <- log_pi_bar_l[,-merge_dex[2], drop=FALSE]
-        b_bar_l <- b_bar_l[,-merge_dex[2], drop=FALSE]
-        omega_bar_l <- omega_bar_l[,-merge_dex[2], drop=FALSE]
-        if (L_auto) {
-          log_pi_l <- log_pi_l[,-merge_dex[2], drop=FALSE]
-        }
-        mu_bar_l <- mu_bar_l[,-merge_dex[2], drop=FALSE]
-        mu2_bar_l <- mu2_bar_l[,-merge_dex[2], drop=FALSE]
-      }
+      b_bar_l <- fit$mean_model$b_bar
+      omega_bar_l <- fit$mean_model$omega_bar
+      pi_bar_l <- fit$mean_model$pi_bar
+      log_pi_bar_l <- fit$mean_model$log_pi_bar
+      log_pi_l <- fit$log_pi_l
     }
 
     if (K > 1) {
-      # only merge columns with credible sets with length less than detect
-      cred_sets <- apply(pi_bar_k, 2, cred_set, level = merge_level, simplify = FALSE)
-      keep <- sapply(cred_sets, length) <= detect
-      keep_mat <- matrix(FALSE, ncol = K, nrow = K)
-      keep_mat[keep, keep] <- TRUE
-      diag(keep_mat) <- FALSE
-
-      # compute pairwise merge probabilities
-      merge_prob_mat <- t(pi_bar_k) %*% pi_bar_k
-      diag(merge_prob_mat) <- 0
-
-      lambda_bar_k <- fit$var_model$lambda_bar
-      merge_residual <- fit$residual
-      merge_lambda <- fit$lambda
-      merge_delta <- fit$delta
-
-      # merge var components with pairwise merge probabilities > merge_prob
-      while (K > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-        merged <- FALSE
-        K <- K - 1
-
-        # identify components with largest pairwise merge probabilities
-        merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-        # remove model parameters set to be merged
-        merge_lambda <- merge_lambda / apply(lambda_bar_k[,merge_dex], 1, prod)
-
-        v_merge <- v_k + revcumsum(0.5 * merge_lambda * merge_delta)
-        log_pi_merge <- log_pi_k[,merge_dex[1]] - cumsum(c(0,0.5 * merge_lambda[-T] * merge_delta[-T]))
-
-        # fit var-scp to merged residual
-        merge_fit <- var_scp(merge_residual, merge_lambda, u_bar_k, lgamma_u_bar_k,
-                             v_merge, log_pi_merge - max(log_pi_merge))
-
-        # keep probabilities of component with largest posterior probability
-        if (max(pi_bar_k[,merge_dex[2]]) > max(pi_bar_k[,merge_dex[1]])) {
-          pi_bar_k[,merge_dex[1]] <- pi_bar_k[,merge_dex[2]]
-          log_pi_bar_k[,merge_dex[1]] <- log_pi_bar_k[,merge_dex[2]]
-          merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-          merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-        }
-
-        # store merged parameters
-        v_bar_k[,merge_dex[1]] <- merge_fit$v_bar
-
-        # calculate merged var signal
-        lambda_bar_k[,merge_dex[1]] <- lambda_bar_fn(u_bar_k, v_bar_k[,merge_dex[1]],  pi_bar_k[,merge_dex[1]])
-
-        # calculate merged residual
-        merge_lambda <- merge_lambda * lambda_bar_k[,merge_dex[1]]
-
-        # drop merged component
-        merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-        keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-        pi_bar_k <- pi_bar_k[,-merge_dex[2], drop=FALSE]
-        log_pi_bar_k <- log_pi_bar_k[,-merge_dex[2], drop=FALSE]
-        v_bar_k <- v_bar_k[, -merge_dex[2], drop=FALSE]
-        if (K_auto) {
-          log_pi_k <- log_pi_k[,-merge_dex[2], drop=FALSE]
-        }
-        lambda_bar_k <- lambda_bar_k[,-merge_dex[2], drop=FALSE]
-      }
+      v_bar_k <- fit$var_model$v_bar
+      pi_bar_k <- fit$var_model$pi_bar
+      log_pi_bar_k <- fit$var_model$log_pi_bar
+      log_pi_k <- fit$log_pi_k
     }
 
     if (J > 1) {
-      # only merge columns with credible sets with length less than detect
-      cred_sets <- apply(pi_bar_j, 2, cred_set, level = merge_level, simplify = FALSE)
-      keep <- sapply(cred_sets, length) <= detect
-      keep_mat <- matrix(FALSE, ncol = J, nrow = J)
-      keep_mat[keep, keep] <- TRUE
-      diag(keep_mat) <- FALSE
-
-      # compute pairwise merge probabilities
-      merge_prob_mat <- t(pi_bar_j) %*% pi_bar_j
-      diag(merge_prob_mat) <- 0
-
-      mu_lambda_bar_j <- fit$meanvar_model$mu_lambda_bar
-      mu2_lambda_bar_j <- fit$meanvar_model$mu2_lambda_bar
-      lambda_bar_j <- fit$meanvar_model$lambda_bar
-      merge_residual <- fit$residual
-      merge_lambda <- fit$lambda
-      merge_delta <- fit$delta
-
-      # merge meanvar components with pairwise merge probabilities > merge_prob
-      while (J > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-        merged <- FALSE
-        J <- J - 1
-
-        # identify components with largest pairwise merge probabilities
-        merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-        # remove model parameters set to be merged
-        mu_bar_merge <- rowSums(mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-        merge_residual <- merge_residual + mu_bar_merge
-        merge_lambda <- merge_lambda / apply(lambda_bar_j[,merge_dex], 1, prod)
-        merge_delta <- merge_delta + rowSums((mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])^2)
-        merge_delta <- merge_delta - rowSums(mu2_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-        v_merge <- v_j + revcumsum(0.5 * merge_lambda * merge_delta)
-        log_pi_merge <- log_pi_j[,merge_dex[1]] - cumsum(c(0,0.5 * merge_lambda[-T] * merge_delta[-T]))
-
-        # fit meanvar-scp to merged residual
-        merge_fit <- meanvar_scp(merge_residual, merge_lambda, omega_j, u_bar_j,
-                                 lgamma_u_bar_j, v_merge, log_pi_merge - max(log_pi_merge))
-
-        # keep probabilities of component with largest posterior probability
-        if (max(pi_bar_j[,merge_dex[2]]) > max(pi_bar_j[,merge_dex[1]])) {
-          pi_bar_j[,merge_dex[1]] <- pi_bar_j[,merge_dex[2]]
-          log_pi_bar_j[,merge_dex[1]] <- log_pi_bar_j[,merge_dex[2]]
-          merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-          merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-        }
-
-        # store merged parameters
-        b_bar_j[,merge_dex[1]] <- b_bar_j[,merge_dex[1]] + b_bar_j[,merge_dex[2]]
-        omega_bar_j[,merge_dex[1]] <- merge_fit$omega_bar
-        v_bar_j[,merge_dex[1]] <- merge_fit$v_bar
-
-        mu_lambda_bar_j[,merge_dex[1]] <- mu_lambda_fn(b_bar_j[,merge_dex[1]], u_bar_j, v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-        mu2_lambda_bar_j[,merge_dex[1]] <- mu2_lambda_fn(b_bar_j[,merge_dex[1]], omega_bar_j[,merge_dex[1]], u_bar_j, v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-        lambda_bar_j[,merge_dex[1]] <- lambda_bar_fn(u_bar_j,  v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-
-        # calculate merged meanvar signals
-        mu_bar_merge <- mu_lambda_bar_j[,merge_dex[1]] / lambda_bar_j[,merge_dex[1]]
-        merge_lambda <- merge_lambda * lambda_bar_j[,merge_dex[1]]
-
-        # calculate merged residual
-        merge_residual <- merge_residual - mu_bar_merge
-        merge_delta <- merge_delta - rowSums((mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])^2)
-        merge_delta <- merge_delta + rowSums(mu2_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-
-        # drop merged component
-        merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-        keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-        pi_bar_j <- pi_bar_j[,-merge_dex[2], drop=FALSE]
-        log_pi_bar_j <- log_pi_bar_j[,-merge_dex[2], drop=FALSE]
-        b_bar_j <- b_bar_j[,-merge_dex[2], drop=FALSE]
-        omega_bar_j <- omega_bar_j[,-merge_dex[2], drop=FALSE]
-        v_bar_j <- v_bar_j[, -merge_dex[2], drop=FALSE]
-        if (J_auto) {
-          log_pi_j <- log_pi_j[,-merge_dex[2], drop=FALSE]
-        }
-        mu_lambda_bar_j <- mu_lambda_bar_j[,-merge_dex[2], drop=FALSE]
-        mu2_lambda_bar_j <- mu2_lambda_bar_j[,-merge_dex[2], drop=FALSE]
-        lambda_bar_j <- lambda_bar_j[,-merge_dex[2], drop=FALSE]
-      }
+      b_bar_j <- fit$meanvar_model$b_bar
+      omega_bar_j <- fit$meanvar_model$omega_bar
+      v_bar_j <- fit$meanvar_model$v_bar
+      pi_bar_j <- fit$meanvar_model$pi_bar
+      log_pi_bar_j <- fit$meanvar_model$log_pi_bar
+      log_pi_j <- fit$log_pi_j
     }
+
     if (verbose & !merged) print(paste0("Merging to (L = ", L, ", K = ", K, ", J = ", J, ")"))
   }
 
@@ -522,7 +336,6 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
 
   if (sum(J_auto, L_auto, K_auto) == 1 | merge_flag) {
 
-    refit <- (L > 0 | K > 0 | J > 0)
     counter <- n_search # number of searches after max elbo
     elbo <- fit$elbo[length(fit$elbo)] # current value of elbo
     elbo_new <- elbo
@@ -536,51 +349,52 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
         # increment dimension of parameters
         J <- J + increment
         if (J > 1 & J_auto) {
-          log_pi_j <- cbind(matrix(log_pi_j[,1], nrow = T, ncol = increment), log_pi_j)
+          log_pi_j <- cbind(matrix(log_pi_j[,1], nrow = T+1, ncol = increment), log_pi_j)
         }
-        pi_bar_j <- cbind(matrix(1/T, nrow = T, ncol = increment), pi_bar_j)
-        log_pi_bar_j <- cbind(matrix(0.0, nrow = T, ncol = increment), log_pi_bar_j)
-        b_bar_j <- cbind(matrix(0.0, nrow = T, ncol = increment), b_bar_j)
-        omega_bar_j <- cbind(matrix(1.0, nrow = T, ncol = increment), omega_bar_j)
-        v_bar_j <- cbind(matrix(v_j + (T-1:T+1) / 2, nrow = T, ncol = increment), v_bar_j)
+        pi_bar_j <- cbind(matrix(1/(T+1), nrow = T+1, ncol = increment), pi_bar_j)
+        log_pi_bar_j <- cbind(matrix(0.0, nrow = T+1, ncol = increment), log_pi_bar_j)
+        b_bar_j <- cbind(matrix(0.0, nrow = T+1, ncol = increment), b_bar_j)
+        omega_bar_j <- cbind(matrix(1.0, nrow = T+1, ncol = increment), omega_bar_j)
+        v_bar_j <- cbind(matrix(v_j + (T-1:(T+1)+1) / 2, nrow = T+1, ncol = increment), v_bar_j)
       }
 
       if (L_auto | L < L_max) {
         # increment dimension of parameters
         L <- L + increment
         if (L > 1 & L_auto) {
-          log_pi_l <- cbind(matrix(log_pi_l[,1], nrow = T, ncol = increment), log_pi_l)
+          log_pi_l <- cbind(matrix(log_pi_l[,1], nrow = T+1, ncol = increment), log_pi_l)
         }
-        pi_bar_l <- cbind(matrix(1/T, nrow = T, ncol = increment), pi_bar_l)
-        log_pi_bar_l <- cbind(matrix(0.0, nrow = T, ncol = increment), log_pi_bar_l)
-        b_bar_l <- cbind(matrix(0.0, nrow = T, ncol = increment), b_bar_l)
-        omega_bar_l <- cbind(matrix(1.0, nrow = T, ncol = increment), omega_bar_l)
+        pi_bar_l <- cbind(matrix(1/(T+1), nrow = T+1, ncol = increment), pi_bar_l)
+        log_pi_bar_l <- cbind(matrix(0.0, nrow = T+1, ncol = increment), log_pi_bar_l)
+        b_bar_l <- cbind(matrix(0.0, nrow = T+1, ncol = increment), b_bar_l)
+        omega_bar_l <- cbind(matrix(1.0, nrow = T+1, ncol = increment), omega_bar_l)
       }
       if (K_auto | K < K_max) {
         # increment dimension of parameters
         K <- K + increment
         if (K > 1 & K_auto) {
-          log_pi_k <- cbind(matrix(log_pi_k[,1], nrow = T, ncol = increment), log_pi_k)
+          log_pi_k <- cbind(matrix(log_pi_k[,1], nrow = T+1, ncol = increment), log_pi_k)
         }
-        pi_bar_k <- cbind(matrix(1/T, nrow = T, ncol = increment), pi_bar_k)
-        log_pi_bar_k <- cbind(matrix(0.0, nrow = T, ncol = increment), log_pi_bar_k)
-        v_bar_k <- cbind(matrix(v_k + (T-1:T+1) / 2, nrow = T, ncol = increment), v_bar_k)
+        pi_bar_k <- cbind(matrix(1/(T+1), nrow = T+1, ncol = increment), pi_bar_k)
+        log_pi_bar_k <- cbind(matrix(0.0, nrow = T+1, ncol = increment), log_pi_bar_k)
+        v_bar_k <- cbind(matrix(v_k + (T-1:(T+1)+1) / 2, nrow = T+1, ncol = increment), v_bar_k)
       }
 
       # fit incremented model
-      fit_new <- mich_cpp(y, J, L, K, mu_0, lambda_0,
-                          fit_intercept, fit_scale, refit,
-                          max_iter,
-                          verbose = FALSE, tol,
-                          omega_j, u_j, v_j, log_pi_j,
-                          pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,
-                          u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j,
-                          omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l,
-                          u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k,
-                          lgamma_u_bar_k, digamma_u_bar_k)
+      fit_new <- mich_cpp(
+        y, J, L, K, mu_0, lambda_0,
+        fit_intercept, fit_scale,
+        max_iter,
+        verbose = FALSE, tol,
+        omega_j, u_j, v_j, log_pi_j,
+        pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,
+        u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j,
+        omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l,
+        u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k,
+        lgamma_u_bar_k, digamma_u_bar_k
+      )
 
       # test if model improved or merge/restart
-      if (!refit) refit <- TRUE
       elbo_new <- fit_new$elbo[length(fit_new$elbo)]
       if (verbose) print(paste0("(L = ", L, ", K = ", K, ", J = ", J, "): ELBO = ", elbo_new, "; Counter: ", counter))
 
@@ -625,11 +439,11 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
             J <- sum(keep) + keep_inc
 
             log_pi_j <- sapply(1:J, function(i) log_pi_j[,1, drop = FALSE])
-            pi_bar_j <- cbind(matrix(1/T, nrow = T, ncol = keep_inc), pi_bar_j[,keep, drop = FALSE])
-            log_pi_bar_j <- cbind(matrix(0.0, nrow = T, ncol = keep_inc), log_pi_bar_j[,keep, drop = FALSE])
-            b_bar_j <- cbind(matrix(0.0, nrow = T, ncol = keep_inc), b_bar_j[,keep, drop = FALSE])
-            omega_bar_j <- cbind(matrix(1.0, nrow = T, ncol = keep_inc), omega_bar_j[,keep, drop = FALSE])
-            v_bar_j <- cbind(matrix(u_j, nrow = T, ncol = keep_inc, byrow = TRUE) + (T-1:T+1) / 2, v_bar_j[,keep, drop = FALSE])
+            pi_bar_j <- cbind(matrix(1/(T+1), nrow = T+1, ncol = keep_inc), pi_bar_j[,keep, drop = FALSE])
+            log_pi_bar_j <- cbind(matrix(0.0, nrow = T+1, ncol = keep_inc), log_pi_bar_j[,keep, drop = FALSE])
+            b_bar_j <- cbind(matrix(0.0, nrow = T+1, ncol = keep_inc), b_bar_j[,keep, drop = FALSE])
+            omega_bar_j <- cbind(matrix(1.0, nrow = T+1, ncol = keep_inc), omega_bar_j[,keep, drop = FALSE])
+            v_bar_j <- cbind(matrix(u_j, nrow = T+1, ncol = keep_inc, byrow = TRUE) + (T-1:(T+1)+1) / 2, v_bar_j[,keep, drop = FALSE])
           }
         }
 
@@ -646,7 +460,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
           b_bar_l <- b_bar_l[,chp_order, drop = FALSE]
           omega_bar_l <- omega_bar_l[,chp_order, drop = FALSE]
 
-          diff_order <- order(diff(c(chp, T)))
+          diff_order <- order(diff(c(chp, T+1)))
 
           pi_bar_l <- pi_bar_l[,diff_order, drop = FALSE]
           log_pi_bar_l <- log_pi_bar_l[,diff_order, drop = FALSE]
@@ -662,10 +476,10 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
             L <- sum(keep) + keep_inc
 
             log_pi_l <- sapply(1:L, function(i) log_pi_l[,1, drop = FALSE])
-            pi_bar_l <- cbind(matrix(1/T, nrow = T, ncol =keep_inc), pi_bar_l[,keep, drop = FALSE])
-            log_pi_bar_l <- cbind(matrix(0.0, nrow = T, ncol = keep_inc), log_pi_bar_l[,keep, drop = FALSE])
-            b_bar_l <- cbind(matrix(0.0, nrow = T, ncol = keep_inc), b_bar_l[,keep, drop = FALSE])
-            omega_bar_l <- cbind(matrix(1.0, nrow = T, ncol = keep_inc), omega_bar_l[,keep, drop = FALSE])
+            pi_bar_l <- cbind(matrix(1/(T+1), nrow = T+1, ncol =keep_inc), pi_bar_l[,keep, drop = FALSE])
+            log_pi_bar_l <- cbind(matrix(0.0, nrow = T+1, ncol = keep_inc), log_pi_bar_l[,keep, drop = FALSE])
+            b_bar_l <- cbind(matrix(0.0, nrow = T+1, ncol = keep_inc), b_bar_l[,keep, drop = FALSE])
+            omega_bar_l <- cbind(matrix(1.0, nrow = T+1, ncol = keep_inc), omega_bar_l[,keep, drop = FALSE])
           }
         }
 
@@ -681,7 +495,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
           log_pi_bar_k <- log_pi_bar_k[,chp_order]
           v_bar_k <- v_bar_k[,chp_order]
 
-          diff_order <- order(diff(c(chp, T)))
+          diff_order <- order(diff(c(chp, T+1)))
 
           pi_bar_k <- pi_bar_k[,diff_order]
           log_pi_bar_k <- log_pi_bar_k[,diff_order]
@@ -692,14 +506,14 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
 
           # reset components with max prob < keep_level to null components
 
-                    if (sum(keep) < K) {
+          if (sum(keep) < K) {
             keep_inc <- max(sum(!keep) - increment, 0)
             K <- sum(keep) + keep_inc
 
             log_pi_k <- sapply(1:K, function(i) log_pi_k[,1, drop = FALSE])
-            pi_bar_k <- cbind(matrix(1/T, nrow = T, ncol = keep_inc), pi_bar_k[,keep, drop = FALSE])
-            log_pi_bar_k <- cbind(matrix(0.0, nrow = T, ncol = keep_inc), log_pi_bar_k[,keep, drop = FALSE])
-            v_bar_k <- cbind(matrix(u_k, nrow = T, ncol = keep_inc, byrow = TRUE) + (T-1:T+1) / 2, v_bar_k[,keep, drop = FALSE])
+            pi_bar_k <- cbind(matrix(1/(T+1), nrow = T+1, ncol = keep_inc), pi_bar_k[,keep, drop = FALSE])
+            log_pi_bar_k <- cbind(matrix(0.0, nrow = T+1, ncol = keep_inc), log_pi_bar_k[,keep, drop = FALSE])
+            v_bar_k <- cbind(matrix(u_k, nrow = T+1, ncol = keep_inc, byrow = TRUE) + (T-1:(T+1)+1) / 2, v_bar_k[,keep, drop = FALSE])
           }
         }
       } else if (counter == 0 | (L == L_max & K == K_max & J == J_max)) {
@@ -747,236 +561,54 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
         }
 
         while (!merged) {
-          fit <- mich_cpp(y, J, L, K, mu_0, lambda_0,
-                          fit_intercept, fit_scale, refit = TRUE,
-                          max_iter,
-                          verbose = FALSE, tol,
-                          omega_j, u_j, v_j, log_pi_j,
-                          pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,
-                          u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j,
-                          omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l,
-                          u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k,
-                          lgamma_u_bar_k, digamma_u_bar_k)
+          fit <- mich_cpp(
+            y, J, L, K, mu_0, lambda_0,
+            fit_intercept, fit_scale,
+            max_iter,
+            verbose = FALSE, tol,
+            omega_j, u_j, v_j, log_pi_j,
+            pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,
+            u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j,
+            omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l,
+            u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k,
+            lgamma_u_bar_k, digamma_u_bar_k
+          )
 
-          merged <- TRUE
+          fit <- component_merge(
+            fit, L_auto, K_auto, J_auto,
+            merge_level, merge_prob,
+            omega_l, log_pi_l,
+            v_k, u_bar_k, lgamma_u_bar_k, log_pi_k,
+            omega_j, v_j, u_bar_j, lgamma_u_bar_j, log_pi_j
+          )
 
+          merged <- fit$merged
+          L <- fit$L; K <- fit$K; J <- fit$J;
           # identify components to merge
           if (L > 1) {
-            # only merge columns with credible sets with length less than detect
-            cred_sets <- apply(pi_bar_l, 2, cred_set, level = merge_level, simplify = FALSE)
-            keep <- sapply(cred_sets, length) <= detect
-            keep_mat <- matrix(FALSE, ncol = L, nrow = L)
-            keep_mat[keep, keep] <- TRUE
-            diag(keep_mat) <- FALSE
-
-            # compute pairwise merge probabilities
-            merge_prob_mat <- t(pi_bar_l) %*% pi_bar_l
-            diag(merge_prob_mat) <- 0
-
-            mu_bar_l <- fit$mean_model$mu_bar
-            mu2_bar_l <- fit$mean_model$mu2_bar
-            merge_residual <- fit$residual
-            merge_lambda <- fit$lambda
-            merge_delta <- fit$delta
-
-            # merge mean components with pairwise merge probabilities > merge_prob
-            while (L > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-              merged <- FALSE
-              L <- L - 1
-
-              # identify components with largest pairwise merge probabilities
-              merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-              # remove model parameters set to be merged
-              mu_bar_merge <- rowSums(mu_bar_l[,merge_dex])
-              merge_residual <- merge_residual + mu_bar_merge
-              merge_delta <- merge_delta + rowSums(mu_bar_l[,merge_dex]^2 - mu2_bar_l[,merge_dex])
-
-              # fit mean-scp to merged residual
-              merge_fit <- mean_scp(merge_residual, merge_lambda, omega_l, log_pi_l[,merge_dex[1]])
-
-              # keep probabilities of component with largest posterior probability
-              if (max(pi_bar_l[,merge_dex[2]]) > max(pi_bar_l[,merge_dex[1]])) {
-                pi_bar_l[,merge_dex[1]] <- pi_bar_l[,merge_dex[2]]
-                log_pi_bar_l[,merge_dex[1]] <- log_pi_bar_l[,merge_dex[2]]
-                merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-                merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-              }
-
-              # store merged parameters
-              b_bar_l[,merge_dex[1]] <- b_bar_l[,merge_dex[1]] + b_bar_l[,merge_dex[2]]
-              omega_bar_l[,merge_dex[1]] <- merge_fit$omega_bar
-
-              # calculate merged mean signals
-              mu_bar_l[,merge_dex[1]] <- mu_bar_fn(b_bar_l[,merge_dex[1]], pi_bar_l[,merge_dex[1]])
-              mu2_bar_l[,merge_dex[1]] <- mu2_bar_fn(b_bar_l[,merge_dex[1]], omega_bar_l[,merge_dex[1]], pi_bar_l[,merge_dex[1]])
-
-              # calculate merged residual
-              merge_residual <- merge_residual - mu_bar_l[,merge_dex[1]]
-              merge_delta <- merge_delta - mu_bar_l[,merge_dex[1]]^2 + mu2_bar_l[,merge_dex[1]]
-
-              # drop merged component
-              merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-              keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-              pi_bar_l <- pi_bar_l[,-merge_dex[2], drop=FALSE]
-              log_pi_bar_l <- log_pi_bar_l[,-merge_dex[2], drop=FALSE]
-              b_bar_l <- b_bar_l[,-merge_dex[2], drop=FALSE]
-              omega_bar_l <- omega_bar_l[,-merge_dex[2], drop=FALSE]
-              if (L_auto) {
-                log_pi_l <- log_pi_l[,-merge_dex[2], drop=FALSE]
-              }
-              mu_bar_l <- mu_bar_l[,-merge_dex[2], drop=FALSE]
-              mu2_bar_l <- mu2_bar_l[,-merge_dex[2], drop=FALSE]
-            }
+            b_bar_l <- fit$mean_model$b_bar
+            omega_bar_l <- fit$mean_model$omega_bar
+            pi_bar_l <- fit$mean_model$pi_bar
+            log_pi_bar_l <- fit$mean_model$log_pi_bar
+            log_pi_l <- fit$log_pi_l
           }
 
           if (K > 1) {
-            # only merge columns with credible sets with length less than detect
-            cred_sets <- apply(pi_bar_k, 2, cred_set, level = merge_level, simplify = FALSE)
-            keep <- sapply(cred_sets, length) <= detect
-            keep_mat <- matrix(FALSE, ncol = K, nrow = K)
-            keep_mat[keep, keep] <- TRUE
-            diag(keep_mat) <- FALSE
-
-            # compute pairwise merge probabilities
-            merge_prob_mat <- t(pi_bar_k) %*% pi_bar_k
-            diag(merge_prob_mat) <- 0
-
-            lambda_bar_k <- fit$var_model$lambda_bar
-            merge_residual <- fit$residual
-            merge_lambda <- fit$lambda
-            merge_delta <- fit$delta
-
-            # merge var components with pairwise merge probabilities > merge_prob
-            while (K > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-              merged <- FALSE
-              K <- K - 1
-
-              # identify components with largest pairwise merge probabilities
-              merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-              # remove model parameters set to be merged
-              merge_lambda <- merge_lambda / apply(lambda_bar_k[,merge_dex], 1, prod)
-
-              v_merge <- v_k + revcumsum(0.5 * merge_lambda * merge_delta)
-              log_pi_merge <- log_pi_k[,merge_dex[1]] - cumsum(c(0,0.5 * merge_lambda[-T] * merge_delta[-T]))
-
-              # fit var-scp to merged residual
-              merge_fit <- var_scp(merge_residual, merge_lambda, u_bar_k, lgamma_u_bar_k,
-                                   v_merge, log_pi_merge - max(log_pi_merge))
-
-              # keep probabilities of component with largest posterior probability
-              if (max(pi_bar_k[,merge_dex[2]]) > max(pi_bar_k[,merge_dex[1]])) {
-                pi_bar_k[,merge_dex[1]] <- pi_bar_k[,merge_dex[2]]
-                log_pi_bar_k[,merge_dex[1]] <- log_pi_bar_k[,merge_dex[2]]
-                merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-                merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-              }
-
-              # store merged parameters
-              v_bar_k[,merge_dex[1]] <- merge_fit$v_bar
-
-              # calculate merged var signal
-              lambda_bar_k[,merge_dex[1]] <- lambda_bar_fn(u_bar_k, v_bar_k[,merge_dex[1]],  pi_bar_k[,merge_dex[1]])
-
-              # calculate merged residual
-              merge_lambda <- merge_lambda * lambda_bar_k[,merge_dex[1]]
-
-              # drop merged component
-              merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-              keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-              pi_bar_k <- pi_bar_k[,-merge_dex[2], drop=FALSE]
-              log_pi_bar_k <- log_pi_bar_k[,-merge_dex[2], drop=FALSE]
-              v_bar_k <- v_bar_k[, -merge_dex[2], drop=FALSE]
-              if (K_auto) {
-                log_pi_k <- log_pi_k[,-merge_dex[2], drop=FALSE]
-              }
-              lambda_bar_k <- lambda_bar_k[,-merge_dex[2], drop=FALSE]
-            }
+            v_bar_k <- fit$var_model$v_bar
+            pi_bar_k <- fit$var_model$pi_bar
+            log_pi_bar_k <- fit$var_model$log_pi_bar
+            log_pi_k <- fit$log_pi_k
           }
 
           if (J > 1) {
-            # only merge columns with credible sets with length less than detect
-            cred_sets <- apply(pi_bar_j, 2, cred_set, level = merge_level, simplify = FALSE)
-            keep <- sapply(cred_sets, length) <= detect
-            keep_mat <- matrix(FALSE, ncol = J, nrow = J)
-            keep_mat[keep, keep] <- TRUE
-            diag(keep_mat) <- FALSE
-
-            # compute pairwise merge probabilities
-            merge_prob_mat <- t(pi_bar_j) %*% pi_bar_j
-            diag(merge_prob_mat) <- 0
-
-            mu_lambda_bar_j <- fit$meanvar_model$mu_lambda_bar
-            mu2_lambda_bar_j <- fit$meanvar_model$mu2_lambda_bar
-            lambda_bar_j <- fit$meanvar_model$lambda_bar
-            merge_residual <- fit$residual
-            merge_lambda <- fit$lambda
-            merge_delta <- fit$delta
-
-            # merge meanvar components with pairwise merge probabilities > merge_prob
-            while (J > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-              merged <- FALSE
-              J <- J - 1
-
-              # identify components with largest pairwise merge probabilities
-              merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-              # remove model parameters set to be merged
-              mu_bar_merge <- rowSums(mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-              merge_residual <- merge_residual + mu_bar_merge
-              merge_lambda <- merge_lambda / apply(lambda_bar_j[,merge_dex], 1, prod)
-              merge_delta <- merge_delta + rowSums((mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])^2)
-              merge_delta <- merge_delta - rowSums(mu2_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-              v_merge <- v_j + revcumsum(0.5 * merge_lambda * merge_delta)
-              log_pi_merge <- log_pi_j[,merge_dex[1]] - cumsum(c(0,0.5 * merge_lambda[-T] * merge_delta[-T]))
-
-              # fit meanvar-scp to merged residual
-              merge_fit <- meanvar_scp(merge_residual, merge_lambda, omega_j, u_bar_j,
-                                       lgamma_u_bar_j, v_merge, log_pi_merge - max(log_pi_merge))
-
-              # keep probabilities of component with largest posterior probability
-              if (max(pi_bar_j[,merge_dex[2]]) > max(pi_bar_j[,merge_dex[1]])) {
-                pi_bar_j[,merge_dex[1]] <- pi_bar_j[,merge_dex[2]]
-                log_pi_bar_j[,merge_dex[1]] <- log_pi_bar_j[,merge_dex[2]]
-                merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-                merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-              }
-
-              # store merged parameters
-              b_bar_j[,merge_dex[1]] <- b_bar_j[,merge_dex[1]] + b_bar_j[,merge_dex[2]]
-              omega_bar_j[,merge_dex[1]] <- merge_fit$omega_bar
-              v_bar_j[,merge_dex[1]] <- merge_fit$v_bar
-
-              mu_lambda_bar_j[,merge_dex[1]] <- mu_lambda_fn(b_bar_j[,merge_dex[1]], u_bar_j, v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-              mu2_lambda_bar_j[,merge_dex[1]] <- mu2_lambda_fn(b_bar_j[,merge_dex[1]], omega_bar_j[,merge_dex[1]], u_bar_j, v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-              lambda_bar_j[,merge_dex[1]] <- lambda_bar_fn(u_bar_j,  v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-
-              # calculate merged meanvar signals
-              mu_bar_merge <- mu_lambda_bar_j[,merge_dex[1]] / lambda_bar_j[,merge_dex[1]]
-              merge_lambda <- merge_lambda * lambda_bar_j[,merge_dex[1]]
-
-              # calculate merged residual
-              merge_residual <- merge_residual - mu_bar_merge
-              merge_delta <- merge_delta - rowSums((mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])^2)
-              merge_delta <- merge_delta + rowSums(mu2_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-
-              # drop merged component
-              merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-              keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-              pi_bar_j <- pi_bar_j[,-merge_dex[2], drop=FALSE]
-              log_pi_bar_j <- log_pi_bar_j[,-merge_dex[2], drop=FALSE]
-              b_bar_j <- b_bar_j[,-merge_dex[2], drop=FALSE]
-              omega_bar_j <- omega_bar_j[,-merge_dex[2], drop=FALSE]
-              v_bar_j <- v_bar_j[, -merge_dex[2], drop=FALSE]
-              if (J_auto) {
-                log_pi_j <- log_pi_j[,-merge_dex[2], drop=FALSE]
-              }
-              mu_lambda_bar_j <- mu_lambda_bar_j[,-merge_dex[2], drop=FALSE]
-              mu2_lambda_bar_j <- mu2_lambda_bar_j[,-merge_dex[2], drop=FALSE]
-              lambda_bar_j <- lambda_bar_j[,-merge_dex[2], drop=FALSE]
-            }
+            b_bar_j <- fit$meanvar_model$b_bar
+            omega_bar_j <- fit$meanvar_model$omega_bar
+            v_bar_j <- fit$meanvar_model$v_bar
+            pi_bar_j <- fit$meanvar_model$pi_bar
+            log_pi_bar_j <- fit$meanvar_model$log_pi_bar
+            log_pi_j <- fit$log_pi_j
           }
+
           if (verbose & !merged) print(paste0("Merging to (L = ", L, ", K = ", K, ", J = ", J, ")"))
         }
 
@@ -1013,21 +645,23 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
       if (J_auto) {
         J <- J + increment
         if (J > 1) {
-          log_pi_j <- cbind(matrix(log_pi_j[,1], nrow = T, ncol = increment), log_pi_j)
+          log_pi_j <- cbind(matrix(log_pi_j[,1], nrow = T+1, ncol = increment), log_pi_j)
         }
 
         # fit new model
-        fit_new <- mich_vector(y, fit_intercept, fit_scale, standardize,
-                               J, L, K,
-                               J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
-                               J_max = J, L_max = L, K_max = K,
-                               pi_j_weighted, pi_l_weighted, pi_k_weighted,
-                               tol, verbose = FALSE, max_iter, reverse = FALSE,
-                               detect, merge_level, merge_prob,
-                               restart, n_search, increment,
-                               omega_j, u_j, v_j, log_pi_j,
-                               omega_l, log_pi_l,
-                               u_k, v_k, log_pi_k)
+        fit_new <- mich_vector(
+          y, fit_intercept, fit_scale, standardize,
+          J, L, K,
+          J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
+          J_max = J, L_max = L, K_max = K,
+          pi_j_weighted, pi_l_weighted, pi_k_weighted,
+          tol, verbose = FALSE, max_iter, reverse = FALSE,
+          merge_level, merge_prob,
+          restart, n_search, increment,
+          omega_j, u_j, v_j, log_pi_j,
+          omega_l, log_pi_l,
+          u_k, v_k, log_pi_k
+        )
 
         elbo_new[1] <- fit_new$elbo[length(fit_new$elbo)]
 
@@ -1048,21 +682,23 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
       if (L_auto) {
         L <- L + increment
         if (L > 1) {
-          log_pi_l <- cbind(matrix(log_pi_l[,1], nrow = T, ncol = increment), log_pi_l)
+          log_pi_l <- cbind(matrix(log_pi_l[,1], nrow = T+1, ncol = increment), log_pi_l)
         }
 
         # fit new model
-        fit_new <- mich_vector(y, fit_intercept, fit_scale, standardize,
-                               J, L, K,
-                               J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
-                               J_max = J, L_max = L, K_max = K,
-                               pi_j_weighted, pi_l_weighted, pi_k_weighted,
-                               tol, verbose = FALSE, max_iter, reverse = FALSE,
-                               detect, merge_level, merge_prob,
-                               restart, n_search, increment,
-                               omega_j, u_j, v_j, log_pi_j,
-                               omega_l, log_pi_l,
-                               u_k, v_k, log_pi_k)
+        fit_new <- mich_vector(
+          y, fit_intercept, fit_scale, standardize,
+          J, L, K,
+          J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
+          J_max = J, L_max = L, K_max = K,
+          pi_j_weighted, pi_l_weighted, pi_k_weighted,
+          tol, verbose = FALSE, max_iter, reverse = FALSE,
+          merge_level, merge_prob,
+          restart, n_search, increment,
+          omega_j, u_j, v_j, log_pi_j,
+          omega_l, log_pi_l,
+          u_k, v_k, log_pi_k
+        )
 
         elbo_new[2] <- fit_new$elbo[length(fit_new$elbo)]
 
@@ -1083,21 +719,23 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
       if (K_auto) {
         K <- K + increment
         if (K > 1) {
-          log_pi_k <- cbind(matrix(log_pi_k[,1], nrow = T, ncol = increment), log_pi_k)
+          log_pi_k <- cbind(matrix(log_pi_k[,1], nrow = T+1, ncol = increment), log_pi_k)
         }
 
         # fit new model
-        fit_new <- mich_vector(y, fit_intercept, fit_scale, standardize,
-                               J, L, K,
-                               J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
-                               J_max = J, L_max = L, K_max = K,
-                               pi_j_weighted, pi_l_weighted, pi_k_weighted,
-                               tol, verbose = FALSE, max_iter, reverse = FALSE,
-                               detect, merge_level, merge_prob,
-                               restart, n_search, increment,
-                               omega_j, u_j, v_j, log_pi_j,
-                               omega_l, log_pi_l,
-                               u_k, v_k, log_pi_k)
+        fit_new <- mich_vector(
+          y, fit_intercept, fit_scale, standardize,
+          J, L, K,
+          J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
+          J_max = J, L_max = L, K_max = K,
+          pi_j_weighted, pi_l_weighted, pi_k_weighted,
+          tol, verbose = FALSE, max_iter, reverse = FALSE,
+          merge_level, merge_prob,
+          restart, n_search, increment,
+          omega_j, u_j, v_j, log_pi_j,
+          omega_l, log_pi_l,
+          u_k, v_k, log_pi_k
+        )
 
         elbo_new[3] <- fit_new$elbo[length(fit_new$elbo)]
 
@@ -1122,17 +760,17 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
       if (which.max(elbo_new) == 1) {
         J <- J + increment
         if (J > 1) {
-          log_pi_j <- cbind(matrix(log_pi_j[,1], nrow = T, ncol = increment), log_pi_j)
+          log_pi_j <- cbind(matrix(log_pi_j[,1], nrow = T+1, ncol = increment), log_pi_j)
         }
       } else if (which.max(elbo_new) == 2) {
         L <- L + increment
         if (L > 1) {
-          log_pi_l <- cbind(matrix(log_pi_l[,1], nrow = T, ncol = increment), log_pi_l)
+          log_pi_l <- cbind(matrix(log_pi_l[,1], nrow = T+1, ncol = increment), log_pi_l)
         }
       } else {
         K <- K + increment
         if (K > 1) {
-          log_pi_k <- cbind(matrix(log_pi_k[,1], nrow = T, ncol = increment), log_pi_k)
+          log_pi_k <- cbind(matrix(log_pi_k[,1], nrow = T+1, ncol = increment), log_pi_k)
         }
       }
       if (auto_done) break
@@ -1149,32 +787,32 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
     r_tilde <- fit$residual[T:1]
     lambda_bar <- fit$lambda[T:1]
     delta <- fit$delta[T:1]
-    mu_0 <- fit$mu[T]
-    lambda_0 <- lambda_bar[1]
+    mu_0 <- c(fit$mu[T])
+    lambda_0 <- c(lambda_bar[1])
 
     # don't reverse weighted priors
     if (!pi_l_weighted) {
-      log_pi_l <- log_pi_l[T:1,1:max(1,L),drop = FALSE]
+      log_pi_l[T:1,] <- log_pi_l[T:1,1:max(1,L),drop = FALSE]
     } else {
       log_pi_l <- sapply(1:max(1,L), function(i) log_pi_l[,1])
     }
     if (!pi_k_weighted) {
-      log_pi_k <- log_pi_k[T:1,1:max(1,K),drop = FALSE]
+      log_pi_k[T:1,] <- log_pi_k[T:1,1:max(1,K),drop = FALSE]
     } else {
       log_pi_k <- sapply(1:max(1,K), function(i) log_pi_k[,1])
     }
     if (!pi_j_weighted) {
-      log_pi_j <- log_pi_j[T:1,1:max(1,J),drop = FALSE]
+      log_pi_j[T:1,] <- log_pi_j[T:1,1:max(1,J),drop = FALSE]
     } else {
       log_pi_j <- sapply(1:max(1,J), function(i) log_pi_j[,1])
     }
 
     # reversing mean components
     L_seq = seq_len(L)
-    pi_bar_l <- matrix(nrow = T, ncol = L)
-    log_pi_bar_l <- matrix(nrow = T, ncol = L)
-    b_bar_l <- matrix(nrow = T, ncol = L)
-    omega_bar_l <- matrix(nrow = T, ncol = L)
+    pi_bar_l <- matrix(nrow = T+1, ncol = L)
+    log_pi_bar_l <- matrix(nrow = T+1, ncol = L)
+    b_bar_l <- matrix(nrow = T+1, ncol = L)
+    omega_bar_l <- matrix(nrow = T+1, ncol = L)
 
     for (l in L_seq) {
       tau_l <- which.max(fit$mean_model$pi_bar[,l])
@@ -1192,9 +830,9 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
 
     # reversing variance components
     K_seq = seq_len(K)
-    pi_bar_k <- matrix(nrow = T, ncol = K)
-    log_pi_bar_k <- matrix(nrow = T, ncol = K)
-    v_bar_k <- matrix(nrow = T, ncol = K)
+    pi_bar_k <- matrix(nrow = T+1, ncol = K)
+    log_pi_bar_k <- matrix(nrow = T+1, ncol = K)
+    v_bar_k <- matrix(nrow = T+1, ncol = K)
 
     for (k in K_seq) {
       tau_k <- which.max(fit$var_model$pi_bar[,k])
@@ -1202,7 +840,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
       lambda_bar_k <- lambda_bar_k[T:1]
 
       fit_scp <- var_scp(r_tilde, lambda_bar_k, u_bar_k, lgamma_u_bar_k,
-                         rep(v_k, T), log_pi_k[,k])
+                         rep(v_k, T+1), log_pi_k[,k])
 
       pi_bar_k[,k] <- fit_scp$pi_bar
       log_pi_bar_k[,k] <- fit_scp$log_pi_bar
@@ -1211,11 +849,11 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
 
     # reversing mean-variance components
     J_seq = seq_len(J)
-    pi_bar_j <- matrix(nrow = T, ncol = J)
-    log_pi_bar_j <- matrix(nrow = T, ncol = J)
-    b_bar_j <- matrix(nrow = T, ncol = J)
-    omega_bar_j <- matrix(nrow = T, ncol = J)
-    v_bar_j <- matrix(nrow = T, ncol = J)
+    pi_bar_j <- matrix(nrow = T+1, ncol = J)
+    log_pi_bar_j <- matrix(nrow = T+1, ncol = J)
+    b_bar_j <- matrix(nrow = T+1, ncol = J)
+    omega_bar_j <- matrix(nrow = T+1, ncol = J)
+    v_bar_j <- matrix(nrow = T+1, ncol = J)
 
     for (j in J_seq) {
       tau_j <- which.max(fit$meanvar_model$pi_bar[,j])
@@ -1228,7 +866,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
       lambda_bar_j <- lambda_bar_j[T:1]
 
       fit_scp <- meanvar_scp(r_tilde_j, lambda_bar_j, omega_j, u_bar_j,
-                             lgamma_u_bar_j, rep(v_j, T), log_pi_j[,j])
+                             lgamma_u_bar_j, rep(v_j, T+1), log_pi_j[,j])
 
       pi_bar_j[,j] <- fit_scp$pi_bar
       log_pi_bar_j[,j] <- fit_scp$log_pi_bar
@@ -1241,7 +879,7 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
     merged <- FALSE  # flag indicating components have been merged
     while (!merged) {
       fit <- mich_cpp(y[T:1], J, L, K, mu_0, lambda_0,
-                      fit_intercept, fit_scale, refit = TRUE,
+                      fit_intercept, fit_scale,
                       max_iter, verbose = FALSE, tol,
                       omega_j, u_j, v_j, log_pi_j,
                       pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j,
@@ -1250,225 +888,41 @@ mich_vector <- function(y, fit_intercept, fit_scale, standardize,
                       u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k,
                       lgamma_u_bar_k, digamma_u_bar_k)
 
-      merged <- TRUE
+      fit <- component_merge(
+        fit, L_auto, K_auto, J_auto,
+        merge_level, merge_prob,
+        omega_l, log_pi_l,
+        v_k, u_bar_k, lgamma_u_bar_k, log_pi_k,
+        omega_j, v_j, u_bar_j, lgamma_u_bar_j, log_pi_j
+      )
 
+      merged <- fit$merged
+      L <- fit$L; K <- fit$K; J <- fit$J;
       # identify components to merge
       if (L > 1) {
-        # only merge columns with credible sets with length less than detect
-        cred_sets <- apply(pi_bar_l, 2, cred_set, level = merge_level, simplify = FALSE)
-        keep <- sapply(cred_sets, length) <= detect
-        keep_mat <- matrix(FALSE, ncol = L, nrow = L)
-        keep_mat[keep, keep] <- TRUE
-        diag(keep_mat) <- FALSE
-
-        # compute pairwise merge probabilities
-        merge_prob_mat <- t(pi_bar_l) %*% pi_bar_l
-        diag(merge_prob_mat) <- 0
-
-        mu_bar_l <- fit$mean_model$mu_bar
-        mu2_bar_l <- fit$mean_model$mu2_bar
-        merge_residual <- fit$residual
-        merge_lambda <- fit$lambda
-        merge_delta <- fit$delta
-
-        # merge mean components with pairwise merge probabilities > merge_prob
-        while (L > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-          merged <- FALSE
-          L <- L - 1
-
-          # identify components with largest pairwise merge probabilities
-          merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-          # remove model parameters set to be merged
-          mu_bar_merge <- rowSums(mu_bar_l[,merge_dex])
-          merge_residual <- merge_residual + mu_bar_merge
-          merge_delta <- merge_delta + rowSums(mu_bar_l[,merge_dex]^2 - mu2_bar_l[,merge_dex])
-
-          # fit mean-scp to merged residual
-          merge_fit <- mean_scp(merge_residual, merge_lambda, omega_l, log_pi_l[,merge_dex[1]])
-
-          # keep probabilities of component with largest posterior probability
-          if (max(pi_bar_l[,merge_dex[2]]) > max(pi_bar_l[,merge_dex[1]])) {
-            pi_bar_l[,merge_dex[1]] <- pi_bar_l[,merge_dex[2]]
-            log_pi_bar_l[,merge_dex[1]] <- log_pi_bar_l[,merge_dex[2]]
-            merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-            merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-          }
-
-          # store merged parameters
-          b_bar_l[,merge_dex[1]] <- b_bar_l[,merge_dex[1]] + b_bar_l[,merge_dex[2]]
-          omega_bar_l[,merge_dex[1]] <- merge_fit$omega_bar
-
-          # calculate merged mean signals
-          mu_bar_l[,merge_dex[1]] <- mu_bar_fn(b_bar_l[,merge_dex[1]], pi_bar_l[,merge_dex[1]])
-          mu2_bar_l[,merge_dex[1]] <- mu2_bar_fn(b_bar_l[,merge_dex[1]], omega_bar_l[,merge_dex[1]], pi_bar_l[,merge_dex[1]])
-
-          # calculate merged residual
-          merge_residual <- merge_residual - mu_bar_l[,merge_dex[1]]
-          merge_delta <- merge_delta - mu_bar_l[,merge_dex[1]]^2 + mu2_bar_l[,merge_dex[1]]
-
-          # drop merged component
-          merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-          keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-          pi_bar_l <- pi_bar_l[,-merge_dex[2], drop=FALSE]
-          log_pi_bar_l <- log_pi_bar_l[,-merge_dex[2], drop=FALSE]
-          b_bar_l <- b_bar_l[,-merge_dex[2], drop=FALSE]
-          omega_bar_l <- omega_bar_l[,-merge_dex[2], drop=FALSE]
-          if (L_auto) {
-            log_pi_l <- log_pi_l[,-merge_dex[2], drop=FALSE]
-          }
-          mu_bar_l <- mu_bar_l[,-merge_dex[2], drop=FALSE]
-          mu2_bar_l <- mu2_bar_l[,-merge_dex[2], drop=FALSE]
-        }
+        b_bar_l <- fit$mean_model$b_bar
+        omega_bar_l <- fit$mean_model$omega_bar
+        pi_bar_l <- fit$mean_model$pi_bar
+        log_pi_bar_l <- fit$mean_model$log_pi_bar
+        log_pi_l <- fit$log_pi_l
       }
 
       if (K > 1) {
-        # only merge columns with credible sets with length less than detect
-        cred_sets <- apply(pi_bar_k, 2, cred_set, level = merge_level, simplify = FALSE)
-        keep <- sapply(cred_sets, length) <= detect
-        keep_mat <- matrix(FALSE, ncol = K, nrow = K)
-        keep_mat[keep, keep] <- TRUE
-        diag(keep_mat) <- FALSE
-
-        # compute pairwise merge probabilities
-        merge_prob_mat <- t(pi_bar_k) %*% pi_bar_k
-        diag(merge_prob_mat) <- 0
-
-        lambda_bar_k <- fit$var_model$lambda_bar
-        merge_residual <- fit$residual
-        merge_lambda <- fit$lambda
-        merge_delta <- fit$delta
-
-        # merge var components with pairwise merge probabilities > merge_prob
-        while (K > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-          merged <- FALSE
-          K <- K - 1
-
-          # identify components with largest pairwise merge probabilities
-          merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-          # remove model parameters set to be merged
-          merge_lambda <- merge_lambda / apply(lambda_bar_k[,merge_dex], 1, prod)
-
-          v_merge <- v_k + revcumsum(0.5 * merge_lambda * merge_delta)
-          log_pi_merge <- log_pi_k[,merge_dex[1]] - cumsum(c(0,0.5 * merge_lambda[-T] * merge_delta[-T]))
-
-          # fit var-scp to merged residual
-          merge_fit <- var_scp(merge_residual, merge_lambda, u_bar_k, lgamma_u_bar_k,
-                               v_merge, log_pi_merge - max(log_pi_merge))
-
-          # keep probabilities of component with largest posterior probability
-          if (max(pi_bar_k[,merge_dex[2]]) > max(pi_bar_k[,merge_dex[1]])) {
-            pi_bar_k[,merge_dex[1]] <- pi_bar_k[,merge_dex[2]]
-            log_pi_bar_k[,merge_dex[1]] <- log_pi_bar_k[,merge_dex[2]]
-            merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-            merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-          }
-
-          # store merged parameters
-          v_bar_k[,merge_dex[1]] <- merge_fit$v_bar
-
-          # calculate merged var signal
-          lambda_bar_k[,merge_dex[1]] <- lambda_bar_fn(u_bar_k, v_bar_k[,merge_dex[1]],  pi_bar_k[,merge_dex[1]])
-
-          # calculate merged residual
-          merge_lambda <- merge_lambda * lambda_bar_k[,merge_dex[1]]
-
-          # drop merged component
-          merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-          keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-          pi_bar_k <- pi_bar_k[,-merge_dex[2], drop=FALSE]
-          log_pi_bar_k <- log_pi_bar_k[,-merge_dex[2], drop=FALSE]
-          v_bar_k <- v_bar_k[, -merge_dex[2], drop=FALSE]
-          if (K_auto) {
-            log_pi_k <- log_pi_k[,-merge_dex[2], drop=FALSE]
-          }
-          lambda_bar_k <- lambda_bar_k[,-merge_dex[2], drop=FALSE]
-        }
+        v_bar_k <- fit$var_model$v_bar
+        pi_bar_k <- fit$var_model$pi_bar
+        log_pi_bar_k <- fit$var_model$log_pi_bar
+        log_pi_k <- fit$log_pi_k
       }
 
       if (J > 1) {
-        # only merge columns with credible sets with length less than detect
-        cred_sets <- apply(pi_bar_j, 2, cred_set, level = merge_level, simplify = FALSE)
-        keep <- sapply(cred_sets, length) <= detect
-        keep_mat <- matrix(FALSE, ncol = J, nrow = J)
-        keep_mat[keep, keep] <- TRUE
-        diag(keep_mat) <- FALSE
-
-        # compute pairwise merge probabilities
-        merge_prob_mat <- t(pi_bar_j) %*% pi_bar_j
-        diag(merge_prob_mat) <- 0
-
-        mu_lambda_bar_j <- fit$meanvar_model$mu_lambda_bar
-        mu2_lambda_bar_j <- fit$meanvar_model$mu2_lambda_bar
-        lambda_bar_j <- fit$meanvar_model$lambda_bar
-        merge_residual <- fit$residual
-        merge_lambda <- fit$lambda
-        merge_delta <- fit$delta
-
-        # merge meanvar components with pairwise merge probabilities > merge_prob
-        while (J > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
-          merged <- FALSE
-          J <- J - 1
-
-          # identify components with largest pairwise merge probabilities
-          merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-
-          # remove model parameters set to be merged
-          mu_bar_merge <- rowSums(mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-          merge_residual <- merge_residual + mu_bar_merge
-          merge_lambda <- merge_lambda / apply(lambda_bar_j[,merge_dex], 1, prod)
-          merge_delta <- merge_delta + rowSums((mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])^2)
-          merge_delta <- merge_delta - rowSums(mu2_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-          v_merge <- v_j + revcumsum(0.5 * merge_lambda * merge_delta)
-          log_pi_merge <- log_pi_j[,merge_dex[1]] - cumsum(c(0,0.5 * merge_lambda[-T] * merge_delta[-T]))
-
-          # fit meanvar-scp to merged residual
-          merge_fit <- meanvar_scp(merge_residual, merge_lambda, omega_j, u_bar_j,
-                                   lgamma_u_bar_j, v_merge, log_pi_merge - max(log_pi_merge))
-
-          # keep probabilities of component with largest posterior probability
-          if (max(pi_bar_j[,merge_dex[2]]) > max(pi_bar_j[,merge_dex[1]])) {
-            pi_bar_j[,merge_dex[1]] <- pi_bar_j[,merge_dex[2]]
-            log_pi_bar_j[,merge_dex[1]] <- log_pi_bar_j[,merge_dex[2]]
-            merge_prob_mat[merge_dex[1], ] <- merge_prob_mat[merge_dex[2], ]
-            merge_prob_mat[, merge_dex[1]] <- merge_prob_mat[, merge_dex[2]]
-          }
-
-          # store merged parameters
-          b_bar_j[,merge_dex[1]] <- b_bar_j[,merge_dex[1]] + b_bar_j[,merge_dex[2]]
-          omega_bar_j[,merge_dex[1]] <- merge_fit$omega_bar
-          v_bar_j[,merge_dex[1]] <- merge_fit$v_bar
-
-          mu_lambda_bar_j[,merge_dex[1]] <- mu_lambda_fn(b_bar_j[,merge_dex[1]], u_bar_j, v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-          mu2_lambda_bar_j[,merge_dex[1]] <- mu2_lambda_fn(b_bar_j[,merge_dex[1]], omega_bar_j[,merge_dex[1]], u_bar_j, v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-          lambda_bar_j[,merge_dex[1]] <- lambda_bar_fn(u_bar_j,  v_bar_j[,merge_dex[1]], pi_bar_j[,merge_dex[1]])
-
-          # calculate merged meanvar signals
-          mu_bar_merge <- mu_lambda_bar_j[,merge_dex[1]] / lambda_bar_j[,merge_dex[1]]
-          merge_lambda <- merge_lambda * lambda_bar_j[,merge_dex[1]]
-
-          # calculate merged residual
-          merge_residual <- merge_residual - mu_bar_merge
-          merge_delta <- merge_delta - rowSums((mu_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])^2)
-          merge_delta <- merge_delta + rowSums(mu2_lambda_bar_j[,merge_dex] / lambda_bar_j[,merge_dex])
-
-          # drop merged component
-          merge_prob_mat<- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-          keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
-          pi_bar_j <- pi_bar_j[,-merge_dex[2], drop=FALSE]
-          log_pi_bar_j <- log_pi_bar_j[,-merge_dex[2], drop=FALSE]
-          b_bar_j <- b_bar_j[,-merge_dex[2], drop=FALSE]
-          omega_bar_j <- omega_bar_j[,-merge_dex[2], drop=FALSE]
-          v_bar_j <- v_bar_j[, -merge_dex[2], drop=FALSE]
-          if (J_auto) {
-            log_pi_j <- log_pi_j[,-merge_dex[2], drop=FALSE]
-          }
-          mu_lambda_bar_j <- mu_lambda_bar_j[,-merge_dex[2], drop=FALSE]
-          mu2_lambda_bar_j <- mu2_lambda_bar_j[,-merge_dex[2], drop=FALSE]
-          lambda_bar_j <- lambda_bar_j[,-merge_dex[2], drop=FALSE]
-        }
+        b_bar_j <- fit$meanvar_model$b_bar
+        omega_bar_j <- fit$meanvar_model$omega_bar
+        v_bar_j <- fit$meanvar_model$v_bar
+        pi_bar_j <- fit$meanvar_model$pi_bar
+        log_pi_bar_j <- fit$meanvar_model$log_pi_bar
+        log_pi_j <- fit$log_pi_j
       }
+
       if (verbose & !merged) print(paste0("Merging to (L = ", L, ", K = ", K, ", J = ", J, ")"))
     }
   }

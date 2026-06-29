@@ -107,24 +107,28 @@ using namespace Rcpp;
 //'     \eqn{K} var-scp components (only included in `K > 0`).
 //'
 // [[Rcpp::export]]
-List mich_cpp(NumericVector y,
-              int J, int L, int K, double mu_0, double lambda_0,
-              bool fit_intercept, bool fit_scale,
-              bool refit, double max_iter, bool verbose, double tol,
-              double omega_j, double u_j, double v_j, NumericMatrix log_pi_j,
-              NumericMatrix pi_bar_j, NumericMatrix log_pi_bar_j,
-              NumericMatrix b_bar_j, NumericMatrix omega_bar_j,
-              NumericVector u_bar_j, NumericMatrix v_bar_j,
-              NumericVector lgamma_u_bar_j, NumericVector digamma_u_bar_j,
-              double omega_l, NumericMatrix log_pi_l,
-              NumericMatrix pi_bar_l, NumericMatrix log_pi_bar_l,
-              NumericMatrix b_bar_l, NumericMatrix omega_bar_l,
-              double u_k, double v_k, NumericMatrix log_pi_k,
-              NumericMatrix pi_bar_k, NumericMatrix log_pi_bar_k,
-              NumericVector u_bar_k, NumericMatrix v_bar_k,
-              NumericVector lgamma_u_bar_k, NumericVector digamma_u_bar_k) {
+List mich_cpp(
+  NumericVector y,
+  int J, int L, int K, NumericVector mu_0_vec, NumericVector lambda_0_vec,
+  bool fit_intercept, bool fit_scale,
+  double max_iter, bool verbose, double tol,
+  double omega_j, double u_j, double v_j, NumericMatrix log_pi_j,
+  NumericMatrix pi_bar_j, NumericMatrix log_pi_bar_j,
+  NumericMatrix b_bar_j, NumericMatrix omega_bar_j,
+  NumericVector u_bar_j, NumericMatrix v_bar_j,
+  NumericVector lgamma_u_bar_j, NumericVector digamma_u_bar_j,
+  double omega_l, NumericMatrix log_pi_l,
+  NumericMatrix pi_bar_l, NumericMatrix log_pi_bar_l,
+  NumericMatrix b_bar_l, NumericMatrix omega_bar_l,
+  double u_k, double v_k, NumericMatrix log_pi_k,
+  NumericMatrix pi_bar_k, NumericMatrix log_pi_bar_k,
+  NumericVector u_bar_k, NumericMatrix v_bar_k,
+  NumericVector lgamma_u_bar_k, NumericVector digamma_u_bar_k
+) {
 
   int T = y.length();
+  double mu_0 = mu_0_vec[0];
+  double lambda_0 = lambda_0_vec[0];
 
   // log parameters
   double log_omega_j = std::log(omega_j);
@@ -145,56 +149,44 @@ List mich_cpp(NumericVector y,
 
   // initialize J expected mean-variance parameters
   NumericMatrix mu_lambda_j (T, J), mu2_lambda_j (T, J), lambda_bar_j (T, J);
-  double mu_bar_jt;
-  if (refit) {
-    for (int j = 0; j < J; j++) {
-      mu_lambda_j(_,j) = mu_lambda_fn(b_bar_j(_,j), u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
-      mu2_lambda_j(_,j) = mu2_lambda_fn(b_bar_j(_,j), omega_bar_j(_,j), u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
-      lambda_bar_j(_,j) = lambda_bar_fn(u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
-    }
-  } else {
-    lambda_bar_j.fill(1.0);
+  for (int j = 0; j < J; j++) {
+    mu_lambda_j(_,j) = mu_lambda_fn(b_bar_j(_,j), u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
+    mu2_lambda_j(_,j) = mu2_lambda_fn(b_bar_j(_,j), omega_bar_j(_,j), u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
+    lambda_bar_j(_,j) = lambda_bar_fn(u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
   }
 
   // initialize L expected mean parameters
   NumericMatrix mu_bar_l (T, L), mu2_bar_l (T, L);
-  if (refit) {
-    for (int l = 0; l < L; l++) {
-      mu_bar_l(_,l) = mu_bar_fn(b_bar_l(_,l), pi_bar_l(_,l));
-      mu2_bar_l(_,l) = mu2_bar_fn(b_bar_l(_,l), omega_bar_l(_,l), pi_bar_l(_,l));
-    }
+  for (int l = 0; l < L; l++) {
+    mu_bar_l(_,l) = mu_bar_fn(b_bar_l(_,l), pi_bar_l(_,l));
+    mu2_bar_l(_,l) = mu2_bar_fn(b_bar_l(_,l), omega_bar_l(_,l), pi_bar_l(_,l));
   }
 
   // initialize K expected variance parameters
   NumericMatrix lambda_bar_k (T, K);
-  if (refit) {
-    for (int k = 0; k < K; k++) {
-      lambda_bar_k(_,k) = lambda_bar_fn(u_bar_k, v_bar_k(_,k), pi_bar_k(_,k));
-    }
-  } else {
-    lambda_bar_k.fill(1.0);
+  for (int k = 0; k < K; k++) {
+    lambda_bar_k(_,k) = lambda_bar_fn(u_bar_k, v_bar_k(_,k), pi_bar_k(_,k));
   }
 
   // initialize combined residual, variance, and correction term
+  double mu_bar_jt;
   for (int t = 0; t < T; t++) {
     r_tilde[t] -= mu_0;
 
-    if (refit) {
-      for (int j = 0; j < J; j++) {
-        mu_bar_jt = mu_lambda_j(t,j) / lambda_bar_j(t,j);
-        r_tilde[t] -= mu_bar_jt;
-        lambda_bar[t] *= lambda_bar_j(t,j);
-        delta[t] -= mu_bar_jt * mu_bar_jt - mu2_lambda_j(t,j) / lambda_bar_j(t,j);
-      }
+    for (int j = 0; j < J; j++) {
+      mu_bar_jt = mu_lambda_j(t,j) / lambda_bar_j(t,j);
+      r_tilde[t] -= mu_bar_jt;
+      lambda_bar[t] *= lambda_bar_j(t,j);
+      delta[t] -= mu_bar_jt * mu_bar_jt - mu2_lambda_j(t,j) / lambda_bar_j(t,j);
+    }
 
-      for (int l = 0; l < L; l++) {
-        r_tilde[t] -= mu_bar_l(t,l);
-        delta[t] -= mu_bar_l(t,l) * mu_bar_l(t,l) - mu2_bar_l(t,l);
-      }
+    for (int l = 0; l < L; l++) {
+      r_tilde[t] -= mu_bar_l(t,l);
+      delta[t] -= mu_bar_l(t,l) * mu_bar_l(t,l) - mu2_bar_l(t,l);
+    }
 
-      for (int k = 0; k < K; k++) {
-        lambda_bar[t] *= lambda_bar_k(t,k);
-      }
+    for (int k = 0; k < K; k++) {
+      lambda_bar[t] *= lambda_bar_k(t,k);
     }
   }
 
@@ -207,7 +199,8 @@ List mich_cpp(NumericVector y,
   List mean_scp_fit, var_scp_fit, meanvar_scp_fit;
 
   // initialize correction priors
-  NumericVector v_tilde (T, 0.0), log_pi_tilde (T, 0.0);
+  NumericVector v_tilde_j (T+1, v_j), log_pi_tilde_j (T+1, 0.0);
+  NumericVector v_tilde_k (T+1, v_k), log_pi_tilde_k (T+1, 0.0);
   double v_tilde_sum, log_pi_tilde_sum, log_pi_tilde_max;
 
   // vb algorithm
@@ -226,7 +219,9 @@ List mich_cpp(NumericVector y,
       }
 
       // fit single mean_scp model on residuals
-      mean_scp_fit = mean_scp(r_tilde, lambda_bar, omega_l, log_pi_l(_,l));
+      mean_scp_fit = mean_scp(
+        r_tilde, lambda_bar, omega_l, log_omega_l, log_pi_l(_,l)
+      );
 
       // store updated posterior parameters
       pi_bar_l(_,l) =  as<NumericVector>(mean_scp_fit["pi_bar"]);
@@ -250,31 +245,34 @@ List mich_cpp(NumericVector y,
     // updating q(s_k, gamma_k)
     for (int k = 0; k < K; k++) {
       v_tilde_sum = 0.0;
-      log_pi_tilde_sum = log_pi_k(0,k);
-      log_pi_tilde_max = R_NegInf;
+      log_pi_tilde_sum = 0.0;
+      log_pi_tilde_max = log_pi_k(0,k);
+      log_pi_tilde_k[0] = log_pi_tilde_max;
 
-      for (int t = T - 1; t >= 0; t--) {
+      for (int t = T-1; t >= 0; t--) {
         // divide out k^th component of precision
         lambda_bar[t] /= lambda_bar_k(t,k);
 
         // calculate corrected priors
         v_tilde_sum += 0.5 * lambda_bar[t] * delta[t];
-        v_tilde[t] = v_k + v_tilde_sum;
+        v_tilde_k[t] = v_k + v_tilde_sum;
       }
 
-      for (int t = 1; t < T; t++) {
+      for (int t = 1; t < T+1; t++) {
         log_pi_tilde_sum += -0.5 * lambda_bar[t-1] * delta[t-1];
-        log_pi_tilde[t] = log_pi_k(t,k) + log_pi_tilde_sum;
-        log_pi_tilde_max = std::max(log_pi_tilde_max, log_pi_tilde[t]);
+        log_pi_tilde_k[t] = log_pi_k(t,k) + log_pi_tilde_sum;
+        log_pi_tilde_max = std::max(log_pi_tilde_max, log_pi_tilde_k[t]);
       }
 
-      for (int t = 1; t < T; t++) {
-        log_pi_tilde[t] -= log_pi_tilde_max;
+      for (int t = 0; t < T+1; t++) {
+        log_pi_tilde_k[t] -= log_pi_tilde_max;
       }
 
       // fit single var_scp model on residuals
-      var_scp_fit = var_scp(r_tilde, lambda_bar, u_bar_k, lgamma_u_bar_k,
-                            v_tilde, log_pi_tilde);
+      var_scp_fit = var_scp(
+        r_tilde, lambda_bar, u_bar_k, lgamma_u_bar_k,
+        v_tilde_k, log_v_k, log_pi_tilde_k
+      );
 
       // store updated posterior parameters
       pi_bar_k(_,k) = as<NumericVector>(var_scp_fit["pi_bar"]);
@@ -293,8 +291,9 @@ List mich_cpp(NumericVector y,
     // updating q(b_j, s_j, gamma_j)
     for (int j = 0; j < J; j++) {
       v_tilde_sum = 0.0;
-      log_pi_tilde_sum = log_pi_j(0,j);
-      log_pi_tilde_max = R_NegInf;
+      log_pi_tilde_sum = 0.0;
+      log_pi_tilde_max = log_pi_j(0,j);
+      log_pi_tilde_j[0] = log_pi_tilde_max;
 
       for (int t = T-1; t >= 0; t--) {
         // add back j^th component of residual
@@ -308,22 +307,24 @@ List mich_cpp(NumericVector y,
 
         // calculate corrected priors
         v_tilde_sum += 0.5 * lambda_bar[t] * delta[t];
-        v_tilde[t] = v_j + v_tilde_sum;
+        v_tilde_j[t] = v_j + v_tilde_sum;
       }
 
-      for (int t = 1; t < T; t++) {
+      for (int t = 1; t < T+1; t++) {
         log_pi_tilde_sum += -0.5 * lambda_bar[t-1] * delta[t-1];
-        log_pi_tilde[t] = log_pi_j(t,j) + log_pi_tilde_sum;
-        log_pi_tilde_max = std::max(log_pi_tilde_max, log_pi_tilde[t]);
+        log_pi_tilde_j[t] = log_pi_j(t,j) + log_pi_tilde_sum;
+        log_pi_tilde_max = std::max(log_pi_tilde_max, log_pi_tilde_j[t]);
       }
 
-      for (int t = 1; t < T; t++) {
-        log_pi_tilde[t] -= log_pi_tilde_max;
+      for (int t = 0; t < T+1; t++) {
+        log_pi_tilde_j[t] -= log_pi_tilde_max;
       }
 
       // fit single meanvar_scp model on residuals
-      meanvar_scp_fit = meanvar_scp(r_tilde, lambda_bar, omega_j, u_bar_j,
-                                    lgamma_u_bar_j, v_tilde, log_pi_tilde);
+      meanvar_scp_fit = meanvar_scp(
+        r_tilde, lambda_bar, omega_j, log_omega_j, u_bar_j,
+        lgamma_u_bar_j, v_tilde_j, log_v_j, log_pi_tilde_j
+      );
 
       // store updated posterior parameters
       pi_bar_j(_,j) =  as<NumericVector>(meanvar_scp_fit["pi_bar"]);
@@ -333,9 +334,15 @@ List mich_cpp(NumericVector y,
       v_bar_j(_,j) =  as<NumericVector>(meanvar_scp_fit["v_bar"]);
 
       // update j^th component of mean and precision
-      mu_lambda_j(_,j) = mu_lambda_fn(b_bar_j(_,j), u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
-      mu2_lambda_j(_,j) = mu2_lambda_fn(b_bar_j(_,j), omega_bar_j(_,j), u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
-      lambda_bar_j(_,j) = lambda_bar_fn(u_bar_j, v_bar_j(_,j), pi_bar_j(_,j));
+      mu_lambda_j(_,j) = mu_lambda_fn(
+        b_bar_j(_,j), u_bar_j, v_bar_j(_,j), pi_bar_j(_,j)
+      );
+      mu2_lambda_j(_,j) = mu2_lambda_fn(
+        b_bar_j(_,j), omega_bar_j(_,j), u_bar_j, v_bar_j(_,j), pi_bar_j(_,j)
+      );
+      lambda_bar_j(_,j) = lambda_bar_fn(
+        u_bar_j, v_bar_j(_,j), pi_bar_j(_,j)
+      );
 
       for (int t = 0; t < T; t++) {
         mu_bar_jt = mu_lambda_j(t,j) / lambda_bar_j(t,j);
@@ -372,16 +379,18 @@ List mich_cpp(NumericVector y,
     elbo.push_back(0.0);
 
     // calculate elbo
-    elbo[iter] = elbo_fn(T, mu_0, lambda_0,
-                         r_tilde, lambda_bar, delta,
-                         b_bar_j, omega_bar_j, u_bar_j, v_bar_j, pi_bar_j, log_pi_bar_j,
-                         lgamma_u_bar_j, digamma_u_bar_j,
-                         omega_j, u_j, v_j, log_omega_j, log_u_j, lgamma_u_j, log_v_j, log_pi_j,
-                         b_bar_l, omega_bar_l, pi_bar_l, log_pi_bar_l,
-                         omega_l, log_omega_l, log_pi_l,
-                         u_bar_k, v_bar_k, pi_bar_k,
-                         lgamma_u_bar_k, digamma_u_bar_k, log_pi_bar_k,
-                         u_k, v_k, log_u_k, lgamma_u_k, log_v_k, log_pi_k);
+    elbo[iter] = elbo_fn(
+      T, mu_0, lambda_0,
+      r_tilde, lambda_bar, delta,
+      b_bar_j, omega_bar_j, u_bar_j, v_bar_j, pi_bar_j, log_pi_bar_j,
+      lgamma_u_bar_j, digamma_u_bar_j,
+      omega_j, u_j, v_j, log_omega_j, log_u_j, lgamma_u_j, log_v_j, log_pi_j,
+      b_bar_l, omega_bar_l, pi_bar_l, log_pi_bar_l,
+      omega_l, log_omega_l, log_pi_l,
+      u_bar_k, v_bar_k, pi_bar_k,
+      lgamma_u_bar_k, digamma_u_bar_k, log_pi_bar_k,
+      u_k, v_k, log_u_k, lgamma_u_k, log_v_k, log_pi_k
+    );
 
     if (std::isnan(elbo[iter])) throw std::runtime_error("NaN in elbo");
     if (verbose & (iter % 5000 == 0)) Rcout << "Iteration: " << iter << "; elbo: " << elbo[iter] << ";\n";
@@ -398,48 +407,59 @@ List mich_cpp(NumericVector y,
     mu += mu_bar_fn(b_bar_l(_,l), pi_bar_l(_,l));
   }
 
+  mu_0_vec[0] = mu_0;
+  lambda_0_vec[0] = lambda_0;
+
   // creating lists of posterior parameters
   List J_model, L_model, K_model;
 
-  List result = List::create(_["y"] = y,
-                             _["residual"] = r_tilde,
-                             _["mu"] = mu,
-                             _["lambda"] = lambda_bar,
-                             _["delta"] = delta,
-                             _["converged"] = (max_iter > iter),
-                             _["elbo"] = elbo,
-                             _["mu_0"] = mu_0,
-                             _["lambda_0"] = lambda_0,
-                             _["J"] = J,
-                             _["L"] = L,
-                             _["K"] = K);
+  List result = List::create(
+    _["y"] = y,
+    _["residual"] = r_tilde,
+    _["mu"] = mu,
+    _["lambda"] = lambda_bar,
+    _["delta"] = delta,
+    _["converged"] = (max_iter > iter),
+    _["elbo"] = elbo,
+    _["mu_0"] = mu_0,
+    _["lambda_0"] = lambda_0,
+    _["J"] = J,
+    _["L"] = L,
+    _["K"] = K
+  );
 
   if (J > 0) {
-    J_model =  List::create(_["pi_bar"] = pi_bar_j,
-                            _["b_bar"] = b_bar_j,
-                            _["omega_bar"] = omega_bar_j,
-                            _["v_bar"] = v_bar_j,
-                            _["u_bar"] = u_bar_j,
-                            _["mu_lambda_bar"] = mu_lambda_j,
-                            _["mu2_lambda_bar"] = mu2_lambda_j,
-                            _["lambda_bar"] = lambda_bar_j);
+    J_model =  List::create(
+      _["pi_bar"] = pi_bar_j,
+      _["b_bar"] = b_bar_j,
+      _["omega_bar"] = omega_bar_j,
+      _["v_bar"] = v_bar_j,
+      _["u_bar"] = u_bar_j,
+      _["mu_lambda_bar"] = mu_lambda_j,
+      _["mu2_lambda_bar"] = mu2_lambda_j,
+      _["lambda_bar"] = lambda_bar_j
+    );
     result["meanvar_model"] = J_model;
   }
 
   if (L > 0) {
-    L_model =  List::create(_["pi_bar"] = pi_bar_l,
-                            _["b_bar"] = b_bar_l,
-                            _["omega_bar"] = omega_bar_l,
-                            _["mu_bar"] = mu_bar_l,
-                            _["mu2_bar"] = mu2_bar_l);
+    L_model =  List::create(
+      _["pi_bar"] = pi_bar_l,
+      _["b_bar"] = b_bar_l,
+      _["omega_bar"] = omega_bar_l,
+      _["mu_bar"] = mu_bar_l,
+      _["mu2_bar"] = mu2_bar_l
+    );
     result["mean_model"] = L_model;
   }
 
   if (K > 0) {
-    K_model =  List::create(_["pi_bar"] = pi_bar_k,
-                            _["v_bar"] = v_bar_k,
-                            _["u_bar"] = u_bar_k,
-                            _["lambda_bar"] = lambda_bar_k);
+    K_model =  List::create(
+      _["pi_bar"] = pi_bar_k,
+      _["v_bar"] = v_bar_k,
+      _["u_bar"] = u_bar_k,
+      _["lambda_bar"] = lambda_bar_k
+    );
     result["var_model"] = K_model;
   }
 

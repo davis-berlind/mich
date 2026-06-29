@@ -39,14 +39,16 @@ prob_check <- function(probs, n, T) {
       if (round(sum(probs), 10) == 1) return(sapply(1:max(1, n), function(i) probs))
     }
   } else if (is.array(probs) & is.numeric(probs)) {
-    if (all(!is.na(probs)) & (nrow(probs) == T & ncol(probs) == n)) {
+    if (all(!is.na(probs)) & (nrow(probs) == T + 1 & ncol(probs) == n)) {
       if (all(round(colSums(probs), 10) == 1))  return(probs)
     }
   }
-  stop(paste0(deparse(substitute(probs)),
-              " must be 'uniform', 'weighted', or a length T vector or a T x ",
-              deparse(substitute(n)),
-              " matrix with columns that sum to one."))
+  stop(paste0(
+    deparse(substitute(probs)),
+    " must be 'uniform', 'weighted', or a length T vector or a T x ",
+    deparse(substitute(n)),
+    " matrix with columns that sum to one.")
+  )
 }
 
 #' Logical value check.
@@ -101,4 +103,35 @@ integer_check <- function(n) {
     }
   }
   stop(paste0(deparse(substitute(n)), " must be an integer >= 0."))
+}
+
+#' Initialize multivariate MICH components.
+#'
+#' @description
+#' `param_init()` initializes posterior parameters of a multivariate MICH model
+#' with `L` mean changes.
+#'
+#' @param L An integer. Number of changepoints.
+#' @param T An integer. Number of observations.
+#' @param d An integer. Dimension of observations.
+#' @return A List. A length L list of posterior parameters of multivariate MICH
+#' model with `L` mean changes initialized to null model with uniform
+#' distribution over location of change.
+#'
+param_init <- function(L, T, d) {
+  post_params <- list()
+  if (L > 0) {
+    for (l in 1:L) {
+      post_params[[l]] <- list(
+        pi_bar = rep(1 / (T+1), T+1),
+        log_pi_bar = rep(0.0, T+1),
+        b_bar = matrix(0.0, nrow = T+1, ncol = d),
+        QTb_bar = matrix(0.0, nrow = T+1, ncol = d),
+        mu_bar = matrix(0.0, nrow = T+1, ncol = d),
+        QTmu_bar = matrix(0.0, nrow = T+1, ncol = d),
+        muTLmu_bar_l = rep(0.0, T+1)
+      )
+    }
+  }
+  return(post_params)
 }

@@ -24,14 +24,20 @@ using namespace Rcpp;
 //' @export
 //'
 // [[Rcpp::export]]
-List mean_scp(NumericVector y,
-              NumericVector lambda,
-              double omega,
-              NumericVector log_pi) {
-
+List mean_scp(
+  NumericVector y,
+  NumericVector lambda,
+  double omega,
+  double log_omega,
+  NumericVector log_pi
+){
   int T = y.length();
-  NumericVector b_bar (T, 0.0), pi_bar (T, 0.0), log_pi_bar (T, 0.0), omega_bar (T, 0.0);
-  double tot = 0, ls = 0, ys = 0, log_pi_max = R_NegInf;
+  NumericVector b_bar (T+1, 0.0), pi_bar (T+1, 0.0), log_pi_bar (T+1, 0.0), omega_bar (T+1, 0.0);
+  double tot = 0, ls = 0, ys = 0, log_pi_max = log_pi[T] - 0.5 * log_omega;
+
+  // no change params
+  log_pi_bar[T] = log_pi_max;
+  omega_bar[T] = omega;
 
   for (int t = T - 1; t >= 0; t--) {
     ys += y[t] * lambda[t];
@@ -43,17 +49,19 @@ List mean_scp(NumericVector y,
   }
 
   // normalize posterior probability
-  for (int t = 0; t < T; t++) {
+  for (int t = 0; t < T+1; t++) {
     log_pi_bar[t] -= log_pi_max;
     if (log_pi[t] > R_NegInf) pi_bar[t] = std::exp(log_pi_bar[t]);
     else pi_bar[t] = 0.0;
     tot += pi_bar[t];
   }
 
-  return List::create(_["b_bar"] = b_bar,
-                      _["omega_bar"] = omega_bar,
-                      _["pi_bar"] = pi_bar / tot,
-                      _["log_pi_bar"] = log_pi_bar);
+  return List::create(
+    _["b_bar"] = b_bar,
+    _["omega_bar"] = omega_bar,
+    _["pi_bar"] = pi_bar / tot,
+    _["log_pi_bar"] = log_pi_bar - std::log(tot)
+  );
 }
 
 //' Mulitvariate Mean Single Change-Point Model
@@ -79,37 +87,67 @@ List mean_scp(NumericVector y,
 //' @export
 //'
 // [[Rcpp::export]]
-List multi_mean_scp(NumericMatrix y,
-                    NumericVector omega_bar,
-                    NumericVector log_omega_bar,
-                    NumericVector log_pi) {
-  int T = y.nrow();
-  int d = y.ncol();
-  NumericVector pi_bar (T, 0.0), log_pi_bar (T, 0.0), ys (d, 0.0);
-  NumericMatrix b_bar (T, d);
-  double tot = 0, log_pi_max = R_NegInf;
+List multi_mean_scp(
+  NumericMatrix QTr,
+  NumericVector lambda,
+  NumericMatrix mean_weights,
+  NumericMatrix sandwich_weights,
+  NumericVector log_prob_weights
+){
+  int T = QTr.nrow();
+  int d = QTr.ncol();
+  NumericVector QTr_sum (d, 0.0);
+  NumericMatrix QTmu_bar (T, d);
+  NumericVector muTLmu_bar (T);
+  NumericVector log_pi_bar (T+1, 0.0);
+  NumericMatrix QTb_bar (T+1, d);
+
+  log_pi_bar = clone(log_prob_weights);
+  double log_pi_max = log_prob_weights[T];
 
   for (int t = T - 1; t >= 0; t--) {
-    log_pi_bar[t] = log_pi[t];
     for (int i = 0; i < d; i++) {
-      ys[i] += y(t, i);
-      b_bar(t, i) = ys[i] / omega_bar[t];
-      log_pi_bar[t] += 0.5 *(ys[i] * ys[i] / omega_bar[t] - log_omega_bar[t]);
+      QTr_sum[i] += QTr(t, i);
+      log_pi_bar[t] += 0.5 * sandwich_weights(t, i) * QTr_sum[i] * QTr_sum[i];
+      QTb_bar(t,i) = mean_weights(t, i) * QTr_sum[i];
     }
     log_pi_max = std::max(log_pi_max, log_pi_bar[t]);
   }
 
-  // normalize posterior probability
-  for (int t = 0; t < T; t++) {
+  double tot = 0.0;
+  NumericVector pi_bar (T+1, 0.0);
+  for (int t = 0; t < T+1; t++) {
     log_pi_bar[t] -= log_pi_max;
-    if (log_pi[t] > R_NegInf) pi_bar[t] = std::exp(log_pi_bar[t]);
-    else pi_bar[t] = 0.0;
+    pi_bar[t] = std::exp(log_pi_bar[t]);
     tot += pi_bar[t];
   }
 
-  return List::create(_["b_bar"] = b_bar,
-                      _["pi_bar"] = pi_bar / tot,
-                      _["log_pi_bar"] = log_pi_bar);
+  double log_tot = std::log(tot);
+
+  NumericVector QTmu_sum (d, 0.0);
+  double muTLmu_sum = 0.0;
+
+  pi_bar[T] /= tot;
+  log_pi_bar[T] -= log_tot;
+  for (int t = 0; t < T; t++) {
+    pi_bar[t] /= tot;
+    log_pi_bar[t] -= log_tot;
+    for (int i = 0; i < d; i++) {
+      QTmu_sum[i] += QTb_bar(t, i) * pi_bar[t];
+      QTmu_bar(t, i) = QTmu_sum[i];
+
+      muTLmu_sum += (mean_weights(t,i) + lambda[i] * QTb_bar(t,i) * QTb_bar(t,i)) * pi_bar[t];
+      muTLmu_bar[t] = muTLmu_sum;
+    }
+  }
+
+  return List::create(
+    _["QTb_bar"] = QTb_bar,
+    _["QTmu_bar"] = QTmu_bar,
+    _["muTLmu_bar"] = muTLmu_bar,
+    _["pi_bar"] = pi_bar,
+    _["log_pi_bar"] = log_pi_bar
+  );
 }
 
 //' Variance Single Change-Point Model
@@ -136,15 +174,17 @@ List multi_mean_scp(NumericMatrix y,
 //' @export
 //'
 // [[Rcpp::export]]
-List var_scp(NumericVector y,
-             NumericVector omega,
-             NumericVector u_bar,
-             NumericVector lgamma_u_bar,
-             NumericVector v,
-             NumericVector log_pi) {
-
+List var_scp(
+  NumericVector y,
+  NumericVector omega,
+  NumericVector u_bar,
+  NumericVector lgamma_u_bar,
+  NumericVector v,
+  double log_v,
+  NumericVector log_pi
+){
   int T = y.length();
-  NumericVector pi_bar (T, 0.0), log_pi_bar (T, 0.0), v_bar (T, 0.0);
+  NumericVector pi_bar (T+1, 0.0), log_pi_bar (T+1, 0.0), v_bar (T+1, 0.0);
   double tot = 0, fs = 0, rs = 0, log_pi_max = R_NegInf;
 
   for (int t = T - 1; t >= 0; t--) {
@@ -159,17 +199,24 @@ List var_scp(NumericVector y,
     fs += y[T-t-1] * y[T-t-1] * omega[T-t-1];
   }
 
+  // no change params
+  log_pi_bar[T] = log_pi[T] + lgamma_u_bar[T] - u_bar[T] * log_v - 0.5 * fs;
+  log_pi_max = std::max(log_pi_max, log_pi_bar[T]);
+  v_bar[T] = v[T];
+
   // normalize posterior probability
-  for (int t = 0; t < T; t++) {
+  for (int t = 0; t < T+1; t++) {
     log_pi_bar[t] -= log_pi_max;
     if (log_pi[t] > R_NegInf) pi_bar[t] = std::exp(log_pi_bar[t]);
     else pi_bar[t] = 0.0;
     tot += pi_bar[t];
   }
 
-  return List::create(_["v_bar"] = v_bar,
-                      _["pi_bar"] = pi_bar / tot,
-                      _["log_pi_bar"] = log_pi_bar);
+  return List::create(
+    _["v_bar"] = v_bar,
+    _["pi_bar"] = pi_bar / tot,
+    _["log_pi_bar"] = log_pi_bar - std::log(tot)
+  );
 }
 
 //' Mean-Variance Single Change-Point Model
@@ -198,16 +245,20 @@ List var_scp(NumericVector y,
 //' @export
 //'
 // [[Rcpp::export]]
-List meanvar_scp(NumericVector y,
-                 NumericVector lambda,
-                 double omega,
-                 NumericVector u_bar,
-                 NumericVector lgamma_u_bar,
-                 NumericVector v,
-                 NumericVector log_pi) {
+List meanvar_scp(
+  NumericVector y,
+  NumericVector lambda,
+  double omega,
+  double log_omega,
+  NumericVector u_bar,
+  NumericVector lgamma_u_bar,
+  NumericVector v,
+  double log_v,
+  NumericVector log_pi
+){
 
   int T = y.length();
-  NumericVector b_bar (T, 0.0), pi_bar (T, 0.0), log_pi_bar (T, 0.0), v_bar (T, 0.0), omega_bar (T, 0.0);
+  NumericVector b_bar (T+1, 0.0), pi_bar (T+1, 0.0), log_pi_bar (T+1, 0.0), v_bar (T+1, 0.0), omega_bar (T+1, 0.0);
   double tot = 0, fs = 0, rs = 0, ls = 0, ys = 0, log_pi_max = R_NegInf;
 
   for (int t = T - 1; t >= 0; t--) {
@@ -226,16 +277,23 @@ List meanvar_scp(NumericVector y,
     fs += y[T-t-1] * y[T-t-1] * lambda[T-t-1];
   }
 
-  for (int t = 0; t < T; t++) {
+  // no change params
+  log_pi_bar[T] = log_pi[T] - 0.5 * log_omega + lgamma_u_bar[T] - u_bar[T] * log_v - 0.5 * fs;
+  log_pi_max = std::max(log_pi_max, log_pi_bar[T]);
+  v_bar[T] = v[T];
+
+  for (int t = 0; t < T+1; t++) {
     log_pi_bar[t] -= log_pi_max;
     if (log_pi[t] > R_NegInf) pi_bar[t] = std::exp(log_pi_bar[t]);
     else pi_bar[t] = 0.0;
     tot += pi_bar[t];
   }
 
-  return List::create(_["b_bar"] = b_bar,
-                      _["omega_bar"] = omega_bar,
-                      _["v_bar"] = v_bar,
-                      _["pi_bar"] = pi_bar / tot,
-                      _["log_pi_bar"] = log_pi_bar);
+  return List::create(
+    _["b_bar"] = b_bar,
+    _["omega_bar"] = omega_bar,
+    _["v_bar"] = v_bar,
+    _["pi_bar"] = pi_bar / tot,
+    _["log_pi_bar"] = log_pi_bar - std::log(tot)
+  );
 }

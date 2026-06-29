@@ -33,17 +33,17 @@ multi_mu_bar_fn <- function(b, prob) {
 #'
 #' @keywords internal
 #'
-#' @param b A numeric matrix. \eqn{T\times d} matrix of conditional mean
-#'   parameters.
-#' @param omega A numeric vector. Length \eqn{T} vector of conditional variance
-#'   parameters.
+#' @param QTb A numeric matrix. \eqn{T\times d} matrix of decorrelated
+#'   conditional mean parameters.
 #' @param prob A numeric vector. Vector of change-point location probabilities.
+#' @param lambda A numeric vector. Eigenvalues of \eqn{\Lambda}.
+#' @param mean_weights A numeric matrix. Weights for calculating b_bar.
 #'
-#' @return A numeric matrix. A \eqn{T\times d} matrix of
-#' \eqn{E[b^2_iI(t\geq \tau)]}.
+#' @return A numeric vector. A length \eqn{T} matrix of
+#' \eqn{E[||\mu||^2_2I(t\geq \tau)]}.
 #'
-multi_mu2_bar_fn <- function(b, omega, prob) {
-    .Call(`_mich_multi_mu2_bar_fn`, b, omega, prob)
+muTLmu_bar_fn <- function(QTb, prob, lambda, mean_weights) {
+    .Call(`_mich_muTLmu_bar_fn`, QTb, prob, lambda, mean_weights)
 }
 
 #' Expected Mean Signal
@@ -266,8 +266,8 @@ mu2_lambda_fn <- function(b, omega, u, v, prob) {
 #'   * `K_model`: A list. A list of the posterior parameters for each of the
 #'     \eqn{K} var-scp components (only included in `K > 0`).
 #'
-mich_cpp <- function(y, J, L, K, mu_0, lambda_0, fit_intercept, fit_scale, refit, max_iter, verbose, tol, omega_j, u_j, v_j, log_pi_j, pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j, u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j, omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l, u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k, lgamma_u_bar_k, digamma_u_bar_k) {
-    .Call(`_mich_mich_cpp`, y, J, L, K, mu_0, lambda_0, fit_intercept, fit_scale, refit, max_iter, verbose, tol, omega_j, u_j, v_j, log_pi_j, pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j, u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j, omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l, u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k, lgamma_u_bar_k, digamma_u_bar_k)
+mich_cpp <- function(y, J, L, K, mu_0_vec, lambda_0_vec, fit_intercept, fit_scale, max_iter, verbose, tol, omega_j, u_j, v_j, log_pi_j, pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j, u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j, omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l, u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k, lgamma_u_bar_k, digamma_u_bar_k) {
+    .Call(`_mich_mich_cpp`, y, J, L, K, mu_0_vec, lambda_0_vec, fit_intercept, fit_scale, max_iter, verbose, tol, omega_j, u_j, v_j, log_pi_j, pi_bar_j, log_pi_bar_j, b_bar_j, omega_bar_j, u_bar_j, v_bar_j, lgamma_u_bar_j, digamma_u_bar_j, omega_l, log_pi_l, pi_bar_l, log_pi_bar_l, b_bar_l, omega_bar_l, u_k, v_k, log_pi_k, pi_bar_k, log_pi_bar_k, u_bar_k, v_bar_k, lgamma_u_bar_k, digamma_u_bar_k)
 }
 
 #' Multivariate MICH Algorithm
@@ -284,26 +284,33 @@ mich_cpp <- function(y, J, L, K, mu_0, lambda_0, fit_intercept, fit_scale, refit
 #'
 #' @param y A numeric matrix. \eqn{T \times d} matrix of observations.
 #' @param mu_0 A numeric vector. Vector of intercept parameters.
+#' @param lambda A numeric vector. Eigenvalues of \eqn{\Lambda}.
+#' @param log_lambda A numeric vector. Log eigenvalues of \eqn{\Lambda}.
+#' @param Q A numeric matrix. Eigenvectors of \eqn{\Lambda}.
+#' @param Lambda_bar_log_det Numeric vector. Log determinant of
+#'   \eqn{\bar{\Lambda}}
+#' @param inv_Lambda_bar_trace Numeric vector. Reciprocal of trace of
+#'   \eqn{\bar{\Lambda}}
+#' @param mean_weights A numeric matrix. Weights for calculating b_bar.
+#' @param sandwich_weights A numeric matrix. Weights for calculating norm of
+#'   b_bar.
+#' @param log_prob_weights A numeric matrix. Constant part of log_pi_bar.
 #' @param fit_intercept A logical. If `fit_intercept == TRUE`, then an
 #'   intercept is estimated and `mu_0` gets updated.
-#' @param refit A logical. If `refit == TRUE`, then the MICH algorithm is
-#'   initialized by the fit provided in `post_params`, otherwise the null
-#'   model \eqn{\boldsymbol{\mu}_t = \mathbf{0}} and
-#'   \eqn{\bar{\pi}_{\ell t} = 1/T} is used as the initialization.
+#' @param fit_scale A logical. If `fit_scale == TRUE`, then \eqn{\Lambda} is
+#'   updated on each vb iteration.
 #' @param max_iter An integer. Maximum number of iterations. If ELBO does not
 #'   converge before `max_iter` is reached, then `converged == FALSE` in the
 #'   returned fit object.
 #' @param tol A scalar. Convergence tolerance for relative increase in ELBO.
 #' @param verbose A logical. If `verbose == TRUE`, then the value of the ELBO
 #'   is printed every 5000th iteration.
-#' @param omega_l A scalar. Prior precision parameter for mean-scp components
+#' @param omega_l, d_log_omeal_l Scalars. Prior precision parameters for
+#'   mean-scp components
 #'   of model.
 #' @param log_pi_l A numeric matrix. A \eqn{T \times L} matrix of prior log
 #'   change-point location probabilities for each of the \eqn{L} mean
 #'   change-points.
-#' @param omega_bar_l,log_omega_bar_l Numeric vectors. Vector of posterior
-#'   precision parameters \eqn{\{\bar{\omega}_t\}_{t=1}^T} and log evaluations
-#'   such that \eqn{V(\mathbf{b}_\ell|\tau=t) = \bar{\omega}_t\mathbf{I}_d}.
 #' @param post_params A list. A length \eqn{L} list of the posterior parameters
 #'   of each mean-scp component. Each element of the list is a list containing
 #'   a \eqn{T\times L} matrix of posterior mean parameters and length \eqn{T}
@@ -313,11 +320,11 @@ mich_cpp <- function(y, J, L, K, mu_0, lambda_0, fit_intercept, fit_scale, refit
 #' @return A List. Parameters of the variational approximation the MICH
 #' posterior distribution, including:
 #'   * `L`: An integer. Number of components included in model.
+#'   * `lambda`: A numeric vector. Eigenvalues of \eqn{\Lambda}.
+#'   * `Q`: A numeric matrix. Eigenvectors of \eqn{\Lambda}.
 #'   * `residual`: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
 #'     subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
 #'     \eqn{\mathbf{y}_{1:T}}.
-#'   * `mu`: A numeric matrix. Posterior estimate of
-#'     \eqn{\Sigma_{\ell=1}^L E[\boldsymbol{\mu}_{\ell,1:T}|\mathbf{y}_{1:T}]}.
 #'   * `mu_0`: A numeric vector. Estimate of the intercept.
 #'   * `post_params`: A list. List of posterior parameters for each mean-scp
 #'     component.
@@ -325,8 +332,8 @@ mich_cpp <- function(y, J, L, K, mu_0, lambda_0, fit_intercept, fit_scale, refit
 #'   * `converged`: A logical. Indicates whether relative increase in the ELBO
 #'     is less than `tol`.
 #'
-multi_mich_cpp <- function(y, mu_0, fit_intercept, refit, max_iter, tol, verbose, omega_l, log_pi_l, omega_bar_l, log_omega_bar_l, post_params) {
-    .Call(`_mich_multi_mich_cpp`, y, mu_0, fit_intercept, refit, max_iter, tol, verbose, omega_l, log_pi_l, omega_bar_l, log_omega_bar_l, post_params)
+mich_matrix_cpp <- function(y, mu_0, lambda, log_lambda, Q, Lambda_bar_log_det, inv_Lambda_bar_trace, mean_weights, sandwich_weights, log_prob_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega_l, log_omega_l, d_log_omega_l, log_pi_l, post_params) {
+    .Call(`_mich_mich_matrix_cpp`, y, mu_0, lambda, log_lambda, Q, Lambda_bar_log_det, inv_Lambda_bar_trace, mean_weights, sandwich_weights, log_prob_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega_l, log_omega_l, d_log_omega_l, log_pi_l, post_params)
 }
 
 #' Mean Single Change-Point Model
@@ -350,8 +357,8 @@ multi_mich_cpp <- function(y, mu_0, fit_intercept, refit, max_iter, tol, verbose
 #'
 #' @export
 #'
-mean_scp <- function(y, lambda, omega, log_pi) {
-    .Call(`_mich_mean_scp`, y, lambda, omega, log_pi)
+mean_scp <- function(y, lambda, omega, log_omega, log_pi) {
+    .Call(`_mich_mean_scp`, y, lambda, omega, log_omega, log_pi)
 }
 
 #' Mulitvariate Mean Single Change-Point Model
@@ -376,8 +383,8 @@ mean_scp <- function(y, lambda, omega, log_pi) {
 #'
 #' @export
 #'
-multi_mean_scp <- function(y, omega_bar, log_omega_bar, log_pi) {
-    .Call(`_mich_multi_mean_scp`, y, omega_bar, log_omega_bar, log_pi)
+multi_mean_scp <- function(QTr, lambda, mean_weights, sandwich_weights, log_prob_weights) {
+    .Call(`_mich_multi_mean_scp`, QTr, lambda, mean_weights, sandwich_weights, log_prob_weights)
 }
 
 #' Variance Single Change-Point Model
@@ -403,8 +410,8 @@ multi_mean_scp <- function(y, omega_bar, log_omega_bar, log_pi) {
 #'
 #' @export
 #'
-var_scp <- function(y, omega, u_bar, lgamma_u_bar, v, log_pi) {
-    .Call(`_mich_var_scp`, y, omega, u_bar, lgamma_u_bar, v, log_pi)
+var_scp <- function(y, omega, u_bar, lgamma_u_bar, v, log_v, log_pi) {
+    .Call(`_mich_var_scp`, y, omega, u_bar, lgamma_u_bar, v, log_v, log_pi)
 }
 
 #' Mean-Variance Single Change-Point Model
@@ -432,7 +439,7 @@ var_scp <- function(y, omega, u_bar, lgamma_u_bar, v, log_pi) {
 #'
 #' @export
 #'
-meanvar_scp <- function(y, lambda, omega, u_bar, lgamma_u_bar, v, log_pi) {
-    .Call(`_mich_meanvar_scp`, y, lambda, omega, u_bar, lgamma_u_bar, v, log_pi)
+meanvar_scp <- function(y, lambda, omega, log_omega, u_bar, lgamma_u_bar, v, log_v, log_pi) {
+    .Call(`_mich_meanvar_scp`, y, lambda, omega, log_omega, u_bar, lgamma_u_bar, v, log_v, log_pi)
 }
 
