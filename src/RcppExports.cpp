@@ -152,8 +152,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // mich_matrix_cpp
-List mich_matrix_cpp(NumericMatrix y, NumericVector mu_0, NumericVector lambda, NumericVector log_lambda, NumericMatrix Q, NumericVector Lambda_bar_log_det, NumericVector inv_Lambda_bar_trace, NumericMatrix mean_weights, NumericMatrix sandwich_weights, NumericMatrix log_prob_weights, bool fit_intercept, bool fit_scale, double max_iter, double tol, bool verbose, double omega_l, double log_omega_l, double d_log_omega_l, NumericMatrix log_pi_l, List post_params);
-RcppExport SEXP _mich_mich_matrix_cpp(SEXP ySEXP, SEXP mu_0SEXP, SEXP lambdaSEXP, SEXP log_lambdaSEXP, SEXP QSEXP, SEXP Lambda_bar_log_detSEXP, SEXP inv_Lambda_bar_traceSEXP, SEXP mean_weightsSEXP, SEXP sandwich_weightsSEXP, SEXP log_prob_weightsSEXP, SEXP fit_interceptSEXP, SEXP fit_scaleSEXP, SEXP max_iterSEXP, SEXP tolSEXP, SEXP verboseSEXP, SEXP omega_lSEXP, SEXP log_omega_lSEXP, SEXP d_log_omega_lSEXP, SEXP log_pi_lSEXP, SEXP post_paramsSEXP) {
+List mich_matrix_cpp(NumericMatrix y, NumericVector mu_0, NumericVector lambda, NumericVector log_lambda, NumericMatrix Q, NumericVector trace_omega_omega_bar_inv, NumericVector log_det_omega_omega_bar, NumericMatrix mean_weights, NumericMatrix sandwich_weights, bool fit_intercept, bool fit_scale, double max_iter, double tol, bool verbose, NumericMatrix omega, NumericMatrix log_pi_l, List post_params);
+RcppExport SEXP _mich_mich_matrix_cpp(SEXP ySEXP, SEXP mu_0SEXP, SEXP lambdaSEXP, SEXP log_lambdaSEXP, SEXP QSEXP, SEXP trace_omega_omega_bar_invSEXP, SEXP log_det_omega_omega_barSEXP, SEXP mean_weightsSEXP, SEXP sandwich_weightsSEXP, SEXP fit_interceptSEXP, SEXP fit_scaleSEXP, SEXP max_iterSEXP, SEXP tolSEXP, SEXP verboseSEXP, SEXP omegaSEXP, SEXP log_pi_lSEXP, SEXP post_paramsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -162,22 +162,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type log_lambda(log_lambdaSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Q(QSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type Lambda_bar_log_det(Lambda_bar_log_detSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type inv_Lambda_bar_trace(inv_Lambda_bar_traceSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type trace_omega_omega_bar_inv(trace_omega_omega_bar_invSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type log_det_omega_omega_bar(log_det_omega_omega_barSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mean_weights(mean_weightsSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type sandwich_weights(sandwich_weightsSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type log_prob_weights(log_prob_weightsSEXP);
     Rcpp::traits::input_parameter< bool >::type fit_intercept(fit_interceptSEXP);
     Rcpp::traits::input_parameter< bool >::type fit_scale(fit_scaleSEXP);
     Rcpp::traits::input_parameter< double >::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< double >::type omega_l(omega_lSEXP);
-    Rcpp::traits::input_parameter< double >::type log_omega_l(log_omega_lSEXP);
-    Rcpp::traits::input_parameter< double >::type d_log_omega_l(d_log_omega_lSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type omega(omegaSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type log_pi_l(log_pi_lSEXP);
     Rcpp::traits::input_parameter< List >::type post_params(post_paramsSEXP);
-    rcpp_result_gen = Rcpp::wrap(mich_matrix_cpp(y, mu_0, lambda, log_lambda, Q, Lambda_bar_log_det, inv_Lambda_bar_trace, mean_weights, sandwich_weights, log_prob_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega_l, log_omega_l, d_log_omega_l, log_pi_l, post_params));
+    rcpp_result_gen = Rcpp::wrap(mich_matrix_cpp(y, mu_0, lambda, log_lambda, Q, trace_omega_omega_bar_inv, log_det_omega_omega_bar, mean_weights, sandwich_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega, log_pi_l, post_params));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -197,8 +194,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // multi_mean_scp
-List multi_mean_scp(NumericMatrix QTr, NumericVector lambda, NumericMatrix mean_weights, NumericMatrix sandwich_weights, NumericVector log_prob_weights);
-RcppExport SEXP _mich_multi_mean_scp(SEXP QTrSEXP, SEXP lambdaSEXP, SEXP mean_weightsSEXP, SEXP sandwich_weightsSEXP, SEXP log_prob_weightsSEXP) {
+List multi_mean_scp(NumericMatrix QTr, NumericVector lambda, NumericMatrix mean_weights, NumericMatrix sandwich_weights, NumericVector log_pi);
+RcppExport SEXP _mich_multi_mean_scp(SEXP QTrSEXP, SEXP lambdaSEXP, SEXP mean_weightsSEXP, SEXP sandwich_weightsSEXP, SEXP log_piSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -206,8 +203,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mean_weights(mean_weightsSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type sandwich_weights(sandwich_weightsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type log_prob_weights(log_prob_weightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(multi_mean_scp(QTr, lambda, mean_weights, sandwich_weights, log_prob_weights));
+    Rcpp::traits::input_parameter< NumericVector >::type log_pi(log_piSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_mean_scp(QTr, lambda, mean_weights, sandwich_weights, log_pi));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multi_mean_prob
+NumericVector multi_mean_prob(NumericMatrix QTr, NumericVector lambda, NumericMatrix sandwich_weights, NumericVector log_pi);
+RcppExport SEXP _mich_multi_mean_prob(SEXP QTrSEXP, SEXP lambdaSEXP, SEXP sandwich_weightsSEXP, SEXP log_piSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type QTr(QTrSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type sandwich_weights(sandwich_weightsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type log_pi(log_piSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_mean_prob(QTr, lambda, sandwich_weights, log_pi));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -257,9 +268,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mich_mu_lambda_fn", (DL_FUNC) &_mich_mu_lambda_fn, 4},
     {"_mich_mu2_lambda_fn", (DL_FUNC) &_mich_mu2_lambda_fn, 5},
     {"_mich_mich_cpp", (DL_FUNC) &_mich_mich_cpp, 38},
-    {"_mich_mich_matrix_cpp", (DL_FUNC) &_mich_mich_matrix_cpp, 20},
+    {"_mich_mich_matrix_cpp", (DL_FUNC) &_mich_mich_matrix_cpp, 17},
     {"_mich_mean_scp", (DL_FUNC) &_mich_mean_scp, 5},
     {"_mich_multi_mean_scp", (DL_FUNC) &_mich_multi_mean_scp, 5},
+    {"_mich_multi_mean_prob", (DL_FUNC) &_mich_multi_mean_prob, 4},
     {"_mich_var_scp", (DL_FUNC) &_mich_var_scp, 7},
     {"_mich_meanvar_scp", (DL_FUNC) &_mich_meanvar_scp, 9},
     {NULL, NULL, 0}

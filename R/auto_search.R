@@ -1,8 +1,12 @@
 multi_auto_search <- function(
     y,
     fit,
-    omega_l,
     log_pi_l,
+    omega,
+    trace_omega_omega_bar_inv,
+    log_det_omega_omega_bar,
+    mean_weights,
+    sandwich_weights,
     L_max,
     L_auto,
     fit_intercept,
@@ -10,7 +14,6 @@ multi_auto_search <- function(
     max_iter,
     tol,
     verbose,
-    merge_level,
     merge_prob,
     restart,
     n_search,
@@ -22,24 +25,12 @@ multi_auto_search <- function(
   # max times to merge
   merge_counter <- log(T) %/% 2
 
-  lambda <- fit$lambda
-  Q <- fit$Q
-  mu_0 <- fit$mu_0
-  post_params <- fit$post_params
   L <- fit$L
-
-  # log params
+  post_params <- fit$post_params
+  mu_0 <- fit$mu_0
+  lambda <- fit$lambda
   log_lambda <- log(lambda)
-  log_omega_l <- log(omega_l)
-  d_log_omega_l <- d * log_omega_l
-
-  # eigen value parameters
-  eigen_vals <- omega_l + outer((T-1:(T+1)+1), lambda)
-  log_prob_weights <- log_pi_l - 0.5 * rowSums(log(eigen_vals))
-  Lambda_bar_log_det <- rowSums(log(eigen_vals))
-  inv_Lambda_bar_trace <- omega_l / rowSums(eigen_vals)
-  mean_weights <- matrix(lambda, nrow = T+1, ncol = d, byrow = TRUE) / eigen_vals
-  sandwich_weights <- mean_weights * matrix(lambda, nrow = T+1, ncol = d, byrow = TRUE)
+  Q <- fit$Q
 
   # if components were merged out use auto procedure to increase to desired L
   merge_flag <- (L < L_max & !L_auto)
@@ -49,7 +40,7 @@ multi_auto_search <- function(
   # 1. Increase L, if ELBO increases, set restart == TRUE and increase L again
   # 2. If ELBO decreases, decrease counter and fit another component
   # 3. If ELBO decreases, counter == 0, and restart == TRUE, reset components
-  #    to null model (except for this with concentrated probs) and refit
+  #    to null model and refit
   # 4. If ELBO decreases, counter == 0, restart == FALSE, and merge_counter > 0,
   #    set fit to best model so far and merge components if no merges return
   #    model, otherwise decrease merge_count and go back to 1
@@ -66,6 +57,7 @@ multi_auto_search <- function(
 
     # continue search until n_search exhausted or max components exceeded
     while (L < L_max) {
+      if (increment > L_max - L) increment <- L_max - L
       # increment dimension of parameters
       for (i in 1:increment) {
         post_params[[L+i]] <- param_init(1, T, d)[[1]]
@@ -74,10 +66,8 @@ multi_auto_search <- function(
         post_params <- post_params[c((L+1):(L+increment), 1:L)]
         if (L_auto) {
           log_pi_l <- cbind(matrix(log_pi_l[,1], nrow = T+1, ncol = increment), log_pi_l)
-          log_prob_weights <- cbind(matrix(log_prob_weights[,1], nrow = T+1, ncol = increment), log_prob_weights)
         } else {
           log_pi_l <- log_pi_l[, c((L_max - L + 1):L_max, 1:(L_max - L))]
-          log_prob_weights <- log_prob_weights[, c((L_max - L + 1):L_max, 1:(L_max - L))]
         }
       }
       L <- L + increment
@@ -86,10 +76,10 @@ multi_auto_search <- function(
       fit_new <- mich_matrix_cpp(
         y, mu_0,
         lambda, log_lambda, Q,
-        Lambda_bar_log_det, inv_Lambda_bar_trace,
-        mean_weights, sandwich_weights, log_prob_weights,
+        trace_omega_omega_bar_inv, log_det_omega_omega_bar,
+        mean_weights, sandwich_weights,
         fit_intercept, fit_scale, max_iter, tol, verbose = FALSE,
-        omega_l, log_omega_l, d_log_omega_l, log_pi_l,
+        omega, log_pi_l,
         post_params
       )
 
@@ -128,27 +118,20 @@ multi_auto_search <- function(
           Q <- fit$Q
           if (L_auto) log_pi_l <- log_pi_l[,1:max(1, L), drop=FALSE]
 
-          eigen_vals <- omega_l + outer((T-1:(T+1)+1), lambda)
-          log_prob_weights <- log_pi_l - 0.5 * rowSums(log(eigen_vals))
-          Lambda_bar_log_det <- rowSums(log(eigen_vals))
-          inv_Lambda_bar_trace <- omega_l / rowSums(eigen_vals)
-          mean_weights <- matrix(lambda, nrow = T+1, ncol = d, byrow = TRUE) / eigen_vals
-          sandwich_weights <- mean_weights * matrix(lambda, nrow = T+1, ncol = d, byrow = TRUE)
-
           while (!merged) {
             if (merge_flag & merge_counter == 0) break
             fit <- mich_matrix_cpp(
               y, mu_0,
               lambda, log_lambda, Q,
-              Lambda_bar_log_det, inv_Lambda_bar_trace,
-              mean_weights, sandwich_weights, log_prob_weights,
+              trace_omega_omega_bar_inv, log_det_omega_omega_bar,
+              mean_weights, sandwich_weights,
               fit_intercept, fit_scale, max_iter, tol, verbose = verbose & !L_auto,
-              omega_l, log_omega_l, d_log_omega_l, log_pi_l,
+              omega, log_pi_l,
               post_params
             )
 
             fit <- multi_component_merge(
-              fit, lambda, mean_weights, merge_level, merge_prob
+              fit, lambda, mean_weights, merge_prob
             )
 
             if (fit$L < L) {
@@ -159,7 +142,6 @@ multi_auto_search <- function(
 
             if (L_auto) {
               log_pi_l <- log_pi_l[,1:max(1,L), drop=FALSE]
-              log_prob_weights <- log_prob_weights[,1:max(1,L), drop=FALSE]
             }
 
             merged <- fit$merged

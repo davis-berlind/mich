@@ -9,10 +9,11 @@ Rcpp::NumericMatrix multi_mu_bar_fn(
     Rcpp::NumericVector prob
 );
 
-Rcpp::NumericMatrix multi_mu2_bar_fn(
-    Rcpp::NumericMatrix b,
-    Rcpp::NumericVector omega,
-    Rcpp::NumericVector prob
+Rcpp::NumericMatrix muTLmu_bar_fn(
+    Rcpp::NumericMatrix QTb,
+    Rcpp::NumericVector prob,
+    Rcpp::NumericVector lambda,
+    Rcpp::NumericMatrix mean_weights
 );
 
 Rcpp::NumericVector mu_bar_fn(

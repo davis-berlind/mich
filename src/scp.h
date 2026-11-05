@@ -17,7 +17,14 @@ Rcpp::List multi_mean_scp(
     Rcpp::NumericVector lambda,
     Rcpp::NumericMatrix mean_weights,
     Rcpp::NumericMatrix sandwich_weights,
-    Rcpp::NumericVector log_prob_weights
+    Rcpp::NumericVector log_pi
+);
+
+Rcpp::NumericVector multi_mean_prob(
+    Rcpp::NumericMatrix QTr,
+    Rcpp::NumericVector lambda,
+    Rcpp::NumericMatrix sandwich_weights,
+    Rcpp::NumericVector log_pi
 );
 
 Rcpp::List var_scp(

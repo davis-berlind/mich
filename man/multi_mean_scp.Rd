@@ -4,20 +4,23 @@
 \alias{multi_mean_scp}
 \title{Mulitvariate Mean Single Change-Point Model}
 \usage{
-multi_mean_scp(y, omega_bar, log_omega_bar, log_pi)
+multi_mean_scp(QTr, lambda, mean_weights, sandwich_weights, log_pi)
 }
 \arguments{
-\item{y}{A numeric matrix. \eqn{T\times d} matrix of observations with a
+\item{QTr}{A numeric matrix. \eqn{T \times d} matrix of observations with a
 single mean change.}
 
-\item{omega_bar}{A numeric vector. Posterior precision parameters
-\eqn{\bar{\omega}_t} such that
-\eqn{\bar{\Omega}_t = \bar{\omega}_t\mathbf{I}_d}.}
+\item{lambda}{Numeric vector. Eigenvalues of \eqn{\Lambda}.}
 
-\item{log_omega_bar}{A numeric vector. Log of \code{omega_bar}.}
+\item{mean_weights}{A numeric matrix. \code{lambda} divided by eigenvalues of
+posterior precision.}
+
+\item{sandwich_weights}{A numeric matrix. \code{0.5 * lambda^2} divided by
+eigenvalues of posterior precision.}
 
 \item{log_pi}{A numeric vector. Vector of log prior probabilities for the
-location of the change-point.}
+location of the change-point plus the log of the ratio of the determinants
+of the prior and posterior precision.}
 }
 \value{
 A list. A list of posterior parameters including the mean \code{b_bar},

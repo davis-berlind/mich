@@ -4,28 +4,26 @@
 \alias{mich_sets}
 \title{MICH Posterior Credible Sets}
 \usage{
-mich_sets(probs, max_length = log(nrow(probs))^1.5, level = 0.9)
+mich_sets(probs, alpha = 0.95, detect = FALSE)
 }
 \arguments{
-\item{probs}{A numeric Matrix. A T x N matrix of posterior
+\item{probs}{A numeric Matrix. A T x L matrix of posterior
 probabilities for the location of the change-points.}
 
-\item{max_length}{A positive scalar. Detection threshold, if a credible set
-contains more that \code{max_length} indices, then no change is detected. Set
-equal to \code{log(T)^1.5} by default (see Section 2.5 of Berlind,
-Cappello, and Madrid Padilla (2025)).}
-
-\item{level}{A scalar. A single number in (0,1) that gives the lower bound
+\item{alpha}{A scalar. A single number in (0,1) that gives the lower bound
 for the probability that each credible set contains a change-point.}
+
+\item{detect}{A logical. If \code{TRUE}, the credible sets conditional on
+detection are returned.}
 }
 \value{
 A list. MAP estimator of each change-point and corresponding credible
 set.
 }
 \description{
-The function \code{mich_sets()} takes a T x N matrix of posterior change-point
-location probabilities \code{probs}, a coverage level \code{level}, and a max set
-length, and for column \code{i} of \code{probs} returns the MAP estimator
-\code{which.max(probs[,i])} and the smallest set of indices \code{s_i} such that
-\code{probs[s_i,i] > level} if \code{length(s_i) < max_length}.
+The function \code{mich_sets()} takes a T x L matrix of posterior change-point
+location probabilities \code{probs}, a coverage level \code{alpha}, and returns the
+modified MAP estimator (36) in Berlind et al. (2025). If \code{detect==TRUE}, the
+credible sets conditional on detection in (38) are returned, otherwise the
+unconditional sets (37) are returned.
 }

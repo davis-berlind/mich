@@ -25,7 +25,6 @@ mich_vector(
   verbose,
   max_iter,
   reverse,
-  detect,
   merge_level,
   merge_prob,
   restart,
@@ -91,14 +90,10 @@ returned fit object.}
 \eqn{\mathbf{y}_{T:1}} and the model parameters are reversed in
 post-processing.}
 
-\item{detect}{A scalar. The detection criteria. The \eqn{i^{\text{th}}}
-component of the model detects a change-point only if the posterior
-credible set for that component contains fewer than \code{detect} indices.}
-
 \item{merge_level}{A scalar. A value between (0,1) for the significance level
 to construct credible sets at when merging. A model component is only
-considered to be a candidate for merging if its \code{merge_level}-level
-credible set contains fewer than \code{detect} indices.}
+considered to be a candidate for merging if the marginal probability it
+represents a change is greater than \code{merge_level}.}
 
 \item{merge_prob}{A scalar. A value between (0,1) indicating the merge
 criterion. If the posterior probability that two components identify the

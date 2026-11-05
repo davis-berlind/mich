@@ -32,20 +32,18 @@ revcumsum <- function(x){
 #'   during evaluation, then `prob_check()` returns the `probs` argument.
 #'
 prob_check <- function(probs, n, T) {
-  if (length(probs) == 1) {
-    if (probs %in% c("uniform", "weighted")) return(probs)
-  } else if (is.vector(probs) & is.numeric(probs)) {
+  if (is.vector(probs) & is.numeric(probs)) {
     if (all(!is.na(probs)) & (length(probs) == T) & is.numeric(probs)) {
       if (round(sum(probs), 10) == 1) return(sapply(1:max(1, n), function(i) probs))
     }
   } else if (is.array(probs) & is.numeric(probs)) {
-    if (all(!is.na(probs)) & (nrow(probs) == T + 1 & ncol(probs) == n)) {
+    if (all(!is.na(probs)) & (nrow(probs) == T & ncol(probs) == n)) {
       if (all(round(colSums(probs), 10) == 1))  return(probs)
     }
   }
   stop(paste0(
     deparse(substitute(probs)),
-    " must be 'uniform', 'weighted', or a length T vector or a T x ",
+    " must be a length T + 1 vector or a T + 1 x ",
     deparse(substitute(n)),
     " matrix with columns that sum to one.")
   )
@@ -80,10 +78,10 @@ logical_check <- function(x) {
 scalar_check <- function(x) {
   if (is.numeric(x) & length(x) == 1) {
     if (!is.na(x)) {
-      if (x > 0) return(x)
+      return(as.numeric(x))
     }
   }
-  stop(paste0(deparse(substitute(x)), " must be an scalar > 0."))
+  stop(paste0(deparse(substitute(x)), " must be an scalar."))
 }
 
 #' Integer value check.

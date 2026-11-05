@@ -6,88 +6,73 @@
 \usage{
 mich_matrix(
   y,
+  lambda,
+  Q,
   fit_intercept,
   fit_scale,
-  standardize,
   L,
   L_auto,
   L_max,
-  pi_l_weighted,
+  prior,
   tol,
   verbose,
   max_iter,
-  reverse,
-  detect,
-  merge_level,
   merge_prob,
   restart,
   n_search,
   increment,
-  omega_l,
+  reverse,
+  log_omega_l,
   log_pi_l
 )
 }
 \arguments{
-\item{y}{A numeric matrix. T x d matrix of observations.}
+\item{y}{A numeric matrix. \eqn{T \times d} matrix of observations.}
+
+\item{lambda}{A numeric vector. Common eigenvalues of \eqn{\text{Var}(y_t)}.}
+
+\item{Q}{A numeric matrix. Common eigenvectors of \eqn{\text{Var}(y_t)}.}
 
 \item{fit_intercept}{A logical. If \code{fit_intercept == TRUE}, then an
 intercept is estimated, otherwise \code{mu_0 = rep(0,d)}.}
 
 \item{fit_scale}{A logical. If \code{fit_scale == TRUE}, then the precision matrix
-is estimated using the inverse of \code{var(diff(y))}, otherwise it is assumed
+is estimated using the inverse of \code{var(diff(y))/2}, otherwise it is assumed
 that the precision matrix is equal to \code{diag(d)}.}
-
-\item{standardize}{A logical. If \code{standardize == TRUE}, then \code{y} is centered
-and rescaled before fitting.}
 
 \item{L}{An integer. Number of mean-scp components included in model. If
 \code{L_auto == TRUE} then \code{L} lower bounds the number of change-points in the
 model.}
 
 \item{L_auto}{A logical. If \code{L_auto == TRUE}, then \code{mich_matrix()} returns
-the number of changes between \code{L} and \code{L_max} that maximizes the ELBO
-(see Appendix C.4 of Berlind, Cappello, Madrid Padilla (2025)).}
+the number of changes between \code{L} and \code{L_max} that maximizes the ELBO. See
+\code{multi_auto_search()}.}
 
-\item{L_max}{L An integer. If \code{L_auto == TRUE} then \code{L_max} upper bounds the
+\item{L_max}{An integer. If \code{L_auto == TRUE} then \code{L_max} upper bounds the
 number of change-points included in the model.}
 
-\item{pi_l_weighted}{A logical. If \code{pi_l_weighted == TRUE}, then the weighted
-priors specified in Appendix C.2 of Berlind, Cappello, Madrid Padilla (2025)
-are used.}
+\item{prior}{A string. One of \code{c('var.weighted', 'weighted', 'independent')}
+specifying the model for the prior precision.}
 
 \item{tol}{A scalar. Convergence tolerance for relative increase in ELBO.}
 
 \item{verbose}{A logical. If \code{verbose == TRUE} and \code{L_auto == FALSE}, then
 the value of the ELBO is printed every 5000th iteration. If
 \code{verbose == TRUE} and \code{L_auto == TRUE}, the the value of the ELBO is
-printed for each L as \code{mich_matrix()} searches over [\code{L}, \code{L_max}].}
+printed for each \code{L} as \code{mich_matrix()} searches over [\code{L}, \code{L_max}].}
 
 \item{max_iter}{An integer. Maximum number of iterations. If ELBO does not
 converge before \code{max_iter} is reached, then \code{converged == FALSE} in the
 returned fit object.}
 
-\item{reverse}{A logical. If \code{reverse == TRUE} then MICH is fit to
-\code{y[T:1,]} and the model parameters are reversed in post-processing.}
-
-\item{detect}{A scalar. The detection criteria. Each component of the model
-detects a change-point only if the posterior credible set for that
-component contains fewer than \code{detect} indices.}
-
-\item{merge_level}{A scalar. A value between (0,1) for the significance level
-to construct credible sets at when merging. A model component is only
-considered to be a candidate for merging if its \code{merge_level}-level
-credible set contains fewer than \code{detect} indices.}
-
 \item{merge_prob}{A scalar. A value between (0,1) indicating the merge
 criterion. If the posterior probability that two components identify the
-same change is greater than \code{merge_level}, then those components are merged
-(see Appendix C.3 of Berlind, Cappello, Madrid Padilla (2025)).}
+same change is greater than \code{merge_prob}, then those components are merged.}
 
 \item{restart}{A logical. If \code{restart == TRUE} and \code{L_auto == TRUE} then
 after \code{n_search} increments of \code{L}, if the ELBO has not increased,
 \code{mich_matrix()} will restart by setting the \code{L} components to the null
-model initialization (except for the components with maximum posterior
-probabilities > 0.9) then refit and begin the search again.}
+model initialization then refit and begin the search again.}
 
 \item{n_search}{An integer. Grid search parameter. Number of times to
 increment \code{L} before terminating automatic procedure when \code{L_auto == TRUE}.}
@@ -95,30 +80,34 @@ increment \code{L} before terminating automatic procedure when \code{L_auto == T
 \item{increment}{An integer. Number of components to increment \code{L} by when
 \code{L_auto == TRUE}.}
 
-\item{omega_l}{A scalar. Prior precision parameter for mean-scp components of
-model.}
+\item{reverse}{A logical. If \code{reverse == TRUE} then MICH is fit to
+\code{y[T1,]} and the model parameters are reversed in post-processing.}
 
-\item{log_pi_l}{A numeric matrix. T x L matrix of prior log change-point
-location probabilities for each of the L mean change-points.}
+\item{log_omega_l}{A scalar. Prior precision parameter.}
+
+\item{log_pi_l}{A numeric matrix. \eqn{(T+1) \times L} matrix of prior log
+change-point location probabilities for each of the \code{L} mean change-points.}
 }
 \value{
 A list. Parameters of the variational approximation the MICH
 posterior distribution, including:
 \itemize{
 \item \code{y}: A numeric matrix. Original data.
-\item \code{Sigma}: A numeric matrix. Estimate of the precision if
-\code{fit_scale == TRUE}.
+\item \code{Sigma}: A numeric matrix. Estimate of \eqn{\text{var}(y_t)}.
+\item \code{lambda}: A numeric vector. Common eigenvalues of \eqn{\text{Var}(y_t)}.
+\item \code{Q}: A numeric matrix. Common eigenvectors of \eqn{\text{Var}(y_t)}.
 \item \code{L}: An integer. Number of components included in model.
-\item \code{pi_bar}: A numeric matrix. A T x L matrix of posterior change-point
+\item \code{pi_bar}: A numeric matrix. A \eqn{T \times L} matrix of posterior change-point
 location probabilites.
-\item \code{residual}: A numeric matrix. Residual \code{y - mu}.
-\item \code{mu}: A numeric matrix. Posterior estimate of mean signal.
+\item \code{QTr}: A numeric matrix. Decorrelated residual \eqn{Q^T(y_t - \mu_t)}.
+\item \code{mu_bar}: A numeric matrix. Posterior estimate of mean signal.
 \item \code{mu_0}: A numeric vector. Estimate of the intercept.
 \item \code{post_params}: A list. List of posterior parameters for each mean-scp
 component.
 \item \code{elbo}: A numeric vector. Value of the ELBO after each iteration.
 \item \code{converged}: A logical. Indicates whether relative increase in the ELBO
 is less than \code{tol}.
+\item \code{merged}: A logical. Flag indicating whether any components were merged.
 }
 }
 \description{

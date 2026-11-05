@@ -4,7 +4,7 @@
 \alias{meanvar_scp}
 \title{Mean-Variance Single Change-Point Model}
 \usage{
-meanvar_scp(y, lambda, omega, u_bar, lgamma_u_bar, v, log_pi)
+meanvar_scp(y, lambda, omega, log_omega, u_bar, lgamma_u_bar, v, log_v, log_pi)
 }
 \arguments{
 \item{y}{A numeric vector. \eqn{T} observations with a single joint mean and

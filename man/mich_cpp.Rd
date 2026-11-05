@@ -9,11 +9,10 @@ mich_cpp(
   J,
   L,
   K,
-  mu_0,
-  lambda_0,
+  mu_0_vec,
+  lambda_0_vec,
   fit_intercept,
   fit_scale,
-  refit,
   max_iter,
   verbose,
   tol,
@@ -52,21 +51,11 @@ mich_cpp(
 \item{L, K, J}{Integers. The number of mean, variance, and mean-variance
 change-points to include in the model.}
 
-\item{mu_0}{A scalar. Intercept parameter initialization.}
-
-\item{lambda_0}{A scalar. Baseline scale parameter initialization.}
-
 \item{fit_intercept}{A logical. If \code{fit_intercept == TRUE}, then an
 intercept is estimated and \code{mu_0} gets updated.}
 
 \item{fit_scale}{A logical. If \code{fit_scale == TRUE}, then an initial scale is
 estimated and \code{lambda_0} gets updated.}
-
-\item{refit}{A logical. If \code{refit == TRUE}, then the MICH algorithm is
-initialized using the provided posterior parameters, otherwise the null
-model \eqn{\mu_t = 0}, \eqn{\lambda_t = 1} and
-\eqn{\bar{\pi}_{\ell t} = \bar{\pi}_{k t} = \bar{\pi}_{j t}  = 1/T} is
-used as the initialization.}
 
 \item{max_iter}{An integer. Maximum number of iterations. If ELBO does not
 converge before \code{max_iter} is reached, then \code{converged == FALSE} in the
@@ -135,6 +124,16 @@ components and their log-gamma and digamma evaluations.}
 
 \item{v_bar_k}{A numeric matrix. A \eqn{T \times K} matrix of initialized
 posterior rate parameters for the \eqn{K} variance change-points.}
+
+\item{mu_0}{A scalar. Intercept parameter initialization.}
+
+\item{lambda_0}{A scalar. Baseline scale parameter initialization.}
+
+\item{refit}{A logical. If \code{refit == TRUE}, then the MICH algorithm is
+initialized using the provided posterior parameters, otherwise the null
+model \eqn{\mu_t = 0}, \eqn{\lambda_t = 1} and
+\eqn{\bar{\pi}_{\ell t} = \bar{\pi}_{k t} = \bar{\pi}_{j t}  = 1/T} is
+used as the initialization.}
 }
 \value{
 A List. Parameters of the variational approximation the MICH

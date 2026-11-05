@@ -4,7 +4,7 @@
 \alias{summary.mich.fit}
 \title{Summary method for mich.fit objects}
 \usage{
-\method{summary}{mich.fit}(object, level = 0.95, max_length = NULL, ...)
+\method{summary}{mich.fit}(object, level = 0.95, detect = TRUE, ...)
 }
 \arguments{
 \item{object}{A mich.fit object. Output of running \code{mich()} on a numeric vector
@@ -13,8 +13,8 @@ or matrix.}
 \item{level}{A scalar. A number between (0,1) indicating the significance
 level to construct credible sets at.}
 
-\item{max_length}{An integer. Detection threshold, see \code{mich_sets()}. Equal
-to \code{log(T)^2} by default.}
+\item{detect}{A logical. If \code{TRUE}, then credible sets are only constructed
+for detected changes.}
 
 \item{...}{Additional arguments to be passed to methods.}
 }

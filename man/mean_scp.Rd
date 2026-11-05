@@ -4,7 +4,7 @@
 \alias{mean_scp}
 \title{Mean Single Change-Point Model}
 \usage{
-mean_scp(y, lambda, omega, log_pi)
+mean_scp(y, lambda, omega, log_omega, log_pi)
 }
 \arguments{
 \item{y}{A numeric vector. \eqn{T} observations with a single variance
@@ -12,7 +12,7 @@ change.}
 
 \item{lambda}{A numeric vector. Precision vector of \code{y}.}
 
-\item{omega}{A positive scalar. Prior precision parameter.}
+\item{omega, log_omega}{Scalars. Prior precision parameter.}
 
 \item{log_pi}{A numeric vector. Vector of log prior probabilities for the
 location of the change-point.}

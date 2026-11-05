@@ -287,14 +287,13 @@ mich_cpp <- function(y, J, L, K, mu_0_vec, lambda_0_vec, fit_intercept, fit_scal
 #' @param lambda A numeric vector. Eigenvalues of \eqn{\Lambda}.
 #' @param log_lambda A numeric vector. Log eigenvalues of \eqn{\Lambda}.
 #' @param Q A numeric matrix. Eigenvectors of \eqn{\Lambda}.
-#' @param Lambda_bar_log_det Numeric vector. Log determinant of
-#'   \eqn{\bar{\Lambda}}
-#' @param inv_Lambda_bar_trace Numeric vector. Reciprocal of trace of
-#'   \eqn{\bar{\Lambda}}
+#' @param trace_omega_omega_bar_inv Numeric vector. Trace of
+#'   \eqn{ \Omega_{\ell t} \bar{\Omega}^{-1}_{\ell t}}
+#' @param log_det_omega_omega_bar Numeric vector. Log determinant of
+#'   \eqn{\Omega_{\ell t} \bar{\Omega}^{-1}_{\ell t}}
 #' @param mean_weights A numeric matrix. Weights for calculating b_bar.
 #' @param sandwich_weights A numeric matrix. Weights for calculating norm of
 #'   b_bar.
-#' @param log_prob_weights A numeric matrix. Constant part of log_pi_bar.
 #' @param fit_intercept A logical. If `fit_intercept == TRUE`, then an
 #'   intercept is estimated and `mu_0` gets updated.
 #' @param fit_scale A logical. If `fit_scale == TRUE`, then \eqn{\Lambda} is
@@ -305,9 +304,7 @@ mich_cpp <- function(y, J, L, K, mu_0_vec, lambda_0_vec, fit_intercept, fit_scal
 #' @param tol A scalar. Convergence tolerance for relative increase in ELBO.
 #' @param verbose A logical. If `verbose == TRUE`, then the value of the ELBO
 #'   is printed every 5000th iteration.
-#' @param omega_l, d_log_omeal_l Scalars. Prior precision parameters for
-#'   mean-scp components
-#'   of model.
+#' @param omega A numeric matrix. Eigenvalues of \eqn{\Omega_{\ell t}}.
 #' @param log_pi_l A numeric matrix. A \eqn{T \times L} matrix of prior log
 #'   change-point location probabilities for each of the \eqn{L} mean
 #'   change-points.
@@ -322,7 +319,7 @@ mich_cpp <- function(y, J, L, K, mu_0_vec, lambda_0_vec, fit_intercept, fit_scal
 #'   * `L`: An integer. Number of components included in model.
 #'   * `lambda`: A numeric vector. Eigenvalues of \eqn{\Lambda}.
 #'   * `Q`: A numeric matrix. Eigenvectors of \eqn{\Lambda}.
-#'   * `residual`: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
+#'   * `QTr`: A numeric matrix. Residual \eqn{\mathbf{Q^Tr}_{1:T}} after
 #'     subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
 #'     \eqn{\mathbf{y}_{1:T}}.
 #'   * `mu_0`: A numeric vector. Estimate of the intercept.
@@ -332,8 +329,8 @@ mich_cpp <- function(y, J, L, K, mu_0_vec, lambda_0_vec, fit_intercept, fit_scal
 #'   * `converged`: A logical. Indicates whether relative increase in the ELBO
 #'     is less than `tol`.
 #'
-mich_matrix_cpp <- function(y, mu_0, lambda, log_lambda, Q, Lambda_bar_log_det, inv_Lambda_bar_trace, mean_weights, sandwich_weights, log_prob_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega_l, log_omega_l, d_log_omega_l, log_pi_l, post_params) {
-    .Call(`_mich_mich_matrix_cpp`, y, mu_0, lambda, log_lambda, Q, Lambda_bar_log_det, inv_Lambda_bar_trace, mean_weights, sandwich_weights, log_prob_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega_l, log_omega_l, d_log_omega_l, log_pi_l, post_params)
+mich_matrix_cpp <- function(y, mu_0, lambda, log_lambda, Q, trace_omega_omega_bar_inv, log_det_omega_omega_bar, mean_weights, sandwich_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega, log_pi_l, post_params) {
+    .Call(`_mich_mich_matrix_cpp`, y, mu_0, lambda, log_lambda, Q, trace_omega_omega_bar_inv, log_det_omega_omega_bar, mean_weights, sandwich_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega, log_pi_l, post_params)
 }
 
 #' Mean Single Change-Point Model
@@ -347,7 +344,7 @@ mich_matrix_cpp <- function(y, mu_0, lambda, log_lambda, Q, Lambda_bar_log_det, 
 #' @param y A numeric vector. \eqn{T} observations with a single variance
 #'   change.
 #' @param lambda A numeric vector. Precision vector of `y`.
-#' @param omega A positive scalar. Prior precision parameter.
+#' @param omega,log_omega Scalars. Prior precision parameter.
 #' @param log_pi A numeric vector. Vector of log prior probabilities for the
 #'   location of the change-point.
 #'
@@ -369,22 +366,46 @@ mean_scp <- function(y, lambda, omega, log_omega, log_pi) {
 #' matrix \eqn{\mathbf{y}_{1:T}} with a single mean change and returns the
 #' posterior distribution of the change-point.
 #'
-#' @param y A numeric matrix. \eqn{T\times d} matrix of observations with a
+#' @param QTr A numeric matrix. \eqn{T \times d} matrix of observations with a
 #'   single mean change.
-#' @param omega_bar A numeric vector. Posterior precision parameters
-#'   \eqn{\bar{\omega}_t} such that
-#'   \eqn{\bar{\Omega}_t = \bar{\omega}_t\mathbf{I}_d}.
-#' @param log_omega_bar A numeric vector. Log of `omega_bar`.
+#' @param lambda Numeric vector. Eigenvalues of \eqn{\Lambda}.
+#' @param mean_weights A numeric matrix. `lambda` divided by eigenvalues of 
+#'   posterior precision.
+#' @param sandwich_weights A numeric matrix. `0.5 * lambda^2` divided by 
+#'   eigenvalues of posterior precision.
 #' @param log_pi A numeric vector. Vector of log prior probabilities for the
-#'   location of the change-point.
+#'   location of the change-point plus the log of the ratio of the determinants
+#'   of the prior and posterior precision.
 #'
 #' @return A list. A list of posterior parameters including the mean `b_bar`,
 #' and posterior probabilities of the change-point location `pi_bar`.
 #'
 #' @export
 #'
-multi_mean_scp <- function(QTr, lambda, mean_weights, sandwich_weights, log_prob_weights) {
-    .Call(`_mich_multi_mean_scp`, QTr, lambda, mean_weights, sandwich_weights, log_prob_weights)
+multi_mean_scp <- function(QTr, lambda, mean_weights, sandwich_weights, log_pi) {
+    .Call(`_mich_multi_mean_scp`, QTr, lambda, mean_weights, sandwich_weights, log_pi)
+}
+
+#' Mulitvariate Mean Single Change-Point Model Probbilities
+#'
+#' @description
+#' Implementation of `multi_mean_scp()` that returns posterior probabilites.
+#'
+#' @param QTr A numeric matrix. \eqn{T \times d} matrix of observations with a
+#'   single mean change.
+#' @param lambda Numeric vector. Eigenvalues of \eqn{\Lambda}.
+#' @param sandwich_weights A numeric matrix. `0.5 * lambda^2` divided by 
+#'   eigenvalues of posterior precision.
+#' @param log_pi A numeric vector. Vector of log prior probabilities for the
+#'   location of the change-point plus the log of the ratio of the determinants
+#'   of the prior and posterior precision.
+#'
+#' @return A numeric vector. 
+#'
+#' @export
+#'
+multi_mean_prob <- function(QTr, lambda, sandwich_weights, log_pi) {
+    .Call(`_mich_multi_mean_prob`, QTr, lambda, sandwich_weights, log_pi)
 }
 
 #' Variance Single Change-Point Model

@@ -8,26 +8,25 @@ using namespace Rcpp;
 //'
 //' @description
 //' Computes the Evidence Lower Bound (ELBO) of the MICH model for a
-//' multivariate sequence \eqn{\mathbf{y}_{1:T}}. See Appendix B of Berlind,
+//' multivariate sequence \eqn{\mathbf{y}_{1:T}}. See Appendix of Berlind,
 //' Cappello, and Madrid Padilla (2025) for detailed derivations.
 //'
-//' @param QTr A numeric matrix. Expected residual terms. See Proposition 3 of
-//'   Berlind, Cappello, and Madrid Padilla (2025).
+//' @param QTr A numeric matrix. Decorrelated residual terms.
 //' @param post_params A list. A length \eqn{L} list of the posterior parameters
 //'   of each mean-scp component. Each element of the list is a list containing
 //'   a \eqn{T\times L} matrix of posterior mean parameters and length \eqn{T}
 //'   vectors of posterior change-point location probabilities and their
 //'   log evaluations.
-//' @param lambda log_lambda Numeric vectors. Eigenvalues of
+//' @param lambda,log_lambda Numeric vectors. Eigenvalues of
 //'   \eqn{\Lambda}.
-//' @param Lambda_bar_log_det Numeric vector. Log determinant of
-//'   \eqn{\bar{\Lambda}}
-//' @param inv_Lambda_bar_trace Numeric vector. Reciprocal of trace of
-//'   \eqn{\bar{\Lambda}}
+//' @param trace_omega_omega_bar_inv Numeric vector. Trace of 
+//'   \eqn{\Omega_{\ell t} \bar{\Omega}^{-1}_{\ell t}}.
+//' @param log_det_omega_omega_bar Numeric vector. log determinant of 
+//'   \eqn{\Omega_{\ell t} \bar{\Omega}^{-1}_{\ell t}}.
+//' @param omega A numeric Matrix. Eigen values of \eqn{\Omega_{\ell t}}.
 //' @param log_pi_l A numeric matrix. A \eqn{T\times L} matrix of log
 //'   prior change-point location probabilities for mean-scp components of
 //'   model.
-//' @param omega,d_log_omega Scalars. Prior precision parameters.
 //'
 //' @return A scalar. Value of ELBO for MICH model at current parameter values.
 //'
@@ -36,11 +35,10 @@ double multi_elbo_fn(
   List post_params,
   NumericVector lambda,
   NumericVector log_lambda,
-  NumericVector Lambda_bar_log_det,
-  NumericVector inv_Lambda_bar_trace,
-  NumericMatrix log_pi_l,
-  double omega,
-  double d_log_omega
+  NumericVector trace_omega_omega_bar_inv,
+  NumericVector log_det_omega_omega_bar,
+  NumericMatrix omega,
+  NumericMatrix log_pi_l
 ) {
 
   int T = QTr.nrow();
@@ -74,9 +72,9 @@ double multi_elbo_fn(
     if (pi_bar_l[T] > 1e-20) elbo -= 2.0 * pi_bar_l[T] * (log_pi_bar_l[T] - log_pi_l(T,l));
     for (int t = 0; t < T; t++) {
       if (pi_bar_l[t] > 1e-20) elbo -= 2.0 * pi_bar_l[t] * (log_pi_bar_l[t] - log_pi_l(t,l));
-      elbo -= pi_bar_l[t] * (inv_Lambda_bar_trace[t] - d + Lambda_bar_log_det[t] - d_log_omega);
+      elbo += pi_bar_l[t] * (log_det_omega_omega_bar[t] + d - trace_omega_omega_bar_inv[t]);
       for (int i = 0; i < d; i++) {
-        elbo -= pi_bar_l[t] * omega * QTb_bar_l(t, i) * QTb_bar_l(t, i);
+        elbo -= pi_bar_l[t] * omega(t,i) * QTb_bar_l(t, i) * QTb_bar_l(t, i);
       }
     }
   }

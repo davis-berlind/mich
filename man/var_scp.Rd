@@ -4,7 +4,7 @@
 \alias{var_scp}
 \title{Variance Single Change-Point Model}
 \usage{
-var_scp(y, omega, u_bar, lgamma_u_bar, v, log_pi)
+var_scp(y, omega, u_bar, lgamma_u_bar, v, log_v, log_pi)
 }
 \arguments{
 \item{y}{A numeric vector. \eqn{T} observations with a single variance

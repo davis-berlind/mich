@@ -267,7 +267,7 @@ component_merge <- function(
 }
 
 multi_component_merge <- function(
-  fit, lambda, mean_weights, merge_level, merge_prob
+  fit, lambda, mean_weights, merge_prob
 ) {
   T <- nrow(fit$QTr)
   post_params <- fit$post_params
@@ -278,35 +278,30 @@ multi_component_merge <- function(
     # extract posterior change-point probabilities
     pi_bar_l <- sapply(1:L, function(l) post_params[[l]][["pi_bar"]])
 
-    # only merge columns with credible sets with pi_bar_T+1 < merge_level
-    keep <- pi_bar_l[T+1,] <= 1 - merge_level
-    keep_mat <- matrix(FALSE, ncol = L, nrow = L)
-    keep_mat[keep, keep] <- TRUE
-    diag(keep_mat) <- FALSE
-
-    # compute pairwise merge probabilities
-    merge_prob_mat <- t(pi_bar_l) %*% pi_bar_l
+    # compute pairwise merge probabilities excluding pi_bar_l[T+1,]
+    merge_prob_mat <- t(pi_bar_l[-(T+1),]) %*% pi_bar_l[-(T+1),]
     diag(merge_prob_mat) <- 0
 
     # merge components with pairwise merge probabilities > merge_prob
-    while (L > 1 & any(merge_prob_mat[keep_mat] > merge_prob)) {
+    while (L > 1 & any(merge_prob_mat > merge_prob)) {
       merged <- FALSE
       L <- L - 1
 
       # identify components with largest pairwise merge probabilities
-      merge_dex <- which(merge_prob_mat == max(merge_prob_mat[keep_mat]), arr.ind=TRUE)[1,]
-      if (max(pi_bar_l[,merge_dex[2]]) > max(pi_bar_l[,merge_dex[1]])) {
+      merge_dex <- which(merge_prob_mat == max(merge_prob_mat), arr.ind=TRUE)[1,]
+      if (pi_bar_l[T+1, merge_dex[2]] > pi_bar_l[T+1, merge_dex[1]]) {
         merge_dex <- merge_dex[2:1]
       }
 
       # store merged mean parameters
       post_params[[merge_dex[1]]][["QTb_bar"]] <- post_params[[merge_dex[1]]][["QTb_bar"]] + post_params[[merge_dex[2]]][["QTb_bar"]]
-      post_params[[merge_dex[1]]][["b_bar"]] <- post_params[[merge_dex[1]]][["b_bar"]] + post_params[[merge_dex[2]]][["b_bar"]]
+
       post_params[[merge_dex[1]]][["QTmu_bar"]] <- multi_mu_bar_fn(
         post_params[[merge_dex[1]]][["QTb_bar"]],
         post_params[[merge_dex[1]]][["pi_bar"]]
       )
-      post_params[[merge_dex[1]]][["muTLmu_bar_l"]] <- muTLmu_bar_fn(
+
+      post_params[[merge_dex[1]]][["muTLmu_bar"]] <- muTLmu_bar_fn(
         post_params[[merge_dex[1]]][["QTb_bar"]],
         post_params[[merge_dex[1]]][["pi_bar"]],
         lambda,
@@ -318,7 +313,6 @@ multi_component_merge <- function(
       post_params[merge_dex[2]] <- NULL
       pi_bar_l <- pi_bar_l[,-merge_dex[2]]
       merge_prob_mat <- merge_prob_mat[-merge_dex[2], -merge_dex[2]]
-      keep_mat <- keep_mat[-merge_dex[2], -merge_dex[2]]
     }
   }
 

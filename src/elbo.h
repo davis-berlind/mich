@@ -42,11 +42,10 @@ double multi_elbo_fn(
     Rcpp::List post_params,
     Rcpp::NumericVector lambda,
     Rcpp::NumericVector log_lambda,
-    Rcpp::NumericVector Lambda_bar_log_det,
-    Rcpp::NumericVector inv_Lambda_bar_trace,
-    Rcpp::NumericMatrix log_pi_l,
-    double omega,
-    double d_log_omega
+    Rcpp::NumericVector trace_omega_omega_bar_inv,
+    Rcpp::NumericVector log_det_omega_omega_bar,
+    Rcpp::NumericMatrix omega,
+    Rcpp::NumericMatrix log_pi_l
 );
 
 #endif

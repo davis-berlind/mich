@@ -29,19 +29,30 @@
 #' @param L_max,K_max,J_max Integers. If `L_auto == TRUE`,
 #'   `K_auto == TRUE`, or `J_auto == TRUE` then `L_max`, `K_max`, and `J_max`
 #'   upper bound the number of each kind of change-point in the model.
+#' @param alpha A scalar. A value in (0,1) controlling the significance level.
 #' @param null_prob A scalar. Prior probability that each component does not
 #'   contain a change.
+#' @param prior A string. One of `c('var.weighted', 'weighted', 'independent')`
+#'   specifying the model for the prior precision.
+#' @param log_omega A scalar. Prior precision parameter.
+#' @param pi_l Prior for the mean-scp model components. Must either be a
+#'   length \eqn{T} vector with entries that sum to one, a \eqn{T \times L}
+#'   matrix with columns that sum to one, or `NULL`, in which case
+#'   `pi_j = c(rep((1-null_prob) / T, T), null_prob)`
+#' @param pi_k Prior for the var-scp model components. Must either be a
+#'   length \eqn{T} vector with entries that sum to one, a \eqn{T \times K}
+#'   matrix with columns that sum to one, or `NULL`, in which case
+#'   `pi_j = c(rep((1-null_prob) / T, T), null_prob)`
+#' @param pi_j Prior for the meanvar-scp model components. Must either be a
+#'   length \eqn{T} vector with entries that sum to one, a \eqn{T \times J}
+#'   matrix with columns that sum to one, or `NULL`, in which case
+#'   `pi_j = c(rep((1-null_prob) / T, T), null_prob)`
 #' @param tol A scalar. Convergence tolerance for relative increase in ELBO.
 #'   Once \eqn{(\text{ELBO}_{t+1}-\text{ELBO}_t)/ \text{ELBO}_t} falls below
 #'   `tol` the variational algorithm terminates.
 #' @param merge_prob A scalar. A value between (0,1) indicating the merge
 #'   criterion. If the posterior probability that two components identify the
-#'   same change is greater than `merge_level`, then those components are merged
-#'   (see Appendix C.3 of Berlind, Cappello, Madrid Padilla (2025)).
-#' @param merge_level A scalar. A value between (0,1) for the significance level
-#'   to construct credible sets at when merging. A model component is only
-#'   considered to be a candidate for merging if the marginal probability it
-#'   represents a change is greater than `merge_level`.
+#'   same change is greater than `merge_prob`, then those components are merged.
 #' @param max_iter An integer. Maximum number of variational iterations. If ELBO
 #'   does not converge before `max_iter` is reached, then `converged == FALSE`
 #'   in the returned fit object.
@@ -56,50 +67,11 @@
 #'   post-processing.
 #' @param restart logical. If `restart == TRUE` and `L_auto`, `K_auto`, or
 #'   `J_auto` are `TRUE`, then after `n_search` increments of `L`, `K`, and/or
-#'   `J`, if the ELBO has not increased, `mich_vector()` will restart by setting
-#'   the `L`, `K`, and `J` components to the null model initialization (except
-#'   for the components with maximum posterior probabilities > 0.9) then refit
-#'   and begin the search again.
+#'   `J`, if the ELBO has not increased, `mich()` will restart by setting
+#'   the `L`, `K`, and `J` components to the null model initialization then
+#'   refit and begin the search again.
 #' @param increment An integer. Number of components to increment `L`, `K` and
 #'   `J` by when `L_auto`, `K_auto`, or `J_auto` are `TRUE`.
-#' @param omega_j,u_j,v_j Scalars. Prior precision, shape, and rate parameters
-#'   for meanvar-scp components of the model.
-#' @param pi_j A character or numeric vector or matrix. Prior for the
-#'   meanvar-scp model components. Must either be a length \eqn{T} vector with
-#'   entries that sum to one, a \eqn{T \times J} matrix with columns that sum to
-#'   one, or a character equal to `"weighted"` or `"uniform"`. If `pi_j` is a
-#'   vector and `J > 1`, then `pi_j` is used as the prior for all `J`
-#'   meanvar-scp components in the model. If `pi_j == "uniform"` then the
-#'   uniform prior \eqn{\pi_{jt} = 1/T} is used for all components. If
-#'   `pi_j == "weighted"` then `log_meanvar_prior()` is used to calculate the
-#'   weighted prior as described in Appendix C.2 of Berlind, Cappello, Madrid
-#'   Padilla (2025). If `J_auto == TRUE` then it must be the case that
-#'   `pi_j %in% c("uniform", "weighted")`.
-#' @param omega_l A scalar. Prior precision parameter for mean-scp components of
-#'   the model. If `y` is a matrix then the prior precision is
-#'   \eqn{\omega_\ell\mathbf{I}_d}.
-#' @param pi_l A character or numeric vector or matrix. Prior for the mean-scp
-#'   model components. Must either be a length \eqn{T} vector with entries that
-#'   sum to one, a \eqn{T \times L} matrix with columns that sum to one, or a
-#'   character equal to `"weighted"` or `"uniform"`. If `pi_l` is a vector and
-#'   `L > 1`, then `pi_l` is used as the prior for all `L` mean-scp components.
-#'   If `pi_l == "uniform"` then the uniform prior \eqn{\pi_{\ell t} = 1/T} is
-#'   used for all components. If `pi_l == "weighted"` then `log_mean_prior()`
-#'   is used to calculate the weighted prior as described in Appendix C.2 of
-#'   Berlind, Cappello, Madrid Padilla (2025). If `L_auto == TRUE` then it must
-#'   be the case that `pi_l %in% c("uniform", "weighted")`.
-#' @param u_k,v_k Scalar. Prior shape and rate parameters for var-scp components
-#'   of the model.
-#' @param pi_k A character or numeric vector or matrix. Prior for the var-scp
-#'   model components. Must either be a length \eqn{T} vector with entries that
-#'   sum to one, a \eqn{T \times K} matrix with columns that sum to one, or a
-#'   character equal to `"weighted"` or `"uniform"`. If `pi_k` is a vector and
-#'   `K > 1`, then `pi_k` is used as the prior for all `K` var-scp components.
-#'   If `pi_k == "uniform"` then the uniform prior \eqn{\pi_{k t} = 1/T} is used
-#'   for all components. If `pi_k == "weighted"` then `log_var_prior()` is used
-#'   to calculate the weighted prior as described in Appendix C.2 of Berlind,
-#'   Cappello, Madrid Padilla (2025). If `K_auto == TRUE` then it must be the
-#'   case that `pi_k %in% c("uniform", "weighted")`.
 #'
 #' @return A list. Parameters of the variational approximation the MICH
 #' posterior distribution. If `y` is a vector, this list includes:
@@ -158,28 +130,28 @@
 #'     * `lambda_bar`: A numeric matrix. A \eqn{T \times K} matrix of
 #'       posterior precision signals \eqn{E[\lambda_{kt}|\mathbf{y}_{1:T}]}.
 #'
-#' If `y` is a vector, this list includes:
+#' If `y` is a matrix, this list includes:
 #'   * `y`: A numeric matrix. Original data.
-#'   * `Sigma`: A numeric matrix. Estimate of \eqn{\Lambda^{-1}} if
-#'     `fit_scale == TRUE`.
+#'   * `Sigma`: A numeric matrix. Estimate of \eqn{\text{var}(y_t)}.
+#'   * `lambda`: A numeric vector. Common eigenvalues of \eqn{\text{Var}(y_t)}.
+#'   * `Q`: A numeric matrix. Common eigenvectors of \eqn{\text{Var}(y_t)}.
 #'   * `L`: An integer. Number of components included in model.
-#'   * `pi_bar`: A numeric matrix. A  \eqn{T \times L} matrix of posterior
-#'     change-point location probabilites.
-#'   * `residual`: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
-#'     subtracting out each \eqn{E[\mu_{\ell t}]} from
-#'     \eqn{\mathbf{y}_{1:T}}.
-#'   * `mu`: A numeric matrix. Posterior estimate of
-#'     \eqn{\Sigma_{\ell=1}^L E[\mu_{\ell,1:T}|\mathbf{y}_{1:T}]}.
+#'   * `pi_bar`: A numeric matrix. A \eqn{T \times L} matrix of posterior change-point
+#'     location probabilites.
+#'   * `QTr`: A numeric matrix. Decorrelated residual \eqn{Q^T(y_t - \mu_t)}.
+#'   * `mu_bar`: A numeric matrix. Posterior estimate of mean signal.
 #'   * `mu_0`: A numeric vector. Estimate of the intercept.
 #'   * `post_params`: A list. List of posterior parameters for each mean-scp
 #'     component.
 #'   * `elbo`: A numeric vector. Value of the ELBO after each iteration.
 #'   * `converged`: A logical. Indicates whether relative increase in the ELBO
 #'     is less than `tol`.
+#'   * `merged`: A logical. Flag indicating whether any components were merged.
 #'
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' set.seed(222)
 #' # generate univariate data with two mean-variance change-points
 #' y = c(rnorm(100,0,10), rnorm(100,10,3), rnorm(100,0,6))
@@ -190,6 +162,7 @@
 #' fit = mich(y, J = 1, L = 1)
 #' # plot change-points with 95% credible sets and signal
 #' plot(fit, level = 0.95, cs = TRUE, signal = TRUE)
+#' }
 #'
 #' # generate correlated mulitvariate data with two mean-variance change-points
 #' T <- 150
@@ -206,7 +179,7 @@
 #' mu_t <- rbind(mu_t, matrix(0, nrow = 50, ncol = d))
 #' Y <- mu_t + Z %*% Sigma_sd
 #' # fit MICH and pick L automatically using ELBO
-#' fit = mich(Y, L_auto = TRUE)
+#' fit = mich(Y, L_auto = TRUE, null_prob = 0.05, log_omega = -5)
 #' plot(fit, level = 0.95, cs = TRUE, signal = TRUE)
 #'
 mich <- function(
@@ -214,14 +187,14 @@ mich <- function(
     J = 0, L = 0, K = 0,
     J_auto = FALSE, L_auto = FALSE, K_auto = FALSE,
     J_max = Inf, L_max = Inf, K_max = Inf,
-    null_prob = 0.05, tol = 1e-5, merge_prob = NULL, merge_level = null_prob,
+    alpha = 0.95, null_prob = 1-alpha,
+    prior = c('var.weighted', 'weighted', 'independent'),
+    log_omega = NULL, pi_l=NULL, pi_k=NULL, pi_j=NULL,
+    tol = 1e-5, merge_prob = NULL,
     max_iter = 1e4, verbose = FALSE, reverse = FALSE,
-    restart = TRUE, increment = 1,
-    omega_j = 1e-3, u_j = 1e-3, v_j = 1e-3, pi_j = "weighted",
-    omega_l = 1e-3, pi_l = "weighted",
-    u_k = 1e-3, v_k = 1e-3, pi_k = "weighted"
+    restart = TRUE, increment = 1
 ) {
-
+  #### data validation ####
   # checking that y is a numeric vector/matrix
   if (is.data.frame(y)) y <- as.matrix(y)
   if (!is.numeric(y)) stop("y must contain only numeric data.")
@@ -257,15 +230,15 @@ mich <- function(
   if (T < 2) stop("y must have at least 2 observations.")
 
   #### merge and detect defaults ####
-  null_prob <- scalar_check(null_prob)
-  if (null_prob >= 1) stop("null_prob must be < 1 for non-degenerate model")
-  merge_level <- scalar_check(merge_level)
-  if (merge_level < 0 | merge_level > 1) stop("merge_level must be in [0,1].")
-  if (is.null(merge_prob)) merge_prob <- log(T)^2 / T^2
+  alpha <- scalar_check(alpha)
+  if (alpha < 0 | alpha > 1) stop("alpha must be in [0,1].")
+  if (is.null(merge_prob)) merge_prob <- (log(T) / T)^2
   merge_prob <- scalar_check(merge_prob)
+  if (merge_prob < 0 | merge_prob > 1) stop("merge_prob must be in [0,1].")
   n_search <- max(4, ceiling(log(T) / ((1 + restart) * increment)))
 
   #### checking other model parameters ####
+  prior <- match.arg(prior)
   max_iter <- integer_check(max_iter)
   tol <- scalar_check(tol)
   fit_intercept <- logical_check(fit_intercept)
@@ -292,84 +265,148 @@ mich <- function(
   if (!L_auto) L_max <- L
   if (!K_auto) K_max <- K
 
-  if (J > 0 & J_auto) warning(paste0("J_auto = TRUE and J > 0. Beginning search from J = ", J))
-  if (L > 0 & L_auto) warning(paste0("L_auto = TRUE and L > 0. Beginning search from L = ", L))
-  if (K > 0 & K_auto) warning(paste0("K_auto = TRUE and K > 0. Beginning search from K = ", K))
+  if (J > 0 & J_auto & verbose) warning(paste0("J_auto = TRUE and J > 0. Beginning search from J = ", J))
+  if (L > 0 & L_auto & verbose) warning(paste0("L_auto = TRUE and L > 0. Beginning search from L = ", L))
+  if (K > 0 & K_auto & verbose) warning(paste0("K_auto = TRUE and K > 0. Beginning search from K = ", K))
 
   ##### checking that priors are proper ####
+  null_prob <- scalar_check(null_prob)
+  if (null_prob < 0 | null_prob > 1) stop("null_prob must be in [0,1].")
+  if (!is.null(log_omega)) {
+    log_omega <- scalar_check(log_omega)
+    omega <- exp(log_omega)
+    #if(verbose) warning(paste0("omega = ", omega, ". This may not result in Type-I error control at alpha = ", alpha))
+    log_omega_j <- log_omega; u_j <- omega; v_j <- omega;
+    log_omega_l <- log_omega;
+    u_k <- omega; v_k <- omega;
+  }
 
   # J components
-  omega_j <- scalar_check(omega_j)
-  u_j <- scalar_check(u_j)
-  v_j <- scalar_check(v_j)
-
-  pi_j <- prob_check(pi_j, J, T)
-  pi_j_weighted <- (pi_j == "weighted")
-  if (J_auto & length(pi_j) > 1) stop("When J_auto = TRUE, pi_j must one of 'uniform' or 'weighted'.")
-  if (is.character(pi_j)) {
-    if (pi_j == "weighted") log_pi_j <- log_meanvar_prior(T+1)
-    else if (pi_j == "uniform") log_pi_j <- c(rep(log(1-null_prob) - log(T), T), log(null_prob))
-    log_pi_j <- sapply(1:max(1, J), function(i) log_pi_j)
-  } else log_pi_j <- log(pi_j)
+  if (!is.null(pi_j)) {
+    pi_j <- prob_check(pi_j, J, T + 1)
+    if(verbose) warning(paste0("Ignoring null_prob and using provided pi_j."))
+  } else {
+    pi_j <- matrix((1-null_prob) / T, nrow = T, ncol = max(1,J))
+    pi_j <- rbind(pi_j, null_prob)
+  }
+  log_pi_j <- log(pi_j)
 
   # L components
-  omega_l <- scalar_check(omega_l)
-
-  pi_l <- prob_check(pi_l, L, T)
-  pi_l_weighted <- (pi_l == "weighted")
-  if (L_auto & length(pi_l) > 1) stop("When L_auto = TRUE, pi_l must one of 'uniform' or 'weighted'.")
-  if (is.character(pi_l)) {
-    if (pi_l == "weighted") log_pi_l <- log_mean_prior(T+1, floor(1.5 * d))
-    else if (pi_l == "uniform") log_pi_l <- c(rep(log(1-null_prob) - log(T), T), log(null_prob))
-    log_pi_l <- sapply(1:max(1, L), function(i) log_pi_l)
-  } else log_pi_l <- log(pi_l)
+  if (!is.null(pi_l)) {
+    pi_l <- prob_check(pi_l, L, T + 1)
+    if(verbose) warning(paste0("Ignoring null_prob and using provided pi_l."))
+  } else {
+    pi_l <- matrix((1-null_prob) / T, nrow = T, ncol = max(1,L))
+    pi_l <- rbind(pi_l, null_prob)
+  }
+  log_pi_l <- log(pi_l)
 
   # K components
-  u_k <- scalar_check(u_k)
-  v_k <- scalar_check(v_k)
+  if (!is.null(pi_k)) {
+    pi_k <- prob_check(pi_k, K, T)
+    if(verbose) warning(paste0("Ignoring null_prob and using provided pi_k."))
+  } else {
+    pi_k <- matrix((1-null_prob) / T, nrow = T, ncol = max(1,K))
+    pi_k <- rbind(pi_k, null_prob)
+  }
+  log_pi_k <- log(pi_k)
 
-  pi_k <- prob_check(pi_k, K, T)
-  pi_k_weighted <- (pi_k == "weighted")
-  if (K_auto & length(pi_k) > 1) stop("When K_auto = TRUE, pi_k must one of 'uniform' or 'weighted'.")
-  if (is.character(pi_k)) {
-    if (pi_k == "weighted") log_pi_k <- log_var_prior(T)
-    else if (pi_k == "uniform") log_pi_k <- c(rep(log(1-null_prob) - log(T), T), log(null_prob))
-    log_pi_k <- sapply(1:max(1, K), function(i) log_pi_k)
-  } else log_pi_k <- log(pi_k)
-
-  # call multivariate or univariate MICH
+  #### fit model ####
   if (is.matrix(y)) {
-    if (J > 0 | K > 0) stop("MICH currently only suports mean changepoint detection for multivariate y. Try setting J = K = 0.")
+    # mulitvariate model ####
+    if (J > 0 | K > 0) Warning("MICH currently only suports mean changepoint detection for multivariate y. Setting J = K = 0.")
     if (T < d & fit_scale) {
       warning("y has more columns than rows. MICH does not currently support high-dimensional variance estimation. Assuming Var(y) = I.")
       fit_scale <- FALSE
     }
 
-    if (reverse) {
-      if (!pi_l_weighted) pi_l <- pi_l[T:1,,drop = FALSE]
-      mich_matrix(
-        y[T:1,], fit_intercept = TRUE, fit_scale, standardize,
-        L, L_auto, L_max, pi_l_weighted,
-        tol, verbose, max_iter, reverse,
-        merge_level, merge_prob,
-        restart, n_search, increment,
-        omega_l, log_pi_l
+    # standardize data
+    if (standardize){
+      fit_intercept <- TRUE
+      y_raw <- y
+
+      center <- colMeans(y)
+      scale_eigen <- eigen(var(y))
+      Q_scale <- scale_eigen$vectors
+      lambda_scale <- scale_eigen$values
+
+      if (any(lambda_scale <= 0)) {
+        warning("Var(y) is singular. Consider removing collinear columns.")
+        lambda_scale <- lambda_scale + 1e-5
+      }
+
+      scale <- Q_scale %*% diag(sqrt(lambda_scale)) %*% t(Q_scale)
+      inv_scale <- Q_scale %*% diag(1 / sqrt(lambda_scale)) %*% t(Q_scale)
+
+      y <- (y - matrix(center, nrow = T, ncol = d, byrow = TRUE)) %*% inv_scale
+    }
+
+    if (fit_scale) {
+      # estimate precision matrix
+      y_diff <- diff(y) # difference out mean changes
+
+      # remove outliers due to big mean changes
+      y_diff_norm <- sqrt(rowSums(y_diff^2))
+      y_diff <- y_diff[y_diff_norm <= stats::quantile(y_diff_norm, p = 0.75) +  1.5 * stats::IQR(y_diff_norm), ]
+
+      # estimate variance
+      Sigma <- (t(y_diff) %*% y_diff) / (2 * nrow(y_diff))
+      Sigma_eigen <- eigen(Sigma)
+      if (any(Sigma_eigen$values <= 0)) {
+        warning("Var(y) is singular. Consider removing collinear columns.")
+        Sigma_eigen$values <- Sigma_eigen$values + 1e-5
+      }
+      Q <- Sigma_eigen$vectors
+      lambda <- 1.0 / Sigma_eigen$values
+    } else {
+      Q <- diag(d)
+      lambda <- rep(1.0, d)
+    }
+
+    # determine omega_l
+    if (is.null(log_omega)) {
+      log_omega_l <- log_omega_mean_fdr(alpha, N = 1000, T, prior, log_pi_l[,1], lambda)
+    }
+
+    # fit model
+    if (!reverse) {
+      fit <- mich_matrix(
+        y, lambda, Q,
+        fit_intercept, fit_scale,
+        L, L_auto, L_max, prior,
+        tol, verbose, max_iter,
+        merge_prob, restart, n_search, increment, reverse,
+        log_omega_l, log_pi_l
       )
     } else {
-      mich_matrix(
-        y, fit_intercept, fit_scale, standardize,
-        L, L_auto, L_max, pi_l_weighted,
-        tol, verbose, max_iter, reverse,
-        merge_level, merge_prob,
-        restart, n_search, increment,
-        omega_l, log_pi_l
+      log_pi_l[1:T,] <- log_pi_l[T:1,] # reverse prior
+      fit <- mich_matrix(
+        y[T:1,], lambda, Q,
+        fit_intercept=TRUE, fit_scale,
+        L, L_auto, L_max, prior,
+        tol, verbose, max_iter,
+        merge_prob, restart, n_search, increment, reverse,
+        log_omega_l, log_pi_l
       )
+    }
+
+    # rescale data to original units
+    if (standardize) {
+      # rescale and center posterior parameters
+      fit$y <- y_raw
+      fit$mu_0 <- c(fit$mu_0 %*% scale) + center
+      fit$mu_bar <- fit$mu_bar %*% scale +  matrix(center, nrow = T, ncol = d, byrow = TRUE)
+      for (l in seq_len(fit$L)) {
+        fit$post_params[[l]][["b_bar"]] <- fit$post_params[[l]][["b_bar"]] %*% scale
+        fit$post_params[[l]][["mu_bar"]] <- fit$post_params[[l]][["mu_bar"]] %*% scale
+      }
+      fit$Sigma <- scale %*% fit$Sigma %*% scale
     }
   } else {
     if (reverse) {
-      if (!pi_l_weighted) log_pi_l[1:T,] <- log_pi_l[T:1,]
-      if (!pi_k_weighted) log_pi_k[1:T,] <- log_pi_k[T:1,]
-      if (!pi_j_weighted) log_pi_j[1:T,] <- log_pi_j[T:1,]
+      if (!pi_l_weighted) log_pi_l[1:T,] <- log_pi_l[T:1,,drop = FALSE]
+      if (!pi_k_weighted) log_pi_k[1:T,] <- log_pi_k[T:1,,drop = FALSE]
+      if (!pi_j_weighted) log_pi_j[1:T,] <- log_pi_j[T:1,,drop = FALSE]
 
       mich_vector(
         y[T:1], fit_intercept = TRUE, fit_scale = TRUE, standardize,
@@ -396,5 +433,6 @@ mich <- function(
       )
     }
   }
+  return(fit)
 }
 

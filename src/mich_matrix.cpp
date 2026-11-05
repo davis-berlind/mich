@@ -22,14 +22,13 @@ using namespace Rcpp;
 //' @param lambda A numeric vector. Eigenvalues of \eqn{\Lambda}.
 //' @param log_lambda A numeric vector. Log eigenvalues of \eqn{\Lambda}.
 //' @param Q A numeric matrix. Eigenvectors of \eqn{\Lambda}.
-//' @param Lambda_bar_log_det Numeric vector. Log determinant of
-//'   \eqn{\bar{\Lambda}}
-//' @param inv_Lambda_bar_trace Numeric vector. Reciprocal of trace of
-//'   \eqn{\bar{\Lambda}}
+//' @param trace_omega_omega_bar_inv Numeric vector. Trace of
+//'   \eqn{ \Omega_{\ell t} \bar{\Omega}^{-1}_{\ell t}}
+//' @param log_det_omega_omega_bar Numeric vector. Log determinant of
+//'   \eqn{\Omega_{\ell t} \bar{\Omega}^{-1}_{\ell t}}
 //' @param mean_weights A numeric matrix. Weights for calculating b_bar.
 //' @param sandwich_weights A numeric matrix. Weights for calculating norm of
 //'   b_bar.
-//' @param log_prob_weights A numeric matrix. Constant part of log_pi_bar.
 //' @param fit_intercept A logical. If `fit_intercept == TRUE`, then an
 //'   intercept is estimated and `mu_0` gets updated.
 //' @param fit_scale A logical. If `fit_scale == TRUE`, then \eqn{\Lambda} is
@@ -40,9 +39,7 @@ using namespace Rcpp;
 //' @param tol A scalar. Convergence tolerance for relative increase in ELBO.
 //' @param verbose A logical. If `verbose == TRUE`, then the value of the ELBO
 //'   is printed every 5000th iteration.
-//' @param omega_l, d_log_omeal_l Scalars. Prior precision parameters for
-//'   mean-scp components
-//'   of model.
+//' @param omega A numeric matrix. Eigenvalues of \eqn{\Omega_{\ell t}}.
 //' @param log_pi_l A numeric matrix. A \eqn{T \times L} matrix of prior log
 //'   change-point location probabilities for each of the \eqn{L} mean
 //'   change-points.
@@ -57,7 +54,7 @@ using namespace Rcpp;
 //'   * `L`: An integer. Number of components included in model.
 //'   * `lambda`: A numeric vector. Eigenvalues of \eqn{\Lambda}.
 //'   * `Q`: A numeric matrix. Eigenvectors of \eqn{\Lambda}.
-//'   * `residual`: A numeric matrix. Residual \eqn{\mathbf{r}_{1:T}} after
+//'   * `QTr`: A numeric matrix. Residual \eqn{\mathbf{Q^Tr}_{1:T}} after
 //'     subtracting out each \eqn{E[\boldsymbol{\mu}_{\ell t}]} from
 //'     \eqn{\mathbf{y}_{1:T}}.
 //'   * `mu_0`: A numeric vector. Estimate of the intercept.
@@ -74,19 +71,16 @@ List mich_matrix_cpp(
     NumericVector lambda,
     NumericVector log_lambda,
     NumericMatrix Q,
-    NumericVector Lambda_bar_log_det,
-    NumericVector inv_Lambda_bar_trace,
+    NumericVector trace_omega_omega_bar_inv,
+    NumericVector log_det_omega_omega_bar,
     NumericMatrix mean_weights,
     NumericMatrix sandwich_weights,
-    NumericMatrix log_prob_weights,
     bool fit_intercept,
     bool fit_scale,
     double max_iter,
     double tol,
     bool verbose,
-    double omega_l,
-    double log_omega_l,
-    double d_log_omega_l,
+    NumericMatrix omega,
     NumericMatrix log_pi_l,
     List post_params
   ) {
@@ -94,6 +88,14 @@ List mich_matrix_cpp(
   int T = y.nrow();
   int d = y.ncol();
   int L = post_params.length();
+
+  // constant portion of posterior prob
+  NumericMatrix log_prob_weights = clone(log_pi_l);
+  for (int t = 0; t < T; t++) {
+    for (int l = 0; l < L; l++) {
+      log_prob_weights(t, l) += 0.5 * log_det_omega_omega_bar[t];
+    }
+  }
 
   // initialize residual
   NumericVector QTmu_0 (d);
@@ -189,8 +191,8 @@ List mich_matrix_cpp(
     elbo.push_back(0.0);
     elbo[iter] = multi_elbo_fn(
       QTr_bar, post_params, lambda, log_lambda,
-      Lambda_bar_log_det, inv_Lambda_bar_trace,
-      log_pi_l, omega_l, d_log_omega_l
+      trace_omega_omega_bar_inv, log_det_omega_omega_bar,
+      omega, log_pi_l
     );
 
     if (verbose & (iter % 5000 == 0)) Rcout << "Iteration: " << iter << " elbo: " << elbo[iter] << "\n";

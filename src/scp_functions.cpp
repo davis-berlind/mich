@@ -13,7 +13,7 @@ using namespace Rcpp;
 //' @param y A numeric vector. \eqn{T} observations with a single variance
 //'   change.
 //' @param lambda A numeric vector. Precision vector of `y`.
-//' @param omega A positive scalar. Prior precision parameter.
+//' @param omega,log_omega Scalars. Prior precision parameter.
 //' @param log_pi A numeric vector. Vector of log prior probabilities for the
 //'   location of the change-point.
 //'
@@ -72,14 +72,16 @@ List mean_scp(
 //' matrix \eqn{\mathbf{y}_{1:T}} with a single mean change and returns the
 //' posterior distribution of the change-point.
 //'
-//' @param y A numeric matrix. \eqn{T\times d} matrix of observations with a
+//' @param QTr A numeric matrix. \eqn{T \times d} matrix of observations with a
 //'   single mean change.
-//' @param omega_bar A numeric vector. Posterior precision parameters
-//'   \eqn{\bar{\omega}_t} such that
-//'   \eqn{\bar{\Omega}_t = \bar{\omega}_t\mathbf{I}_d}.
-//' @param log_omega_bar A numeric vector. Log of `omega_bar`.
+//' @param lambda Numeric vector. Eigenvalues of \eqn{\Lambda}.
+//' @param mean_weights A numeric matrix. `lambda` divided by eigenvalues of 
+//'   posterior precision.
+//' @param sandwich_weights A numeric matrix. `0.5 * lambda^2` divided by 
+//'   eigenvalues of posterior precision.
 //' @param log_pi A numeric vector. Vector of log prior probabilities for the
-//'   location of the change-point.
+//'   location of the change-point plus the log of the ratio of the determinants
+//'   of the prior and posterior precision.
 //'
 //' @return A list. A list of posterior parameters including the mean `b_bar`,
 //' and posterior probabilities of the change-point location `pi_bar`.
@@ -92,7 +94,7 @@ List multi_mean_scp(
   NumericVector lambda,
   NumericMatrix mean_weights,
   NumericMatrix sandwich_weights,
-  NumericVector log_prob_weights
+  NumericVector log_pi
 ){
   int T = QTr.nrow();
   int d = QTr.ncol();
@@ -102,13 +104,13 @@ List multi_mean_scp(
   NumericVector log_pi_bar (T+1, 0.0);
   NumericMatrix QTb_bar (T+1, d);
 
-  log_pi_bar = clone(log_prob_weights);
-  double log_pi_max = log_prob_weights[T];
+  log_pi_bar = clone(log_pi);
+  double log_pi_max = log_pi[T];
 
   for (int t = T - 1; t >= 0; t--) {
     for (int i = 0; i < d; i++) {
       QTr_sum[i] += QTr(t, i);
-      log_pi_bar[t] += 0.5 * sandwich_weights(t, i) * QTr_sum[i] * QTr_sum[i];
+      log_pi_bar[t] += sandwich_weights(t, i) * QTr_sum[i] * QTr_sum[i];
       QTb_bar(t,i) = mean_weights(t, i) * QTr_sum[i];
     }
     log_pi_max = std::max(log_pi_max, log_pi_bar[t]);
@@ -148,6 +150,62 @@ List multi_mean_scp(
     _["pi_bar"] = pi_bar,
     _["log_pi_bar"] = log_pi_bar
   );
+}
+
+//' Mulitvariate Mean Single Change-Point Model Probbilities
+//'
+//' @description
+//' Implementation of `multi_mean_scp()` that returns posterior probabilites.
+//'
+//' @param QTr A numeric matrix. \eqn{T \times d} matrix of observations with a
+//'   single mean change.
+//' @param lambda Numeric vector. Eigenvalues of \eqn{\Lambda}.
+//' @param sandwich_weights A numeric matrix. `0.5 * lambda^2` divided by 
+//'   eigenvalues of posterior precision.
+//' @param log_pi A numeric vector. Vector of log prior probabilities for the
+//'   location of the change-point plus the log of the ratio of the determinants
+//'   of the prior and posterior precision.
+//'
+//' @return A numeric vector. 
+//'
+//' @export
+//'
+// [[Rcpp::export]]
+NumericVector multi_mean_prob(
+  NumericMatrix QTr,
+  NumericVector lambda,
+  NumericMatrix sandwich_weights,
+  NumericVector log_pi
+){
+  int T = QTr.nrow();
+  int d = QTr.ncol();
+  NumericVector QTr_sum (d, 0.0);
+  NumericVector log_pi_bar (T+1, 0.0);
+
+  log_pi_bar = clone(log_pi);
+  double log_pi_max = log_pi[T];
+
+  for (int t = T - 1; t >= 0; t--) {
+    for (int i = 0; i < d; i++) {
+      QTr_sum[i] += QTr(t, i);
+      log_pi_bar[t] += sandwich_weights(t, i) * QTr_sum[i] * QTr_sum[i];
+    }
+    log_pi_max = std::max(log_pi_max, log_pi_bar[t]);
+  }
+
+  double tot = 0.0;
+  NumericVector pi_bar (T+1, 0.0);
+  for (int t = 0; t < T+1; t++) {
+    log_pi_bar[t] -= log_pi_max;
+    pi_bar[t] = std::exp(log_pi_bar[t]);
+    tot += pi_bar[t];
+  }
+
+  for (int t = 0; t < T+1; t++) {
+    pi_bar[t] /= tot;
+  }
+
+  return pi_bar;
 }
 
 //' Variance Single Change-Point Model

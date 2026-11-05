@@ -9,8 +9,8 @@
 #'   or matrix.
 #' @param level A scalar. A number between (0,1) indicating the significance
 #'   level to construct credible sets at.
-#' @param max_length An integer. Detection threshold, see `mich_sets()`. Equal
-#'   to `log(T)^2` by default.
+#' @param detect A logical. If `TRUE`, then credible sets are only constructed
+#'   for detected changes.
 #' @param ... Additional arguments to be passed to methods.
 #'
 #' @method summary mich.fit
@@ -27,13 +27,12 @@
 #'
 #' @export
 #'
-summary.mich.fit <- function(object, level = 0.95, max_length = NULL, ...) {
+summary.mich.fit <- function(object, level = 0.95, detect = TRUE, ...) {
   if (is.matrix(object$y)) {
     T <- nrow(object$y)
-    if (is.null(max_length)) max_length <- log(T)^2
 
     mich_summary <- list()
-    mich_summary$mean_cp <- mich_sets(object$pi_bar, max_length, level)
+    mich_summary$mean_cp <- mich_sets(object$pi_bar, level, detect)
     mich_summary$level <- level
     mich_summary$L <- object$L
     mich_summary$elbo <- max(object$elbo)
