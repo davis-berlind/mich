@@ -118,6 +118,7 @@ mich_matrix <- function(
 
   #### fit model and merge components ####
   merged <- FALSE # flag indicating components have been merged
+  merge_dist <- ceiling(log(T) / 2)
   while (!merged) {
     fit <- mich_matrix_cpp(
       y, mu_0, lambda, log_lambda, Q,
@@ -128,19 +129,23 @@ mich_matrix <- function(
       post_params
     )
 
+    if (merge_dist == 0 | L <= 1) break
+
     fit <- multi_component_merge(
-      fit, lambda, mean_weights, merge_prob
+      fit, lambda, mean_weights, merge_prob, merge_dist, drop = FALSE
     )
 
-    L <- fit$L
-    post_params <- fit$post_params
+    merge_dist <- merge_dist - 1
 
-    if (L_auto) {
-      log_pi_l <- log_pi_l[,1:max(1,L), drop=FALSE]
-    }
+    post_params <- fit$post_params
+    prob_order <- order(
+      sapply(1:L, function(l) post_params[[l]][["pi_bar"]][T+1]),
+      decreasing = TRUE
+    )
+    post_params <- post_params[prob_order]
+    log_pi_l <- log_pi_l[, prob_order, drop = FALSE]
 
     merged <- fit$merged
-    if (verbose & !merged) print(paste0("Merging to L = ", L))
   }
 
   #### auto procedure ####
@@ -173,7 +178,7 @@ mich_matrix <- function(
     if (L > 0) pi_bar_l <- sapply(1:L, function(l) post_params[[l]][["pi_bar"]])
 
     for (l in seq_len(L)) {
-      tau_l <- which.max(pi_bar_l[,l])
+      tau_l <- which.max(pi_bar_l[1:T,l])
       QTmu_bar_l <- multi_mu_bar_fn(post_params[[l]][["QTb_bar"]], post_params[[l]][["pi_bar"]])
       QTr_bar_l <- QTr_bar + QTmu_bar_l - matrix(colMeans(QTmu_bar_l[tau_l:T,,drop = FALSE]), nrow = T, ncol = d, byrow = TRUE)
       QTr_bar_l <- QTr_bar_l[T1,]
@@ -185,33 +190,16 @@ mich_matrix <- function(
       pi_bar_l[,l] <- post_params[[l]][["pi_bar"]]
     }
 
-    # refit model and merge components
-    merged <- FALSE # flag indicating components have been merged
-    while (!merged) {
-      fit <- mich_matrix_cpp(
-        y, mu_0,
-        lambda, log_lambda, Q,
-        trace_omega_omega_bar_inv, log_det_omega_omega_bar,
-        mean_weights, sandwich_weights,
-        fit_intercept, fit_scale, max_iter, tol, verbose = verbose & !L_auto,
-        omega, log_pi_l,
-        post_params
-      )
-
-      fit <- multi_component_merge(
-        fit, lambda, mean_weights, merge_prob
-      )
-
-      L <- fit$L
-      post_params <- fit$post_params
-
-      if (L_auto) {
-        log_pi_l <- log_pi_l[,1:max(1,L), drop=FALSE]
-      }
-
-      merged <- fit$merged
-      if (verbose & !merged) print(paste0("Merging to L = ", L))
-    }
+    # refit model and continue search
+    fit <- mich_matrix_cpp(
+      y, mu_0,
+      lambda, log_lambda, Q,
+      trace_omega_omega_bar_inv, log_det_omega_omega_bar,
+      mean_weights, sandwich_weights,
+      fit_intercept, fit_scale, max_iter, tol, verbose = verbose & !L_auto,
+      omega, log_pi_l,
+      post_params
+    )
 
     fit <- multi_auto_search(
       y, fit, log_pi_l,

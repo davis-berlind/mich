@@ -94,8 +94,8 @@ mich_sets <- function(probs, alpha = 0.95, detect = FALSE) {
   detected <- probs[T+1,] <= 0.5
 
   if (detect) {
-    probs <- probs[,detected]
-    probs <- probs[1:T,] / matrix(1 - probs[T+1,], ncol = ncol(probs), nrow = T, byrow = TRUE)
+    probs <- probs[,detected,drop=FALSE]
+    probs <- probs[1:T,,drop=FALSE] / matrix(1 - probs[T+1,], ncol = ncol(probs), nrow = T, byrow = TRUE)
   }
 
   # calculate sizes of posterior sets
@@ -115,11 +115,15 @@ mich_sets <- function(probs, alpha = 0.95, detect = FALSE) {
       } else {
         cp <- c(cp, T + 1)
       }
-      sets[[l]] <- set
+      sets[[size_dex]] <- set
     }
   }
-  cp_order <- order(cp)
-  return(list(cp = cp[cp_order], sets = sets[cp_order]))
+  if (length(cp) > 1) {
+    cp_order <- order(cp)
+    cp <- cp[cp_order]
+    sets <- sets[cp_order]
+  }
+  return(list(cp = cp, sets = sets))
 }
 
 #' Size of Joint Posterior Credible Sets

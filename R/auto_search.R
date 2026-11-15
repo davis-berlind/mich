@@ -22,9 +22,6 @@ multi_auto_search <- function(
   T <- nrow(y)
   d <- ncol(y)
 
-  # max times to merge
-  merge_counter <- log(T) %/% 2
-
   L <- fit$L
   post_params <- fit$post_params
   mu_0 <- fit$mu_0
@@ -37,17 +34,19 @@ multi_auto_search <- function(
   merge_elbo <- -Inf
   if (merge_flag) increment <- 1 # ensures we don't overshoot number of components
 
-  # 1. Increase L, if ELBO increases, set restart == TRUE and increase L again
-  # 2. If ELBO decreases, decrease counter and fit another component
-  # 3. If ELBO decreases, counter == 0, and restart == TRUE, reset components
-  #    to null model and refit
-  # 4. If ELBO decreases, counter == 0, restart == FALSE, and merge_counter > 0,
-  #    set fit to best model so far and merge components if no merges return
-  #    model, otherwise decrease merge_count and go back to 1
-  # 5. If merge_count = 0 return fit
+  # 0. Initilaize fit_best
+  # 1. Increase L, if ELBO increases, set fit to current fit, if ELBO decreases,
+  #    decrease counter and go back to 1.
+  # 2. If counter == 0:
+  # 3. If restart == TRUE, reset components to null model, set restart = FALSE
+  #    and go back to 1.
+  # 4. If restart == FALSE and fit_best is better than fit, return fit_best,
+  #    otherwise merge components if no merges return model, otherwise go back
+  #    to 1.
 
   last_restart <- ifelse(restart, 2, Inf)
-
+  #last_merge <- FALSE
+  elbo_best <- -Inf
   if (L_auto | merge_flag) {
     counter <- ifelse(merge_flag, L_max-L, n_search) # number of searches after max elbo
     elbo <- fit$elbo[length(fit$elbo)] # store current value of ELBO
@@ -73,17 +72,58 @@ multi_auto_search <- function(
       L <- L + increment
 
       # fit incremented model
-      fit_new <- mich_matrix_cpp(
-        y, mu_0,
-        lambda, log_lambda, Q,
-        trace_omega_omega_bar_inv, log_det_omega_omega_bar,
-        mean_weights, sandwich_weights,
-        fit_intercept, fit_scale, max_iter, tol, verbose = FALSE,
-        omega, log_pi_l,
-        post_params
-      )
+      # fit_new <- mich_matrix_cpp(
+      #   y, mu_0,
+      #   lambda, log_lambda, Q,
+      #   trace_omega_omega_bar_inv, log_det_omega_omega_bar,
+      #   mean_weights, sandwich_weights,
+      #   fit_intercept, fit_scale, max_iter, tol, verbose = FALSE,
+      #   omega, log_pi_l,
+      #   post_params
+      # )
+      # new
+      merged <- FALSE # flag indicating components have been merged
+      merge_dist <- ceiling(log(T) / 2)
+      while (!merged) {
+        fit_new <- mich_matrix_cpp(
+          y, mu_0,
+          lambda, log_lambda, Q,
+          trace_omega_omega_bar_inv, log_det_omega_omega_bar,
+          mean_weights, sandwich_weights,
+          fit_intercept, fit_scale, max_iter, tol, verbose = verbose & !L_auto,
+          omega, log_pi_l,
+          post_params
+        )
 
-      # test if model improved or merge/restart ####
+        if (merge_dist == 0 | L <= 1) break
+        # if (merge_dist <= 2 & L > last_merge & L_auto) {
+        #   drop <- TRUE
+        #   last_merge <- L
+        #   print(last_merge)
+        # } else drop <- FALSE
+
+        fit_new <- multi_component_merge(
+          fit_new, lambda, mean_weights, merge_prob, merge_dist, drop = FALSE
+        )
+
+        merge_dist <- merge_dist - 1
+
+        L <- fit_new$L
+        post_params <- fit_new$post_params
+        prob_order <- order(
+          sapply(1:L, function(l) post_params[[l]][["pi_bar"]][T+1]),
+          decreasing = TRUE
+        )
+        post_params <- post_params[prob_order]
+        log_pi_l <- log_pi_l[, prob_order, drop = FALSE]
+        # if (drop) log_pi_l <- log_pi_l[,1:max(L,1), drop = FALSE]
+        # else log_pi_l <- log_pi_l[, prob_order, drop = FALSE]
+
+        merged <- fit_new$merged
+      }
+      # end new
+
+      # test if model improved or restart ####
       elbo_new <- fit_new$elbo[length(fit_new$elbo)]
       if (verbose) print(paste0("L = ", L, ": ELBO = ", elbo_new,"; Counter: ", counter))
 
@@ -97,20 +137,20 @@ multi_auto_search <- function(
       }
 
       if (counter == 0 | L == L_max) {
-        if (restart & !merge_flag) {
+        if (restart & L > last_restart & !merge_flag) {
           if (verbose) print(paste0("Restarting at L = ", L))
           restart <- FALSE
           last_restart <- L
-          post_params <- param_init(L, T, d)
-          counter <- ifelse(merge_flag, L_max-L, n_search)
+          post_params <- param_init(L-increment, T, d)
         } else {
-          # merging components
-          merge_counter <- merge_counter - 1
-          no_merges <- TRUE # flag indicating no components were merged
-          merged <- FALSE  # flag indicating components have been merged
-          if (verbose) print(paste0("Merging. Merge Counter: ", merge_counter))
-
-          # set fit to best model so far
+          if (elbo > elbo_best) {
+            fit_best <- fit
+            elbo_best <- elbo
+          } else {
+            return(fit_best)
+          }
+          #if (last_merge) return(fit_best)
+          # set fit to best model after current search
           L <- fit$L
           post_params <- fit$post_params
           mu_0 <- fit$mu_0
@@ -118,9 +158,10 @@ multi_auto_search <- function(
           Q <- fit$Q
           if (L_auto) log_pi_l <- log_pi_l[,1:max(1, L), drop=FALSE]
 
+          merge_dist <- 2
           while (!merged) {
-            if (merge_flag & merge_counter == 0) break
-            fit <- mich_matrix_cpp(
+            if (verbose) print("Merging")
+            fit_merge <- mich_matrix_cpp(
               y, mu_0,
               lambda, log_lambda, Q,
               trace_omega_omega_bar_inv, log_det_omega_omega_bar,
@@ -129,37 +170,37 @@ multi_auto_search <- function(
               omega, log_pi_l,
               post_params
             )
+            elbo_merge <- fit_merge$elbo[length(fit_merge$elbo)]
+            if (elbo_merge > elbo_best) {
+              fit_best <- fit_merge
+              elbo_best <- elbo_merge
+            }
+            if (verbose)  print(paste0("L = ", fit_merge$L,"; ELBO = ", elbo_merge))
+            if (merge_dist == 0 | L <= 1) break
 
-            fit <- multi_component_merge(
-              fit, lambda, mean_weights, merge_prob
+            fit_merge <- multi_component_merge(
+              fit_merge, lambda, mean_weights, merge_prob, merge_dist, drop = TRUE
             )
 
-            if (fit$L < L) {
-              no_merges <- FALSE
-              L <- fit$L
-            }
-            post_params <- fit$post_params
+            merge_dist <- merge_dist - 1
 
-            if (L_auto) {
-              log_pi_l <- log_pi_l[,1:max(1,L), drop=FALSE]
-            }
+            L <- fit_merge$L
+            post_params <- fit_merge$post_params
+            prob_order <- order(
+              sapply(1:L, function(l) post_params[[l]][["pi_bar"]][T+1]),
+              decreasing = TRUE
+            )
+            post_params <- post_params[prob_order]
+            if (L_auto) log_pi_l <- log_pi_l[,1:max(L,1), drop = FALSE]
+            else log_pi_l <- log_pi_l[, prob_order, drop = FALSE]
 
-            merged <- fit$merged
-            if (verbose & !merged) print(paste0("Merging to L = ", L))
+            merged <- fit_merge$merged
           }
-
-          elbo <- max(fit$elbo)
-          if (elbo > merge_elbo | (merge_flag & merge_counter == 0)) {
-            merge_elbo <- elbo
-            fit_merge <- fit
-          }
-
-          counter <- ifelse(merge_flag, L_max-L, n_search) # reset counter in case searching continues
-
-          # return model if no components to merge or reached max number of merge attempts
-          if (no_merges | merge_counter == 0) {
-            fit <- fit_merge
-            break
+          if (merge_dist == 1) {
+            return(fit_best)
+          } else {
+            elbo <- elbo_merge
+            counter <- ifelse(merge_flag, L_max-L, n_search)
           }
         }
       }
