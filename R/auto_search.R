@@ -83,7 +83,6 @@ multi_auto_search <- function(
         )
 
         elbo_new <- fit_new$elbo[length(fit_new$elbo)]
-        if (verbose) print(paste0("L = ", L, ": ELBO = ", elbo_new))
         if (merge_dist == 0 | L <= 1) break
 
         fit_new <- multi_component_merge(
@@ -103,6 +102,7 @@ multi_auto_search <- function(
 
         merged <- fit_new$merged
       }
+      if (verbose) print(paste0("L = ", L, ": ELBO = ", elbo_new, "; counter = ", counter))
 
       # test if model improved or restart ####
       if (elbo_new > elbo | merge_flag) {
@@ -119,7 +119,9 @@ multi_auto_search <- function(
           if (verbose) print(paste0("Restarting at L = ", L))
           restart <- FALSE
           last_restart <- L
-          post_params <- param_init(L-increment, T, d)
+          L <- max(L - increment, 1)
+          post_params <- param_init(L, T, d)
+          counter <- ifelse(merge_flag, L_max-L, n_search)
         } else {
           if (elbo > elbo_best) {
             fit_best <- fit

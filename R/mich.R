@@ -192,7 +192,7 @@ mich <- function(
     log_omega = NULL, pi_l=NULL, pi_k=NULL, pi_j=NULL,
     tol = 1e-5, merge_prob = NULL,
     max_iter = 1e4, verbose = FALSE, reverse = FALSE,
-    restart = TRUE, increment = 1
+    restart = FALSE, increment = 1
 ) {
   #### data validation ####
   # checking that y is a numeric vector/matrix
@@ -322,10 +322,8 @@ mich <- function(
 
     # standardize data
     if (standardize){
-      fit_intercept <- TRUE
       y_raw <- y
-
-      center <- colMeans(y)
+      center <- ifelse(fit_intercept, colMeans(y), rep(0.0, d))
       scale_eigen <- eigen(var(y))
       Q_scale <- scale_eigen$vectors
       lambda_scale <- scale_eigen$values
