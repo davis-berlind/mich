@@ -44,16 +44,16 @@ multi_auto_search <- function(
   #    to 1.
 
   last_restart <- ifelse(restart, 2, Inf)
-  elbo_best <- -Inf
+  fit_best <- fit
+  elbo_best <- fit$elbo[length(fit$elbo)]
   if (L_auto | merge_flag) {
     counter <- ifelse(merge_flag, L_max-L, n_search) # number of searches after max elbo
-    elbo <- fit$elbo[length(fit$elbo)] # store current value of ELBO
+    elbo <- elbo_best
     elbo_new <- elbo
-
-    if (verbose) print(paste0("L = ", L, ": ELBO = ", elbo_new))
 
     # continue search until n_search exhausted or max components exceeded
     while (L < L_max) {
+      if (verbose) print(paste0("L = ", L, ": ELBO = ", elbo_new, "; counter = ", counter))
       if (increment > L_max - L) increment <- L_max - L
       # increment dimension of parameters
       for (i in 1:increment) {
@@ -102,7 +102,6 @@ multi_auto_search <- function(
 
         merged <- fit_new$merged
       }
-      if (verbose) print(paste0("L = ", L, ": ELBO = ", elbo_new, "; counter = ", counter))
 
       # test if model improved or restart ####
       if (elbo_new > elbo | merge_flag) {
@@ -188,5 +187,5 @@ multi_auto_search <- function(
       }
     }
   }
-  return(fit)
+  return(fit_best)
 }

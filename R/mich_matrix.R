@@ -165,29 +165,18 @@ mich_matrix <- function(
     L <- fit$L
 
     # reversed residuals, variance, and intercepts
-    if (L_auto) log_pi_l <- matrix(log_pi_l[,1], ncol = L, nrow = T+1)
+    if (L_auto) log_pi_l <- matrix(log_pi_l[,1], ncol = max(1,L), nrow = T+1)
     log_pi_l[1:T,] <- log_pi_l[T1,]
     post_params <- fit$post_params
-    QTr_bar <- fit$QTr[T1,]
-    mu_0 <- rep(0.0, d)
-    for (l in seq_len(L)) {
-      mu_0 <- mu_0 + c(Q %*% post_params[[l]][["QTmu_bar"]][T,])
-    }
+    QTr_bar_rev <- fit$QTr
+    mu_0 <- colMeans(y[1:ceiling(log(T)),,drop=FALSE])
 
     # reversing mean components
-    if (L > 0) pi_bar_l <- sapply(1:L, function(l) post_params[[l]][["pi_bar"]])
-
     for (l in seq_len(L)) {
-      tau_l <- which.max(pi_bar_l[1:T,l])
-      QTmu_bar_l <- multi_mu_bar_fn(post_params[[l]][["QTb_bar"]], post_params[[l]][["pi_bar"]])
-      QTr_bar_l <- QTr_bar + QTmu_bar_l - matrix(colMeans(QTmu_bar_l[tau_l:T,,drop = FALSE]), nrow = T, ncol = d, byrow = TRUE)
-      QTr_bar_l <- QTr_bar_l[T1,]
-
+      QTr_bar_rev_l <- QTr_bar_rev + post_params[[l]][["QTmu_bar"]] - matrix(post_params[[l]][["QTmu_bar"]][T,],  nrow = T, ncol = d, byrow = TRUE)
       post_params[[l]] <- multi_mean_scp(
-        QTr_bar_l, lambda, mean_weights, sandwich_weights, log_pi_l[,l] + 0.5 * c(log_det_omega_omega_bar, 0)
+        QTr_bar_rev_l[T1,], lambda, mean_weights, sandwich_weights, log_pi_l[,l] + 0.5 * c(log_det_omega_omega_bar, 0)
       )
-
-      pi_bar_l[,l] <- post_params[[l]][["pi_bar"]]
     }
 
     # refit model and continue search
