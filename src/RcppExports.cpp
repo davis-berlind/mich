@@ -178,6 +178,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// multi_elbo_fn
+double multi_elbo_fn(NumericMatrix QTr, List post_params, NumericVector lambda, NumericVector log_lambda, NumericVector trace_omega_omega_bar_inv, NumericVector log_det_omega_omega_bar, NumericMatrix omega, NumericMatrix log_pi_l);
+RcppExport SEXP _mich_multi_elbo_fn(SEXP QTrSEXP, SEXP post_paramsSEXP, SEXP lambdaSEXP, SEXP log_lambdaSEXP, SEXP trace_omega_omega_bar_invSEXP, SEXP log_det_omega_omega_barSEXP, SEXP omegaSEXP, SEXP log_pi_lSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type QTr(QTrSEXP);
+    Rcpp::traits::input_parameter< List >::type post_params(post_paramsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type log_lambda(log_lambdaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type trace_omega_omega_bar_inv(trace_omega_omega_bar_invSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type log_det_omega_omega_bar(log_det_omega_omega_barSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type log_pi_l(log_pi_lSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_elbo_fn(QTr, post_params, lambda, log_lambda, trace_omega_omega_bar_inv, log_det_omega_omega_bar, omega, log_pi_l));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mean_scp
 List mean_scp(NumericVector y, NumericVector lambda, double omega, double log_omega, NumericVector log_pi);
 RcppExport SEXP _mich_mean_scp(SEXP ySEXP, SEXP lambdaSEXP, SEXP omegaSEXP, SEXP log_omegaSEXP, SEXP log_piSEXP) {
@@ -269,6 +287,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mich_mu2_lambda_fn", (DL_FUNC) &_mich_mu2_lambda_fn, 5},
     {"_mich_mich_cpp", (DL_FUNC) &_mich_mich_cpp, 38},
     {"_mich_mich_matrix_cpp", (DL_FUNC) &_mich_mich_matrix_cpp, 17},
+    {"_mich_multi_elbo_fn", (DL_FUNC) &_mich_multi_elbo_fn, 8},
     {"_mich_mean_scp", (DL_FUNC) &_mich_mean_scp, 5},
     {"_mich_multi_mean_scp", (DL_FUNC) &_mich_multi_mean_scp, 5},
     {"_mich_multi_mean_prob", (DL_FUNC) &_mich_multi_mean_prob, 4},

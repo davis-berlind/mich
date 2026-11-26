@@ -400,6 +400,7 @@ mich <- function(
       }
       fit$Sigma <- scale %*% fit$Sigma %*% scale
     }
+    fit$QTr <- NULL
   } else {
     if (reverse) {
       if (!pi_l_weighted) log_pi_l[1:T,] <- log_pi_l[T:1,,drop = FALSE]

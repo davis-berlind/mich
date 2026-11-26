@@ -122,6 +122,8 @@ multi_auto_search <- function(
           post_params <- param_init(L, T, d)
           counter <- ifelse(merge_flag, L_max-L, n_search)
         } else {
+          if (verbose) print(paste0("L = ", fit$L,"; ELBO = ", elbo))
+          if (merge_flag) return(fit)
           if (elbo > elbo_best) {
             fit_best <- fit
             elbo_best <- elbo

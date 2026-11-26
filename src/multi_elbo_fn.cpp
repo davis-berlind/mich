@@ -30,6 +30,7 @@ using namespace Rcpp;
 //'
 //' @return A scalar. Value of ELBO for MICH model at current parameter values.
 //'
+// [[Rcpp::export]]
 double multi_elbo_fn(
   NumericMatrix QTr,
   List post_params,

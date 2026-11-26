@@ -333,6 +333,36 @@ mich_matrix_cpp <- function(y, mu_0, lambda, log_lambda, Q, trace_omega_omega_ba
     .Call(`_mich_mich_matrix_cpp`, y, mu_0, lambda, log_lambda, Q, trace_omega_omega_bar_inv, log_det_omega_omega_bar, mean_weights, sandwich_weights, fit_intercept, fit_scale, max_iter, tol, verbose, omega, log_pi_l, post_params)
 }
 
+#' MICH Multivariate ELBO
+#'
+#' @description
+#' Computes the Evidence Lower Bound (ELBO) of the MICH model for a
+#' multivariate sequence \eqn{\mathbf{y}_{1:T}}. See Appendix of Berlind,
+#' Cappello, and Madrid Padilla (2025) for detailed derivations.
+#'
+#' @param QTr A numeric matrix. Decorrelated residual terms.
+#' @param post_params A list. A length \eqn{L} list of the posterior parameters
+#'   of each mean-scp component. Each element of the list is a list containing
+#'   a \eqn{T\times L} matrix of posterior mean parameters and length \eqn{T}
+#'   vectors of posterior change-point location probabilities and their
+#'   log evaluations.
+#' @param lambda,log_lambda Numeric vectors. Eigenvalues of
+#'   \eqn{\Lambda}.
+#' @param trace_omega_omega_bar_inv Numeric vector. Trace of 
+#'   \eqn{\Omega_{\ell t} \bar{\Omega}^{-1}_{\ell t}}.
+#' @param log_det_omega_omega_bar Numeric vector. log determinant of 
+#'   \eqn{\Omega_{\ell t} \bar{\Omega}^{-1}_{\ell t}}.
+#' @param omega A numeric Matrix. Eigen values of \eqn{\Omega_{\ell t}}.
+#' @param log_pi_l A numeric matrix. A \eqn{T\times L} matrix of log
+#'   prior change-point location probabilities for mean-scp components of
+#'   model.
+#'
+#' @return A scalar. Value of ELBO for MICH model at current parameter values.
+#'
+multi_elbo_fn <- function(QTr, post_params, lambda, log_lambda, trace_omega_omega_bar_inv, log_det_omega_omega_bar, omega, log_pi_l) {
+    .Call(`_mich_multi_elbo_fn`, QTr, post_params, lambda, log_lambda, trace_omega_omega_bar_inv, log_det_omega_omega_bar, omega, log_pi_l)
+}
+
 #' Mean Single Change-Point Model
 #'
 #' @description

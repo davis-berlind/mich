@@ -135,15 +135,45 @@ mich_matrix <- function(
       fit, lambda, mean_weights, merge_prob, merge_dist, drop = FALSE
     )
 
+    cp <- sapply(1:L, function(l) which.max(fit$post_params[[l]]$pi_bar))
+    cp <- sort(unique(c(1, cp, T+1)))
+    L_free <- sum(fit$merges)
+    cand_scp <- list()
+    dex <- 1
+    browser()
+    for (l in 2:length(cp)) {
+      QTr <- fit$QTr[cp[l-1]:(cp[l]-1),]
+      Tr <- nrow(QTr)
+      QTr <- QTr - matrix(colMeans(QTr[1:(Tr %/% 2),]), nrow = Tr, ncol = d, byrow = TRUE)
+      prob_scp <- c(rep(0.5 / Tr, Tr), 0.5)
+
+      fit_scp <- multi_mean_scp(
+        QTr, lambda, mean_weights, sandwich_weights,
+        prob_scp + 0.5 * c(log_det_omega_omega_bar[1:Tr], 0)
+      )
+
+      elbo_scp <- multi_elbo_fn(
+        QTr, list(fit_scp), lambda, log_lambda,
+        trace_omega_omega_bar_inv[1:Tr], log_det_omega_omega_bar[1:Tr],
+        outer(Tr:1, omega_l * lambda), matrix(prob_scp, ncol = 1)
+      )
+      if (which.max(fit_scp$pi_bar) <= Tr) {
+        cand_scp[[dex]] <- list(elbo = elbo_scp, post_param = fit_scp)
+        dex <- dex + 1
+      }
+    }
+    browser()
+
     merge_dist <- merge_dist - 1
 
+    L <- fit$L
     post_params <- fit$post_params
-    prob_order <- order(
-      sapply(1:L, function(l) post_params[[l]][["pi_bar"]][T+1]),
-      decreasing = TRUE
-    )
-    post_params <- post_params[prob_order]
-    log_pi_l <- log_pi_l[, prob_order, drop = FALSE]
+    # prob_order <- order(
+    #   sapply(1:L, function(l) post_params[[l]][["pi_bar"]][T+1]),
+    #   decreasing = TRUE
+    # )
+    # post_params <- post_params[prob_order]
+    # log_pi_l <- log_pi_l[, prob_order, drop = FALSE]
 
     merged <- fit$merged
   }
@@ -214,7 +244,7 @@ mich_matrix <- function(
   if (fit$L > 0) fit$pi_bar <- sapply(1:fit$L, function(l) fit$post_params[[l]][["pi_bar"]])
 
   fit$y <- y
-  fit$Sigma <- fit$Q %*% diag(1/fit$lambda) %*% t(fit$Q)
+  fit$Sigma <- fit$Q %*% diag(1/fit$lambda) %*% QT
   class(fit) <- "mich.fit"
 
   return(fit)

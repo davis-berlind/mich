@@ -99,7 +99,7 @@ mich_sets <- function(probs, alpha = 0.95, detect = FALSE) {
   }
 
   # calculate sizes of posterior sets
-  set_sizes <- set_size(probs, alpha)
+  if (ncol(probs) > 0) set_sizes <- set_size(probs, alpha)
 
   # modified map estimator
   cp <- c()

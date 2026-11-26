@@ -273,7 +273,7 @@ multi_component_merge <- function(
   d <- ncol(fit$QTr)
   post_params <- fit$post_params
   L <- length(post_params)
-  merged <- TRUE
+  merges <- rep(FALSE, L)
 
   # identify components to merge
   if (L > 1) {
@@ -290,10 +290,7 @@ multi_component_merge <- function(
     diag(dist_mat) <- Inf
 
     # merge components with pairwise merge probabilities > merge_prob
-    while (L > 1 & any(merge_prob_mat > merge_prob | dist_mat <= merge_dist)) {
-      merged <- FALSE
-      if (drop) L <- L - 1
-
+    while (length(post_params) > 1 & any(merge_prob_mat > merge_prob | dist_mat <= merge_dist)) {
       # identify components with largest pairwise merge probabilities
       if (any(dist_mat <= merge_dist)) {
         merge_dex <- which(dist_mat == min(dist_mat), arr.ind=TRUE)[1,]
@@ -303,6 +300,7 @@ multi_component_merge <- function(
       if (pi_bar_l[T+1, merge_dex[2]] > pi_bar_l[T+1, merge_dex[1]]) {
         merge_dex <- merge_dex[2:1]
       }
+      if (!drop) merges[merge_dex[2]] <- TRUE # track which components merged
 
       # store merged mean parameters
       post_params[[merge_dex[1]]][["QTb_bar"]] <- post_params[[merge_dex[1]]][["QTb_bar"]] + post_params[[merge_dex[2]]][["QTb_bar"]]
@@ -347,8 +345,13 @@ multi_component_merge <- function(
     }
   }
 
-  fit$L <- L
   fit$post_params <- post_params
-  fit$merged <- merged
+  if (drop) {
+    fit$L <- length(post_params)
+    fit$merged <- fit$L < L
+  } else {
+    fit$merged <- any(merges)
+    fit$merges <- merges
+  }
   return(fit)
 }
