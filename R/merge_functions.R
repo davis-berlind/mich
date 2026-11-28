@@ -348,9 +348,9 @@ multi_component_merge <- function(
   fit$post_params <- post_params
   if (drop) {
     fit$L <- length(post_params)
-    fit$merged <- fit$L < L
+    fit$merged <- fit$L == L
   } else {
-    fit$merged <- any(merges)
+    fit$merged <- all(!merges)
     fit$merges <- merges
   }
   return(fit)
